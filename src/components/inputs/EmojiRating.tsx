@@ -13,6 +13,7 @@ export function EmojiRating({ options, value, onChange }: Props) {
         const isSelected = value === opt.value
         return (
           <button
+            type="button"
             key={opt.value}
             data-selected={isSelected}
             onClick={() => onChange(opt.value)}

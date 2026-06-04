@@ -20,6 +20,8 @@ interface Props {
 }
 
 export function PriorityRank({ options, value, onChange, maxRank = 3 }: Props) {
+  const effectiveMaxRank = Math.min(maxRank ?? 3, 3)
+
   const handleClick = (optValue: string) => {
     const existing = value.find(e => e.value === optValue)
     if (existing) {
@@ -30,7 +32,7 @@ export function PriorityRank({ options, value, onChange, maxRank = 3 }: Props) {
           .map((e, i) => ({ ...e, rank: i + 1 }))
       )
     } else {
-      if (value.length >= maxRank) return
+      if (value.length >= effectiveMaxRank) return
       onChange([...value, { rank: value.length + 1, value: optValue }])
     }
   }
@@ -43,6 +45,7 @@ export function PriorityRank({ options, value, onChange, maxRank = 3 }: Props) {
         const isRanked = rankIndex >= 0
         return (
           <button
+            type="button"
             key={opt.value}
             onClick={() => handleClick(opt.value)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl border-[1.5px] text-left transition-all duration-150 w-full
@@ -58,7 +61,7 @@ export function PriorityRank({ options, value, onChange, maxRank = 3 }: Props) {
         )
       })}
       <p className="text-xs text-text-muted mt-1">
-        Vælg op til {maxRank} — 🥇 er vigtigst
+        Vælg op til {effectiveMaxRank} — 🥇 er vigtigst
       </p>
     </div>
   )

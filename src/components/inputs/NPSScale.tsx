@@ -9,6 +9,7 @@ export function NPSScale({ value, onChange }: Props) {
       <div className="flex gap-1.5 flex-wrap justify-center">
         {Array.from({ length: 11 }, (_, i) => (
           <button
+            type="button"
             key={i}
             onClick={() => onChange(i)}
             className={`w-12 h-12 rounded-xl border-[1.5px] text-base font-bold transition-all duration-150

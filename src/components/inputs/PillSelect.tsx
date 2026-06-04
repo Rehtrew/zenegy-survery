@@ -17,6 +17,7 @@ export function PillSelect({ options, value, onChange }: Props) {
         const isSelected = value.includes(opt.value)
         return (
           <button
+            type="button"
             key={opt.value}
             onClick={() => toggle(opt.value)}
             className={`px-4 py-2.5 rounded-full border-[1.5px] text-sm font-medium transition-all duration-150

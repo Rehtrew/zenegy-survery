@@ -27,6 +27,7 @@ export function ChoiceList({ options, value, onChange, multi = false }: Props) {
         const isSelected = selected.includes(opt.value)
         return (
           <button
+            type="button"
             key={opt.value}
             data-selected={isSelected}
             onClick={() => handleClick(opt.value)}

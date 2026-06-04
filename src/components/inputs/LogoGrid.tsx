@@ -16,6 +16,7 @@ export function LogoGrid({ options, value, onChange, otherValue = '', onOtherCha
           const isSelected = value === opt.value
           return (
             <button
+              type="button"
               key={opt.value}
               onClick={() => onChange(opt.value)}
               className={`flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 transition-all duration-150
