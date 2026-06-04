@@ -17,8 +17,12 @@ export function useKeyboard({
     if (!enabled) return
 
     const handler = (e: KeyboardEvent) => {
-      // Don't capture when user is typing in an input or textarea
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+      // Don't capture when user is typing in an input, textarea, or contenteditable
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        (e.target instanceof HTMLElement && e.target.isContentEditable)
+      ) return
 
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault()

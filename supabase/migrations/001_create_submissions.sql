@@ -13,14 +13,14 @@ create table submissions (
   a_satisfaction     text,
   a_best_thing       text,
   a_best_thing_text  text,
-  a_nps              int,
+  a_nps              int check (a_nps between 0 and 10),
   a_improve_text     text,
 
   accounting_system  text,
   accounting_other   text,
 
   email              text not null,
-  newsletter_opt_in  boolean default false
+  newsletter_opt_in  boolean not null default false
 );
 
 create index on submissions (track);

@@ -1,47 +1,37 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+import type { Submission } from '../types'
+
+// Control what the mocked client returns per-test
+const mockInsert = vi.fn().mockResolvedValue({ error: null })
 
 vi.mock('@supabase/supabase-js', () => ({
-  createClient: vi.fn(() => ({
-    from: vi.fn(() => ({
-      insert: vi.fn().mockResolvedValue({ error: null }),
-    })),
-  })),
+  createClient: () => ({
+    from: () => ({ insert: mockInsert }),
+  }),
 }))
 
-// Must import AFTER mock is set up
+// Dynamic import AFTER mock so the lazy singleton uses the mocked createClient
 const { submitSurvey } = await import('./supabase')
-const { createClient } = await import('@supabase/supabase-js')
+
+const validSubmission: Submission = {
+  track: 'non-zenegy',
+  b_payroll_system: 'dataloen',
+  b_frustrations: ['price'],
+  b_priorities: [{ rank: 1, value: 'price' }],
+  b_barriers: ['transition'],
+  accounting_system: 'e-conomic',
+  email: 'test@test.dk',
+  newsletter_opt_in: false,
+}
 
 describe('submitSurvey', () => {
   it('resolves without error on valid submission', async () => {
-    await expect(
-      submitSurvey({
-        track: 'non-zenegy',
-        b_payroll_system: 'dataloen',
-        b_frustrations: ['price'],
-        b_priorities: [{ rank: 1, value: 'price' }],
-        b_barriers: ['transition'],
-        accounting_system: 'e-conomic',
-        email: 'test@test.dk',
-        newsletter_opt_in: false,
-      })
-    ).resolves.toBeUndefined()
+    mockInsert.mockResolvedValueOnce({ error: null })
+    await expect(submitSurvey(validSubmission)).resolves.toBeUndefined()
   })
 
-  it('throws on supabase error', async () => {
-    const mockedCreateClient = vi.mocked(createClient)
-    mockedCreateClient.mockReturnValueOnce({
-      from: vi.fn(() => ({
-        insert: vi.fn().mockResolvedValue({ error: { message: 'DB error' } }),
-      })),
-    } as any)
-
-    // Re-import to get fresh client with overridden mock
-    vi.resetModules()
-    const { submitSurvey: freshSubmit } = await import('./supabase')
-
-    await expect(
-      freshSubmit({ track: 'zenegy', email: 'x@x.dk', newsletter_opt_in: false })
-    ).rejects.toThrow()
+  it('throws when supabase returns an error', async () => {
+    mockInsert.mockResolvedValueOnce({ error: { message: 'DB error' } })
+    await expect(submitSurvey(validSubmission)).rejects.toThrow('DB error')
   })
 })
