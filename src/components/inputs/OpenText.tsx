@@ -13,7 +13,7 @@ export function OpenText({ value, onChange, placeholder, maxLength = 300, label 
         <div className="text-[13px] font-semibold text-gray-700 mb-2">{label}</div>
       )}
       <textarea
-        defaultValue={value}
+        value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         maxLength={maxLength}

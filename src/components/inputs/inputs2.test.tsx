@@ -1,10 +1,23 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
+import { useState as useReactState } from 'react'
 import { PriorityRank } from './PriorityRank'
 import { NPSScale } from './NPSScale'
 import { OpenText } from './OpenText'
 import type { RankEntry } from '../../types'
+
+function ControlledOpenText({ onChange }: { onChange: (v: string) => void }) {
+  const [val, setReactState] = useReactState('')
+  return (
+    <OpenText
+      value={val}
+      onChange={v => { setReactState(v); onChange(v) }}
+      placeholder="Type here"
+      maxLength={200}
+    />
+  )
+}
 
 const rankOptions = [
   { value: 'price', label: '💰 Pris' },
@@ -80,7 +93,7 @@ describe('OpenText', () => {
 
   it('calls onChange on input', async () => {
     const onChange = vi.fn()
-    render(<OpenText value="" onChange={onChange} placeholder="Type here" maxLength={200} />)
+    render(<ControlledOpenText onChange={onChange} />)
     await userEvent.type(screen.getByPlaceholderText('Type here'), 'hello')
     expect(onChange).toHaveBeenLastCalledWith('hello')
   })
