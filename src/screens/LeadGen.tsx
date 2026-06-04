@@ -35,13 +35,14 @@ export function LeadGen({ answers, onSubmitted }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-app-bg flex items-start justify-center px-6 py-16">
-      <div className="w-full max-w-[580px] bg-gradient-to-br from-[#1a1a2e] to-[#0f2027] rounded-2xl p-11 text-white">
-        <div className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 rounded-full px-4 py-1.5 text-xs font-bold text-primary mb-5">
-          🎁 Du er næsten i mål!
+    <div className="min-h-screen bg-surface-page flex items-start justify-center px-6 py-16">
+      <div className="w-full max-w-[580px] bg-hero-bg rounded-z-l p-11 text-white">
+        <div className="inline-flex items-center gap-2 bg-white/10 rounded-z-full px-4 py-1.5 text-xs font-medium text-white/80 mb-5">
+          <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+          Du er næsten i mål!
         </div>
 
-        <h2 className="text-[28px] font-black leading-snug mb-2">
+        <h2 className="text-[26px] font-medium leading-snug mb-2">
           Tak — dine svar hjælper os med at gøre løn nemmere for alle.
         </h2>
         <p className="text-sm text-white/60 leading-relaxed mb-8">
@@ -49,15 +50,15 @@ export function LeadGen({ answers, onSubmitted }: Props) {
         </p>
 
         <div className="mb-3.5">
-          <label className="block text-[13px] font-semibold text-white/75 mb-2">
-            Email <span className="text-primary">✱</span>
+          <label className="block text-[13px] font-medium text-white/75 mb-2">
+            Email <span style={{ color: 'var(--color-action-primary)' }}>*</span>
           </label>
           <input
             type="email"
             value={email}
             onChange={e => { setEmail(e.target.value); setError('') }}
             placeholder="din@email.dk"
-            className="w-full px-4 py-3 rounded-xl border-[1.5px] border-white/15 bg-white/[0.07] text-white placeholder:text-white/35 outline-none focus:border-primary transition-colors text-sm"
+            className="w-full px-4 py-3 rounded-z-m bg-white/10 text-white placeholder:text-white/35 outline-none focus:ring-[1.5px] focus:ring-primary transition-colors duration-[120ms] ease-[ease] text-sm"
           />
           {error && <p className="text-red-400 text-xs mt-1.5">{error}</p>}
         </div>
@@ -79,20 +80,20 @@ export function LeadGen({ answers, onSubmitted }: Props) {
           type="button"
           onClick={handleSubmit}
           disabled={loading || !isValidEmail}
-          className="w-full py-4 rounded-xl bg-primary text-white font-bold text-base mb-3 hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full py-3.5 rounded-z-m bg-primary text-white font-medium text-[15px] mb-3 hover:bg-primary-hover transition-colors duration-[120ms] ease-[ease] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {loading ? (
             <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          ) : 'Send svar og deltag i konkurrencen 🎁'}
+          ) : 'Send svar og deltag i konkurrencen'}
         </button>
 
         <a
           href="https://zenegy.com/book-demo"
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full py-3.5 rounded-xl border border-white/20 text-white font-semibold text-[15px] hover:bg-white/[0.07] transition-colors flex items-center justify-center"
+          className="w-full py-3.5 rounded-z-m border border-white/20 text-white font-medium text-[15px] hover:bg-white/[0.07] transition-colors duration-[120ms] ease-[ease] flex items-center justify-center"
         >
-          📅 Book en gratis demo med Zenegy
+          Book en gratis demo med Zenegy
         </a>
 
         <p className="text-[11px] text-white/30 text-center mt-5 leading-relaxed">

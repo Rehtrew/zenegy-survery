@@ -41,6 +41,7 @@ export interface RankEntry {
 
 export interface SurveyAnswers {
   track?: Track
+  role?: string
   // Track B
   b_payroll_system?: string
   b_payroll_other?: string

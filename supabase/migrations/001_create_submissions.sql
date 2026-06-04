@@ -2,6 +2,7 @@ create table submissions (
   id                 uuid primary key default gen_random_uuid(),
   created_at         timestamptz default now(),
   track              text not null check (track in ('zenegy', 'non-zenegy')),
+  role               text,
 
   b_payroll_system   text,
   b_payroll_other    text,

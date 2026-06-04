@@ -8,7 +8,7 @@ interface Props {
 
 export function EmojiRating({ options, value, onChange }: Props) {
   return (
-    <div className="flex gap-4 justify-center">
+    <div className="flex gap-3">
       {options.map(opt => {
         const isSelected = value === opt.value
         return (
@@ -17,16 +17,14 @@ export function EmojiRating({ options, value, onChange }: Props) {
             key={opt.value}
             data-selected={isSelected}
             onClick={() => onChange(opt.value)}
-            className={`flex flex-col items-center gap-2 px-6 py-4 rounded-2xl border-2 transition-all duration-150 min-w-[110px]
+            style={{ transition: 'background 0.12s ease, border-color 0.12s ease' }}
+            className={`flex-1 flex items-center justify-center px-4 py-5 rounded-z-l border-[1.5px] text-[15px] font-medium
               ${isSelected
-                ? 'border-primary bg-primary-light shadow-[0_4px_16px_rgba(0,200,150,0.18)] -translate-y-0.5'
-                : 'border-app-border bg-white hover:border-primary hover:-translate-y-0.5'
+                ? 'bg-surface-brand border-primary text-text-primary'
+                : 'bg-surface-default border-border-default text-text-secondary hover:bg-surface-brand hover:border-primary hover:text-text-primary'
               }`}
           >
-            <span className="text-4xl">{opt.emoji}</span>
-            <span className={`text-[13px] font-semibold ${isSelected ? 'text-primary-dark' : 'text-gray-700'}`}>
-              {opt.label}
-            </span>
+            {opt.label}
           </button>
         )
       })}

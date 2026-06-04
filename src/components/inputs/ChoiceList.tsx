@@ -31,27 +31,27 @@ export function ChoiceList({ options, value, onChange, multi = false }: Props) {
             key={opt.value}
             data-selected={isSelected}
             onClick={() => handleClick(opt.value)}
-            className={`flex items-center gap-3.5 px-5 py-3.5 rounded-xl border-[1.5px] text-left transition-all duration-150 w-full
+            style={{ transition: 'background 0.12s ease, border-color 0.12s ease' }}
+            className={`flex items-center gap-3.5 px-5 py-3.5 rounded-z-l border-[1.5px] text-left w-full
               ${isSelected
-                ? 'border-primary bg-primary-light shadow-[0_0_0_3px_rgba(0,200,150,0.12)]'
-                : 'border-app-border bg-white hover:border-primary hover:bg-primary-light'
+                ? 'border-primary bg-surface-brand'
+                : 'border-border-default bg-surface-default hover:bg-surface-brand hover:border-primary'
               }`}
           >
-            <div className={`w-5 h-5 flex-shrink-0 transition-all duration-150 flex items-center justify-center
-              ${multi ? 'rounded-md border-2' : 'rounded-full border-2'}
-              ${isSelected ? 'border-primary bg-primary' : 'border-gray-300'}`}
+            <div className={`w-5 h-5 flex-shrink-0 flex items-center justify-center
+              ${multi ? 'rounded-z-s border-2' : 'rounded-full border-2'}
+              ${isSelected ? 'border-primary bg-primary' : 'border-border-default'}`}
             >
-              {isSelected && (
-                <span className="text-white text-[10px] font-black leading-none">
-                  {multi ? '✓' : ''}
-                </span>
+              {isSelected && multi && (
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <polyline points="1.5 5 4 7.5 8.5 2.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
               )}
             </div>
-            {opt.emoji && <span className="text-xl">{opt.emoji}</span>}
             <div className="flex flex-col min-w-0">
-              <span className="text-[15px] font-medium text-text-main">{opt.label}</span>
+              <span className="text-[15px] font-medium text-text-primary">{opt.label}</span>
               {opt.subLabel && (
-                <span className="text-[13px] text-text-muted mt-0.5">{opt.subLabel}</span>
+                <span className="text-[13px] text-text-secondary mt-0.5">{opt.subLabel}</span>
               )}
             </div>
           </button>

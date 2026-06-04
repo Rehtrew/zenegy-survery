@@ -1,0 +1,104 @@
+/* Zenegy Design Tokens — do not modify variable names */
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('./assets/PPNeueMontreal-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Action */
+  --color-action-primary: #6e30fd;
+  --color-action-primary-hover: #331070;
+  --color-action-primary-active: #120c2b;
+  --color-action-primary-fg: #ffffff;
+  --color-action-secondary-bg: #f8f7ff;
+  --color-action-secondary-fg: #6e30fd;
+  --color-action-secondary-border: #9d94ff;
+  --color-action-secondary-active-bg: #c9bdff;
+  --color-action-secondary-active-fg: #331070;
+  --color-action-ghost-fg: #6e30fd;
+  --color-action-ghost-hover-bg: #f8f7ff;
+  --color-action-ghost-active-bg: #ebe6ff;
+  --color-action-ghost-active-fg: #331070;
+
+  /* Text */
+  --color-text-primary: #111111;
+  --color-text-secondary: #616161;
+  --color-text-tertiary: #999999;
+  --color-text-disabled: #b3b3b3;
+  --color-text-on-primary: #ffffff;
+  --color-text-link: #6e30fd;
+
+  /* Surface */
+  --color-surface-page: #f0f0f0;
+  --color-surface-default: #ffffff;
+  --color-surface-subtle: #f7f7f7;
+  --color-surface-raised: #ffffff;
+  --color-surface-overlay: #f0f0f0;
+  --color-surface-brand-subtle: #ebe6ff;
+  --color-surface-brand-subtle-hover: #ddd5ff;
+
+  /* Border */
+  --color-border-default: #e0e0e0;
+  --color-border-strong: #b3b3b3;
+  --color-border-focus: #6e30fd;
+
+  /* Feedback */
+  --color-feedback-error: #ff1e46;
+  --color-feedback-error-bg: #ffe0e6;
+  --color-feedback-success: #4bc16d;
+  --color-feedback-success-bg: #ecf9f0;
+  --color-feedback-success-medium: #d4f2dd;
+  --color-feedback-warning: #fc9b54;
+  --color-feedback-warning-bg: #fff4ee;
+  --color-feedback-info: #007aff;
+  --color-feedback-info-bg: #dceaff;
+
+  /* Spacing */
+  --spacing-0: 0px;
+  --spacing-2: 2px;
+  --spacing-4: 4px;
+  --spacing-6: 6px;
+  --spacing-8: 8px;
+  --spacing-10: 10px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-28: 28px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+  --spacing-56: 56px;
+  --spacing-64: 64px;
+  --spacing-80: 80px;
+  --spacing-96: 96px;
+
+  /* Radius */
+  --radius-none: 0px;
+  --radius-xs: 4px;
+  --radius-s: 6px;
+  --radius-m: 8px;
+  --radius-l: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Stroke */
+  --stroke-small: 1.5px;
+  --stroke-medium: 2px;
+
+  /* Typography */
+  --font-sans: 'PP Neue Montreal', Inter, -apple-system, sans-serif;
+  --font-mono: 'Chivo Mono', monospace;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

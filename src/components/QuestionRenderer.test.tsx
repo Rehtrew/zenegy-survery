@@ -44,10 +44,10 @@ describe('QuestionRenderer', () => {
     const q: Question = {
       id: 'a2', type: 'emoji-rating',
       question: 'Satisfaction?',
-      options: [{ value: 'happy', label: 'Tilfreds', emoji: '😊' }],
+      options: [{ value: 'happy', label: 'Tilfreds' }],
     }
     render(<QuestionRenderer question={q} {...baseProps} />)
-    expect(screen.getByText('😊')).toBeInTheDocument()
+    expect(screen.getByText('Tilfreds')).toBeInTheDocument()
   })
 
   it('renders priority-rank as PriorityRank', () => {

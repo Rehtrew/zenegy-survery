@@ -31,6 +31,7 @@ export function SurveyFlow({ renderLanding, renderLeadGen, renderThankYou }: Sur
     setAnswers(prev => {
       const keyMap: Record<string, keyof SurveyAnswers> = {
         q0: 'track',
+        role: 'role',
         b1: 'b_payroll_system',
         b_payroll_other: 'b_payroll_other',
         b2: 'b_frustrations',

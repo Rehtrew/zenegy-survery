@@ -1,17 +1,5 @@
 import type { Option, RankEntry } from '../../types'
 
-const MEDALS = ['🥇', '🥈', '🥉']
-const RANK_BORDER_CLASSES = [
-  'border-amber-400 bg-amber-50',
-  'border-gray-400 bg-gray-50',
-  'border-amber-700 bg-orange-50',
-]
-const RANK_BADGE_CLASSES = [
-  'border-amber-400 bg-amber-400 text-white',
-  'border-gray-400 bg-gray-400 text-white',
-  'border-amber-700 bg-amber-700 text-white',
-]
-
 interface Props {
   options: Option[]
   value: RankEntry[]
@@ -43,25 +31,32 @@ export function PriorityRank({ options, value, onChange, maxRank = 3 }: Props) {
         const entry = value.find(e => e.value === opt.value)
         const rankIndex = entry ? entry.rank - 1 : -1
         const isRanked = rankIndex >= 0
+
         return (
           <button
             type="button"
             key={opt.value}
             onClick={() => handleClick(opt.value)}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl border-[1.5px] text-left transition-all duration-150 w-full
-              ${isRanked ? RANK_BORDER_CLASSES[rankIndex] : 'border-app-border bg-white hover:border-gray-300 hover:bg-gray-50'}`}
+            style={{ transition: 'background 0.12s ease, border-color 0.12s ease' }}
+            className={`flex items-center gap-3 px-4 py-3 rounded-z-l border-[1.5px] text-left w-full
+              ${isRanked
+                ? rankIndex === 0
+                  ? 'bg-surface-brand border-primary'
+                  : 'bg-surface-subtle border-border-default'
+                : 'bg-surface-default border-border-default hover:bg-surface-subtle'
+              }`}
           >
-            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-black flex-shrink-0 border-[1.5px]
-              ${isRanked ? RANK_BADGE_CLASSES[rankIndex] : 'border-gray-300 text-gray-400'}`}
+            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0
+              ${isRanked ? 'bg-primary text-white' : 'bg-surface-subtle text-text-secondary'}`}
             >
-              {isRanked ? MEDALS[rankIndex] : '·'}
+              {isRanked ? entry!.rank : '·'}
             </div>
-            <span className="text-[15px] font-medium text-text-main">{opt.label}</span>
+            <span className="text-[15px] font-medium text-text-primary">{opt.label}</span>
           </button>
         )
       })}
-      <p className="text-xs text-text-muted mt-1">
-        Vælg op til {effectiveMaxRank} — 🥇 er vigtigst
+      <p className="text-xs text-text-secondary mt-1">
+        Vælg op til {effectiveMaxRank} — 1 er vigtigst
       </p>
     </div>
   )

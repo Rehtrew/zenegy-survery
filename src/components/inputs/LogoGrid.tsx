@@ -19,24 +19,25 @@ export function LogoGrid({ options, value, onChange, otherValue = '', onOtherCha
               type="button"
               key={opt.value}
               onClick={() => onChange(opt.value)}
-              className={`flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 transition-all duration-150
+              style={{ transition: 'background 0.12s ease, border-color 0.12s ease' }}
+              className={`flex flex-col items-center gap-2.5 p-4 rounded-z-l border-2 text-left
                 ${isSelected
-                  ? 'border-primary bg-primary-light shadow-[0_0_0_3px_rgba(0,200,150,0.15)] -translate-y-0.5'
-                  : 'border-app-border bg-white hover:border-primary hover:bg-primary-light hover:-translate-y-0.5 hover:shadow-md'
+                  ? 'bg-surface-brand border-primary'
+                  : 'bg-surface-default border-transparent hover:bg-surface-brand hover:shadow-sm'
                 }`}
             >
               <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-black text-sm"
+                className="w-12 h-12 rounded-z-l flex items-center justify-center text-white font-medium text-sm"
                 style={opt.logoStyle}
               >
                 {opt.logoInitials}
               </div>
               <div className="text-center">
-                <div className={`text-xs font-semibold leading-tight ${isSelected ? 'text-primary-dark' : 'text-gray-700'}`}>
+                <div className={`text-xs font-medium leading-tight ${isSelected ? 'text-text-primary' : 'text-text-secondary'}`}>
                   {opt.label}
                 </div>
                 {opt.subLabel && (
-                  <div className="text-[10px] text-text-muted mt-0.5">{opt.subLabel}</div>
+                  <div className="text-[10px] text-text-secondary mt-0.5">{opt.subLabel}</div>
                 )}
               </div>
             </button>
@@ -50,7 +51,7 @@ export function LogoGrid({ options, value, onChange, otherValue = '', onOtherCha
           placeholder="Hvilket system bruger du?"
           value={otherValue}
           onChange={e => onOtherChange?.(e.target.value)}
-          className="mt-3 w-full px-4 py-3 rounded-xl border-[1.5px] border-app-border focus:border-primary outline-none text-sm transition-colors text-text-main"
+          className="mt-3 w-full px-4 py-3 rounded-z-m bg-surface-subtle focus:ring-[1.5px] focus:ring-primary outline-none text-sm transition-colors duration-[120ms] ease-[ease] text-text-primary"
         />
       )}
     </div>

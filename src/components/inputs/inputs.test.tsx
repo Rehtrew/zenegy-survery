@@ -71,21 +71,21 @@ describe('PillSelect', () => {
 })
 
 const emojiOptions = [
-  { value: 'unhappy', label: 'Ikke tilfreds', emoji: '😤' },
-  { value: 'happy', label: 'Tilfreds', emoji: '😊' },
+  { value: 'unhappy', label: 'Ikke tilfreds' },
+  { value: 'happy', label: 'Tilfreds' },
 ]
 
 describe('EmojiRating', () => {
-  it('renders emoji options', () => {
+  it('renders label options', () => {
     render(<EmojiRating options={emojiOptions} value="" onChange={vi.fn()} />)
-    expect(screen.getByText('😤')).toBeInTheDocument()
     expect(screen.getByText('Ikke tilfreds')).toBeInTheDocument()
+    expect(screen.getByText('Tilfreds')).toBeInTheDocument()
   })
 
   it('calls onChange with value on click', async () => {
     const onChange = vi.fn()
     render(<EmojiRating options={emojiOptions} value="" onChange={onChange} />)
-    await userEvent.click(screen.getByText('😊'))
+    await userEvent.click(screen.getByText('Tilfreds'))
     expect(onChange).toHaveBeenCalledWith('happy')
   })
 
