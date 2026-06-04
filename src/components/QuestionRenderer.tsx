@@ -49,6 +49,8 @@ export function QuestionRenderer({
 }: Props) {
   const answer = getAnswer(answers, question.id)
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const onAdvanceRef = useRef(onAdvance)
+  useEffect(() => { onAdvanceRef.current = onAdvance }, [onAdvance])
 
   useEffect(() => () => {
     if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current)
@@ -57,7 +59,8 @@ export function QuestionRenderer({
   const handleSingleSelect = (value: string) => {
     onAnswer(question.id, value)
     if (question.autoAdvance) {
-      autoAdvanceTimer.current = setTimeout(onAdvance, 300)
+      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current)
+      autoAdvanceTimer.current = setTimeout(() => onAdvanceRef.current(), 300)
     }
   }
 
@@ -90,7 +93,7 @@ export function QuestionRenderer({
               question.id === 'b1' ? (answers.b_payroll_other ?? '') : (answers.accounting_other ?? '')
             }
             onOtherChange={v =>
-              onAnswer(question.id === 'b1' ? 'b1_other' : 'numbers_other', v)
+              onAnswer(question.id === 'b1' ? 'b_payroll_other' : 'accounting_other', v)
             }
           />
         )
