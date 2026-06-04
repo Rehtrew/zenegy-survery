@@ -1,3 +1,5 @@
+import { CircleCheck } from '../components/icons'
+
 export function ThankYou() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-surface-page)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
@@ -9,7 +11,7 @@ export function ThankYou() {
         maxWidth: 440,
         width: '100%',
       }}>
-        {/* Check circle */}
+        {/* Animated check icon */}
         <div
           className="anim-check-pop"
           style={{
@@ -21,12 +23,9 @@ export function ThankYou() {
             alignItems: 'center',
             justifyContent: 'center',
             margin: '0 auto 28px',
-            color: 'var(--color-action-primary)',
           }}
         >
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 16 4 11"/>
-          </svg>
+          <CircleCheck size={28} color="var(--color-action-primary)" strokeWidth={1.75}/>
         </div>
 
         <h1 style={{ fontSize: 28, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 12 }}>Du er med!</h1>

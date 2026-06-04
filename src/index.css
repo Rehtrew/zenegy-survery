@@ -35,3 +35,86 @@
 .anim-slide-in-left   { animation: slide-in-left   300ms ease-out both; }
 .anim-slide-out-right { animation: slide-out-right 300ms ease-out both; }
 .anim-check-pop       { animation: check-pop       400ms ease-out both; }
+
+/* ── MovingIcons keyframes ── */
+
+/* ShieldCheck */
+@keyframes shieldCheckAnim {
+  0%   { stroke-dashoffset: 9; opacity: 0; }
+  33%  { stroke-dashoffset: 9; opacity: 0; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+.mi-shield-check-path {
+  stroke-dasharray: 9;
+  stroke-dashoffset: 0;
+}
+.mi-shield-check-path.mi-animate {
+  animation: shieldCheckAnim 0.5s ease-out backwards;
+}
+
+/* CircleCheck */
+@keyframes circleCheckAnim {
+  0%   { stroke-dashoffset: 9; opacity: 0; }
+  33%  { stroke-dashoffset: 9; opacity: 0; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+.mi-circle-check-path {
+  stroke-dasharray: 9;
+  stroke-dashoffset: 0;
+}
+.mi-circle-check-path.mi-animate {
+  animation: circleCheckAnim 0.5s ease-out backwards;
+}
+
+/* Star */
+@keyframes starAnim {
+  0%   { transform: scale(1); }
+  33%  { transform: scale(0.9); }
+  66%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+.mi-star-group.mi-animate {
+  transform-origin: center;
+  animation: starAnim 0.6s ease-in-out;
+}
+
+/* Sparkles */
+@keyframes sparklesScale {
+  0%   { transform: scale(1); }
+  33%  { transform: scale(0.9); }
+  67%  { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+@keyframes sparklesPlus {
+  0%, 20%    { opacity: 1; transform: scale(1); }
+  47%        { opacity: 0; transform: scale(0); }
+  73%        { opacity: 0; transform: scale(0); }
+  100%       { opacity: 1; transform: scale(1); }
+}
+@keyframes sparklesCircle {
+  0%    { opacity: 1; transform: scale(1); }
+  33%   { opacity: 0; transform: scale(0); }
+  67%   { opacity: 0; transform: scale(0); }
+  100%  { opacity: 1; transform: scale(1); }
+}
+.mi-sparkles-group { transform-origin: center; }
+.mi-sparkles-group.mi-animate { animation: sparklesScale 0.6s ease-in-out; }
+.mi-sparkles-plus.mi-animate  {
+  transform-origin: center; transform-box: fill-box;
+  animation: sparklesPlus 0.75s ease-in-out;
+}
+.mi-sparkles-circle.mi-animate {
+  transform-origin: center; transform-box: fill-box;
+  animation: sparklesCircle 0.6s ease-in-out;
+}
+
+/* MessageCircle */
+@keyframes msgCircleAnim {
+  0%   { transform: rotate(0deg); }
+  40%  { transform: rotate(8deg); }
+  60%  { transform: rotate(-8deg); }
+  80%  { transform: rotate(2deg); }
+  100% { transform: rotate(0deg); }
+}
+.mi-message-path { transform-origin: bottom left; }
+.mi-message-path.mi-animate { animation: msgCircleAnim 0.8s ease-in-out; }
