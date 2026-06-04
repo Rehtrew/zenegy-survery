@@ -27,6 +27,7 @@ create index on submissions (track);
 create index on submissions (created_at);
 create index on submissions (b_payroll_system);
 
--- Allow anyone to insert (public survey) but not read
-alter table submissions enable row level security;
-create policy "public can insert" on submissions for insert with check (true);
+-- Grant insert to anon role (public survey).
+-- RLS is disabled; access is controlled purely by table-level grants.
+-- anon can INSERT but has no SELECT/UPDATE/DELETE grant.
+grant insert on table submissions to anon;
