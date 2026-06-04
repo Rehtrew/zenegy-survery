@@ -26,3 +26,7 @@ create table submissions (
 create index on submissions (track);
 create index on submissions (created_at);
 create index on submissions (b_payroll_system);
+
+-- Allow anyone to insert (public survey) but not read
+alter table submissions enable row level security;
+create policy "public can insert" on submissions for insert with check (true);
