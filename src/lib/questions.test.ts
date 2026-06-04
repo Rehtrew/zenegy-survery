@@ -17,8 +17,12 @@ describe('getQuestionSequence', () => {
 
   it('includes numbers awareness for zenegy track without Numbers product', () => {
     const seq = getQuestionSequence({ track: 'zenegy', a_products: ['payroll'] })
-    expect(seq).toHaveLength(6)
-    expect(seq[seq.length - 1].id).toBe('numbers')
+    expect(seq.map(q => q.id)).toEqual(['q0', 'a1', 'a2', 'a3', 'a4', 'numbers'])
+  })
+
+  it('includes numbers awareness for zenegy track when a_products is undefined', () => {
+    const seq = getQuestionSequence({ track: 'zenegy' })
+    expect(seq.map(q => q.id)).toEqual(['q0', 'a1', 'a2', 'a3', 'a4', 'numbers'])
   })
 
   it('skips numbers awareness for zenegy track when Numbers product is used', () => {

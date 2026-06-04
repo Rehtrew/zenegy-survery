@@ -42,7 +42,7 @@ export const TRACK_B_QUESTIONS: Question[] = [
       { value: 'lessor', label: 'Lessor', logoInitials: 'Le', logoStyle: { background: 'linear-gradient(135deg,#E85D26,#C94A1A)' } },
       { value: 'intect', label: 'Intect', logoInitials: 'In', logoStyle: { background: 'linear-gradient(135deg,#6B2D8B,#4A1F63)' } },
       { value: 'sd-loen', label: 'SD Løn', logoInitials: 'SD', logoStyle: { background: 'linear-gradient(135deg,#D62D20,#A51F15)' } },
-      { value: 'danloen', label: 'Danløn', logoInitials: 'DL', logoStyle: { background: 'linear-gradient(135deg,#1E3A5F,#152B47)' } },
+      { value: 'danloen', label: 'Danløn', logoInitials: 'Dn', logoStyle: { background: 'linear-gradient(135deg,#1E3A5F,#152B47)' } },
       { value: 'zenegy', label: 'Zenegy', logoInitials: 'Ze', logoStyle: { background: 'linear-gradient(135deg,#00C896,#00A07A)' } },
       { value: 'andet', label: 'Andet', logoInitials: '?', logoStyle: { background: 'linear-gradient(135deg,#9CA3AF,#6B7280)' } },
     ],
