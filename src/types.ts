@@ -1,4 +1,4 @@
-import type React from 'react'
+import type { CSSProperties } from 'react'
 
 export type Track = 'zenegy' | 'non-zenegy'
 
@@ -17,14 +17,14 @@ export interface Option {
   subLabel?: string
   emoji?: string
   logoInitials?: string
-  logoStyle?: React.CSSProperties
+  logoStyle?: CSSProperties
 }
 
 export interface Question {
   id: string
   type: QuestionType
   question: string
-  subText: string
+  subText?: string
   options?: Option[]
   autoAdvance?: boolean
   hasOpenText?: boolean
