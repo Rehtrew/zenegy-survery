@@ -20,9 +20,10 @@ export function LeadGen({ answers, onSubmitted }: Props) {
     setLoading(true)
     setError('')
     try {
+      if (!answers.track) throw new Error('track is required')
       await submitSurvey({
         ...answers,
-        track: answers.track as Track,
+        track: answers.track,
         email,
         newsletter_opt_in: newsletter,
       })

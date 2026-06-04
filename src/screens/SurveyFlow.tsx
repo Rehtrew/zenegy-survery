@@ -94,6 +94,7 @@ export function SurveyFlow({ renderLanding, renderLeadGen, renderThankYou }: Sur
   if (phase === 'landing') return <>{renderLanding(advance)}</>
   if (phase === 'lead-gen') return <>{renderLeadGen(answers, () => setPhase('thank-you'))}</>
   if (phase === 'thank-you') return <>{renderThankYou()}</>
+  if (!currentQuestion) return null
 
   return (
     <SurveyShell
