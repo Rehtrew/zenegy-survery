@@ -80,7 +80,7 @@ describe('NPSScale', () => {
   it('marks selected value visually', () => {
     render(<NPSScale value={7} onChange={vi.fn()} />)
     const btn = screen.getByText('7')
-    expect(btn).toHaveClass('bg-primary')
+    expect(btn).toHaveStyle({ background: 'rgb(110, 48, 253)', color: 'rgb(255, 255, 255)' })
   })
 })
 

@@ -1,11 +1,11 @@
-import ipadImg from '../assets/hero.png'
+import heroImg from '../assets/hero.png'
 
 interface Props {
   onStart: () => void
 }
 
 const ZenegyLogo = () => (
-  <svg width="24" height="24" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect width="64" height="64" rx="14" fill="#6e30fd"/>
     <g transform="translate(10, 13.15) scale(0.662)">
       <path d="M36.1862 13.5684H6.07046C2.7593 13.5684 0 16.2488 0 19.6388V47.9414C0 54.7213 8.82975 57.4018 12.6139 51.7255L36.9746 15.0663C37.3688 14.4356 36.9746 13.5684 36.1862 13.5684Z" fill="white"/>
@@ -14,72 +14,137 @@ const ZenegyLogo = () => (
   </svg>
 )
 
+// Clean SVG iPad mockup for the contest visual
+const IpadMockup = () => (
+  <svg width="110" height="148" viewBox="0 0 110 148" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0.75" y="0.75" width="108.5" height="146.5" rx="11.25" fill="#1c1c1e" stroke="#3a3a3c" strokeWidth="1.5"/>
+    <rect x="6" y="6" width="98" height="132" rx="7" fill="#000"/>
+    {/* Screen content */}
+    <rect x="10" y="10" width="90" height="124" rx="5" fill="#1a1a2e"/>
+    <rect x="18" y="22" width="52" height="5" rx="2.5" fill="#6e30fd" opacity="0.9"/>
+    <rect x="18" y="32" width="74" height="3" rx="1.5" fill="white" opacity="0.3"/>
+    <rect x="18" y="39" width="60" height="3" rx="1.5" fill="white" opacity="0.2"/>
+    <rect x="18" y="53" width="74" height="28" rx="4" fill="#6e30fd" opacity="0.15"/>
+    <rect x="22" y="59" width="40" height="3" rx="1.5" fill="#9d94ff" opacity="0.8"/>
+    <rect x="22" y="66" width="30" height="3" rx="1.5" fill="white" opacity="0.4"/>
+    <rect x="18" y="90" width="32" height="16" rx="4" fill="#6e30fd"/>
+    <rect x="55" y="90" width="37" height="16" rx="4" fill="white" opacity="0.08" stroke="white" strokeWidth="0.75" strokeOpacity="0.2"/>
+    {/* Home bar */}
+    <rect x="42" y="136" width="26" height="3" rx="1.5" fill="white" opacity="0.3"/>
+  </svg>
+)
+
 export function LandingPage({ onStart }: Props) {
   return (
-    <div className="min-h-screen bg-surface-page flex flex-col items-center justify-start px-6 py-10">
+    <div style={{ minHeight: '100vh', background: 'var(--color-surface-page)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 24px' }}>
+
       {/* Header */}
-      <header className="w-full max-w-[660px] flex justify-between items-center mb-10">
-        <div className="flex items-center gap-2.5">
-          <ZenegyLogo />
-          <span className="text-[18px] font-medium text-text-primary tracking-tight">zenegy</span>
-        </div>
+      <header style={{ width: '100%', maxWidth: 680, display: 'flex', alignItems: 'center', gap: 10, marginBottom: 40 }}>
+        <ZenegyLogo />
+        <span style={{ fontSize: 20, fontWeight: 500, color: 'var(--color-text-primary)', letterSpacing: '-0.3px' }}>zenegy</span>
       </header>
 
-      <div className="w-full max-w-[660px] flex flex-col gap-4">
+      <div style={{ width: '100%', maxWidth: 680, display: 'flex', flexDirection: 'column', gap: 12 }}>
+
         {/* Hero card */}
-        <div className="relative bg-hero-bg rounded-z-l px-10 py-12 text-white overflow-hidden">
-          <h1 className="text-[30px] font-medium leading-tight tracking-tight mb-3 max-w-[380px]">
-            Hvad synes du egentlig om løn i Danmark?
-          </h1>
+        <div style={{
+          position: 'relative',
+          background: '#120c2b',
+          borderRadius: 16,
+          padding: '52px 48px 0 48px',
+          color: 'white',
+          overflow: 'hidden',
+        }}>
+          {/* Glow */}
+          <div style={{
+            position: 'absolute', top: -80, right: -80,
+            width: 280, height: 280,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(110,48,253,0.25) 0%, transparent 70%)',
+            pointerEvents: 'none',
+          }} />
 
-          <p className="text-[15px] text-white/70 leading-relaxed mb-8 max-w-[400px]">
-            Del din mening på 3 minutter og vær med i lodtrækningen om en iPad.
-          </p>
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            {/* Left: copy + CTA */}
+            <div style={{ maxWidth: 400, paddingBottom: 52 }}>
+              <p style={{ fontSize: 13, fontWeight: 500, color: '#9d94ff', marginBottom: 16, letterSpacing: '0.02em' }}>
+                Markedsundersøgelse 2025
+              </p>
 
-          <div className="flex gap-8 mb-8">
-            {[
-              ['~3 min', 'at gennemføre'],
-              ['5 spm', 'korte spørgsmål'],
-              ['1 iPad', 'til en heldig deltager'],
-            ].map(([n, l]) => (
-              <div key={n}>
-                <div className="text-[20px] font-medium">{n}</div>
-                <div className="text-xs text-white/50">{l}</div>
+              <h1 style={{ fontSize: 36, fontWeight: 500, lineHeight: 1.15, letterSpacing: '-0.5px', marginBottom: 16, color: 'white' }}>
+                Hvad synes du egentlig om løn i Danmark?
+              </h1>
+
+              <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, marginBottom: 36 }}>
+                Del din mening på 3 minutter og vær med i lodtrækningen om en iPad. Dine svar er anonyme.
+              </p>
+
+              {/* Stats */}
+              <div style={{ display: 'flex', gap: 32, marginBottom: 36 }}>
+                {[['~3 min', 'at gennemføre'], ['5 spm', 'korte spørgsmål'], ['1 iPad', 'til en heldig deltager']].map(([n, l]) => (
+                  <div key={n}>
+                    <div style={{ fontSize: 22, fontWeight: 500, color: 'white' }}>{n}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>{l}</div>
+                  </div>
+                ))}
               </div>
-            ))}
+
+              <button
+                type="button"
+                onClick={onStart}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  background: '#6e30fd',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 8,
+                  padding: '14px 28px',
+                  fontSize: 15,
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  transition: 'background 0.12s ease',
+                  fontFamily: 'var(--font-sans)',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#331070' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#6e30fd' }}
+              >
+                Start undersøgelsen
+              </button>
+
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 14 }}>
+                Ingen krav om nyhedsbrevstilmelding · Ingen spam
+              </p>
+            </div>
+
+            {/* Right: iPad + product illustration */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, paddingBottom: 0, flexShrink: 0 }}>
+              <IpadMockup />
+              <img
+                src={heroImg}
+                alt="Zenegy"
+                style={{ width: 140, objectFit: 'contain', opacity: 0.9 }}
+              />
+            </div>
           </div>
-
-          <button
-            type="button"
-            onClick={onStart}
-            className="inline-flex items-center bg-primary text-white px-7 py-3.5 rounded-z-m text-[15px] font-medium hover:bg-primary-hover transition-colors duration-[120ms] ease-[ease]"
-          >
-            Start undersøgelsen
-          </button>
-
-          <p className="text-xs text-white/35 mt-4">
-            Ingen krav om nyhedsbrevstilmelding · Ingen spam
-          </p>
-
-          <img
-            src={ipadImg}
-            alt="iPad"
-            className="absolute right-6 bottom-0 h-36 object-contain pointer-events-none"
-          />
         </div>
 
         {/* Perk cards */}
-        <div className="grid grid-cols-2 gap-3">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           {[
             ['Anonymt og trygt', 'Dine svar behandles fortroligt og bruges udelukkende til at forbedre løsninger.'],
             ['Tilpassede spørgsmål', 'Spørgsmålene tilpasser sig, om du er Zenegy-kunde eller bruger et andet system.'],
             ['iPad konkurrence', 'Alle der deltager er med i lodtrækningen — uanset om du tilmelder nyhedsbrev eller ej.'],
             ['Din stemme tæller', 'Resultaterne former, hvad vi prioriterer og hvilke problemer vi løser næst.'],
           ].map(([title, desc]) => (
-            <div key={title} className="bg-surface-default rounded-z-l p-5">
-              <div className="w-2 h-2 rounded-full bg-primary mb-3" />
-              <div className="text-sm font-medium text-text-primary mb-1">{title}</div>
-              <div className="text-[13px] text-text-secondary leading-relaxed">{desc}</div>
+            <div key={title} style={{
+              background: 'var(--color-surface-default)',
+              borderRadius: 12,
+              padding: '20px 20px',
+            }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#6e30fd', marginBottom: 12 }} />
+              <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 6 }}>{title}</div>
+              <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.55 }}>{desc}</div>
             </div>
           ))}
         </div>

@@ -17,12 +17,25 @@ export function EmojiRating({ options, value, onChange }: Props) {
             key={opt.value}
             data-selected={isSelected}
             onClick={() => onChange(opt.value)}
-            style={{ transition: 'background 0.12s ease, border-color 0.12s ease' }}
-            className={`flex-1 flex items-center justify-center px-4 py-5 rounded-z-l border-[1.5px] text-[15px] font-medium
-              ${isSelected
-                ? 'bg-surface-brand border-primary text-text-primary'
-                : 'bg-surface-default border-border-default text-text-secondary hover:bg-surface-brand hover:border-primary hover:text-text-primary'
-              }`}
+            style={{
+              transition: 'background 0.12s ease, border-color 0.12s ease',
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px 16px',
+              borderRadius: 12,
+              border: isSelected
+                ? '1.5px solid #6e30fd'
+                : '1.5px solid var(--color-border-default)',
+              background: isSelected
+                ? 'var(--color-surface-brand-subtle)'
+                : 'var(--color-surface-default)',
+              fontSize: 15,
+              fontWeight: 500,
+              color: 'var(--color-text-primary)',
+              cursor: 'pointer',
+            }}
           >
             {opt.label}
           </button>

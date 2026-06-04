@@ -25,6 +25,24 @@ export function PriorityRank({ options, value, onChange, maxRank = 3 }: Props) {
     }
   }
 
+  const getItemStyle = (isRanked: boolean, rankIndex: number): React.CSSProperties => {
+    if (isRanked) {
+      return rankIndex === 0
+        ? {
+            background: 'var(--color-surface-brand-subtle)',
+            border: '1.5px solid #6e30fd',
+          }
+        : {
+            background: 'var(--color-surface-subtle)',
+            border: '1.5px solid var(--color-border-default)',
+          }
+    }
+    return {
+      background: 'var(--color-surface-default)',
+      border: '1.5px solid var(--color-border-default)',
+    }
+  }
+
   return (
     <div className="flex flex-col gap-2">
       {options.map(opt => {
@@ -37,25 +55,40 @@ export function PriorityRank({ options, value, onChange, maxRank = 3 }: Props) {
             type="button"
             key={opt.value}
             onClick={() => handleClick(opt.value)}
-            style={{ transition: 'background 0.12s ease, border-color 0.12s ease' }}
-            className={`flex items-center gap-3 px-4 py-3 rounded-z-l border-[1.5px] text-left w-full
-              ${isRanked
-                ? rankIndex === 0
-                  ? 'bg-surface-brand border-primary'
-                  : 'bg-surface-subtle border-border-default'
-                : 'bg-surface-default border-border-default hover:bg-surface-subtle'
-              }`}
+            className="flex items-center gap-3 px-4 py-3 text-left w-full"
+            style={{
+              transition: 'background 0.12s ease, border-color 0.12s ease',
+              borderRadius: 12,
+              cursor: 'pointer',
+              ...getItemStyle(isRanked, rankIndex),
+            }}
           >
-            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0
-              ${isRanked ? 'bg-primary text-white' : 'bg-surface-subtle text-text-secondary'}`}
+            <div
+              className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0"
+              style={
+                isRanked
+                  ? { background: '#6e30fd', color: 'white' }
+                  : { background: 'var(--color-surface-subtle)', color: 'var(--color-text-secondary)' }
+              }
             >
               {isRanked ? entry!.rank : '·'}
             </div>
-            <span className="text-[15px] font-medium text-text-primary">{opt.label}</span>
+            <span
+              style={{
+                fontSize: 15,
+                fontWeight: 500,
+                color: 'var(--color-text-primary)',
+              }}
+            >
+              {opt.label}
+            </span>
           </button>
         )
       })}
-      <p className="text-xs text-text-secondary mt-1">
+      <p
+        className="text-xs mt-1"
+        style={{ color: 'var(--color-text-secondary)' }}
+      >
         Vælg op til {effectiveMaxRank} — 1 er vigtigst
       </p>
     </div>

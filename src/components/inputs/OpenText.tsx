@@ -10,7 +10,16 @@ export function OpenText({ value, onChange, placeholder, maxLength = 300, label 
   return (
     <div className="mt-5">
       {label && (
-        <div className="text-[13px] font-semibold text-gray-700 mb-2">{label}</div>
+        <div
+          className="mb-2"
+          style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: 'var(--color-text-secondary)',
+          }}
+        >
+          {label}
+        </div>
       )}
       <textarea
         value={value}
@@ -18,9 +27,17 @@ export function OpenText({ value, onChange, placeholder, maxLength = 300, label 
         placeholder={placeholder}
         maxLength={maxLength}
         rows={3}
-        className="w-full px-4 py-3.5 rounded-xl border-[1.5px] border-app-border focus:border-primary outline-none text-sm font-sans resize-none transition-colors text-text-main placeholder:text-gray-400"
+        className="w-full px-4 py-3.5 rounded-xl outline-none text-sm font-sans resize-none transition-colors"
+        style={{
+          background: 'var(--color-surface-subtle)',
+          border: 'none',
+          color: 'var(--color-text-primary)',
+        }}
       />
-      <div className="text-xs text-gray-400 text-right mt-1">
+      <div
+        className="text-xs text-right mt-1"
+        style={{ color: 'var(--color-text-tertiary)' }}
+      >
         {value.length} / {maxLength}
       </div>
     </div>

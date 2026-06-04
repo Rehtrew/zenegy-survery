@@ -1,36 +1,73 @@
 export function ThankYou() {
   return (
-    <div className="min-h-screen bg-surface-page flex items-center justify-center px-6">
-      <div className="bg-surface-default rounded-z-l p-12 text-center max-w-md w-full">
-        <div className="w-16 h-16 bg-surface-brand rounded-full flex items-center justify-center mx-auto mb-6 anim-check-pop" style={{ color: 'var(--color-action-primary)' }}>
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <div style={{ minHeight: '100vh', background: 'var(--color-surface-page)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+      <div style={{
+        background: 'var(--color-surface-default)',
+        borderRadius: 16,
+        padding: '56px 48px',
+        textAlign: 'center',
+        maxWidth: 440,
+        width: '100%',
+      }}>
+        {/* Check circle */}
+        <div
+          className="anim-check-pop"
+          style={{
+            width: 64,
+            height: 64,
+            borderRadius: '50%',
+            background: 'var(--color-surface-brand-subtle)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 28px',
+            color: 'var(--color-action-primary)',
+          }}
+        >
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 16 4 11"/>
           </svg>
         </div>
 
-        <h1 className="text-[28px] font-medium text-text-primary mb-3">Du er med!</h1>
+        <h1 style={{ fontSize: 28, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 12 }}>Du er med!</h1>
 
-        <p className="text-[13px] font-medium text-text-secondary mb-1">Lodtrækning d. 1. august 2025</p>
-        <p className="text-text-secondary text-[15px] leading-relaxed mb-8">
+        <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
+          Lodtrækning d. 1. august 2025
+        </p>
+        <p style={{ fontSize: 15, color: 'var(--color-text-secondary)', lineHeight: 1.6, marginBottom: 36 }}>
           Vi trækker en vinder og giver dig besked direkte på din email. Tak fordi du tog dig tid.
         </p>
 
-        <p className="text-sm font-medium text-text-primary mb-4">Kender du nogen der også burde deltage?</p>
+        <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 16 }}>
+          Kender du nogen der også burde deltage?
+        </p>
 
         <a
           href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://survey.zenegy.com')}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 bg-[#0A66C2] text-white px-6 py-3 rounded-z-m text-sm font-medium hover:bg-[#0856A8] transition-colors duration-[120ms] ease-[ease] mb-4"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            background: '#0A66C2',
+            color: 'white',
+            padding: '12px 24px',
+            borderRadius: 8,
+            fontSize: 14,
+            fontWeight: 500,
+            textDecoration: 'none',
+            marginBottom: 16,
+            transition: 'background 0.12s ease',
+          }}
         >
           Del på LinkedIn
         </a>
 
-        <div className="mt-2">
+        <div style={{ marginTop: 8 }}>
           <a
             href="https://zenegy.com"
-            className="text-sm font-medium hover:opacity-80 transition-opacity duration-[120ms] ease-[ease]"
-            style={{ color: 'var(--color-action-primary)' }}
+            style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-action-primary)', textDecoration: 'none' }}
           >
             Læs mere om Zenegy
           </a>

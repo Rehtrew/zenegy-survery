@@ -149,13 +149,37 @@ export function QuestionRenderer({
   return (
     <div className="w-full max-w-[640px] mx-auto">
       {question.subText && (
-        <div className="mb-1 text-xs font-bold tracking-widest uppercase text-primary">✦ Spørgsmål</div>
+        <div
+          className="mb-1 tracking-widest uppercase"
+          style={{
+            color: '#6e30fd',
+            fontSize: 11,
+            fontWeight: 700,
+          }}
+        >
+          ✦ Spørgsmål
+        </div>
       )}
-      <h2 className="text-[23px] font-extrabold leading-snug text-text-main mb-1.5">
+      <h2
+        className="leading-snug mb-1.5"
+        style={{
+          fontSize: 23,
+          fontWeight: 500,
+          color: 'var(--color-text-primary)',
+        }}
+      >
         {question.question}
       </h2>
       {question.subText && (
-        <p className="text-sm text-text-muted mb-7 leading-relaxed">{question.subText}</p>
+        <p
+          className="mb-7 leading-relaxed"
+          style={{
+            fontSize: 14,
+            color: 'var(--color-text-secondary)',
+          }}
+        >
+          {question.subText}
+        </p>
       )}
 
       {renderInput()}
@@ -176,7 +200,16 @@ export function QuestionRenderer({
             <button
               type="button"
               onClick={onBack}
-              className="px-5 py-3 rounded-xl bg-gray-100 text-gray-600 text-sm font-semibold hover:bg-gray-200 transition-colors"
+              style={{
+                padding: '12px 20px',
+                borderRadius: 8,
+                border: 'none',
+                background: 'var(--color-surface-subtle)',
+                color: 'var(--color-text-secondary)',
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
             >
               ← Tilbage
             </button>
@@ -185,7 +218,17 @@ export function QuestionRenderer({
             type="button"
             onClick={onAdvance}
             disabled={!hasAnswer(answer)}
-            className="px-7 py-3 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{
+              padding: '12px 24px',
+              borderRadius: 8,
+              border: 'none',
+              background: '#6e30fd',
+              color: 'white',
+              fontSize: 14,
+              fontWeight: 500,
+              cursor: 'pointer',
+              opacity: hasAnswer(answer) ? 1 : 0.4,
+            }}
           >
             Næste →
           </button>
