@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { SurveyAnswers, Track } from '../types'
+import type { SurveyAnswers } from '../types'
 import { submitSurvey } from '../lib/supabase'
 
 interface Props {

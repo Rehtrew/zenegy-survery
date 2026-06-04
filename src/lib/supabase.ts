@@ -16,6 +16,7 @@ function getClient() {
 }
 
 export async function submitSurvey(data: Submission): Promise<void> {
-  const { error } = await getClient().from('submissions').insert(data)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await getClient().from('submissions').insert(data as any)
   if (error) throw new Error(error.message)
 }

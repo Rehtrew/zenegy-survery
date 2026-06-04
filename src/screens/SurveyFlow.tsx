@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
-import type { Phase, Direction, SurveyAnswers, Track, RankEntry } from '../types'
+import { useState, useCallback } from 'react'
+import type { Phase, Direction, SurveyAnswers } from '../types'
 import { getQuestionSequence } from '../lib/questions'
 import { useKeyboard } from '../lib/useKeyboard'
 import { SurveyShell } from '../components/SurveyShell'

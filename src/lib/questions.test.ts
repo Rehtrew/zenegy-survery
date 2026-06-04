@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { getQuestionSequence, OPENING_QUESTION } from './questions'
-import type { SurveyAnswers } from '../types'
 
 describe('getQuestionSequence', () => {
   it('returns only opening question when track is undefined', () => {

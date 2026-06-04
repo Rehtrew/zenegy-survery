@@ -56,8 +56,9 @@ export function QuestionRenderer({
     if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current)
   }, [])
 
-  const handleSingleSelect = (value: string) => {
-    onAnswer(question.id, value)
+  const handleSingleSelect = (value: string | string[]) => {
+    const single = Array.isArray(value) ? value[0] : value
+    onAnswer(question.id, single)
     if (question.autoAdvance) {
       if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current)
       autoAdvanceTimer.current = setTimeout(() => onAdvanceRef.current(), 300)
