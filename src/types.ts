@@ -18,6 +18,7 @@ export interface Option {
   emoji?: string
   logoInitials?: string
   logoStyle?: CSSProperties
+  logoSrc?: string
 }
 
 export interface Question {

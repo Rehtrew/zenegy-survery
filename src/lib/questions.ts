@@ -1,4 +1,10 @@
 import type { Question, SurveyAnswers } from '../types'
+import datalonenLogo from '../assets/logos/dataloen.svg'
+import bluegardenLogo from '../assets/logos/bluegarden.svg'
+import lessorLogo from '../assets/logos/lessor.svg'
+import intectLogo from '../assets/logos/intect.png'
+import sdloenLogo from '../assets/logos/sdloen.svg'
+import danloenLogo from '../assets/logos/danloen.svg'
 
 export const OPENING_QUESTION: Question = {
   id: 'q0',
@@ -51,12 +57,12 @@ export const TRACK_B_QUESTIONS: Question[] = [
     subText: 'Vælg det primære system din virksomhed bruger til lønkørsel.',
     autoAdvance: true,
     options: [
-      { value: 'dataloen', label: 'Dataløn', subLabel: 'by Visma', logoInitials: 'DL', logoStyle: { background: 'linear-gradient(135deg,#0052CC,#0747A6)' } },
-      { value: 'bluegarden', label: 'Bluegarden', logoInitials: 'BG', logoStyle: { background: 'linear-gradient(135deg,#003087,#001A5C)' } },
-      { value: 'lessor', label: 'Lessor', logoInitials: 'Le', logoStyle: { background: 'linear-gradient(135deg,#E84A0C,#C43A09)' } },
-      { value: 'intect', label: 'Intect', logoInitials: 'In', logoStyle: { background: 'linear-gradient(135deg,#6B2D8B,#4A1F63)' } },
-      { value: 'sd-loen', label: 'SD Løn', logoInitials: 'SD', logoStyle: { background: 'linear-gradient(135deg,#0060A8,#004A82)' } },
-      { value: 'danloen', label: 'Danløn', logoInitials: 'Dn', logoStyle: { background: 'linear-gradient(135deg,#1A3A6B,#0F2347)' } },
+      { value: 'dataloen', label: 'Dataløn', subLabel: 'by Visma', logoSrc: datalonenLogo },
+      { value: 'bluegarden', label: 'Bluegarden', logoSrc: bluegardenLogo },
+      { value: 'lessor', label: 'Lessor', logoSrc: lessorLogo },
+      { value: 'intect', label: 'Intect', logoSrc: intectLogo },
+      { value: 'sd-loen', label: 'SD Løn', logoSrc: sdloenLogo },
+      { value: 'danloen', label: 'Danløn', logoSrc: danloenLogo },
       { value: 'zenegy', label: 'Zenegy', logoInitials: 'Ze', logoStyle: { background: 'linear-gradient(135deg,#6e30fd,#331070)' } },
       { value: 'andet', label: 'Andet', logoInitials: '?', logoStyle: { background: 'linear-gradient(135deg,#616161,#323232)' } },
     ],

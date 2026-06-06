@@ -58,7 +58,28 @@ export function SurveyFlow({ renderLanding, renderLeadGen, renderThankYou }: Sur
       setAnimKey(k => k + 1)
       return
     }
-    if (phase !== 'questions') return
+    if (phase !== 'questions' || !currentQuestion) return
+
+    // Block keyboard Enter from advancing without a selection on non-auto-advance questions
+    if (!currentQuestion.autoAdvance) {
+      const answerLookup: Record<string, unknown> = {
+        q0: answers.track,
+        role: answers.role,
+        b1: answers.b_payroll_system,
+        b2: answers.b_frustrations,
+        b3: answers.b_priorities,
+        b4: answers.b_barriers,
+        a1: answers.a_products,
+        a2: answers.a_satisfaction,
+        a3: answers.a_best_thing,
+        a4: answers.a_nps,
+        numbers: answers.accounting_system,
+      }
+      const ans = answerLookup[currentQuestion.id]
+      const answered = ans !== null && ans !== undefined && ans !== '' &&
+        !(Array.isArray(ans) && (ans as unknown[]).length === 0)
+      if (!answered) return
+    }
 
     if (questionIndex < questions.length - 1) {
       setDirection('forward')
@@ -67,7 +88,7 @@ export function SurveyFlow({ renderLanding, renderLeadGen, renderThankYou }: Sur
     } else {
       setPhase('lead-gen')
     }
-  }, [phase, questionIndex, questions.length])
+  }, [phase, questionIndex, questions.length, currentQuestion, answers])
 
   const back = useCallback(() => {
     if (phase !== 'questions') return
