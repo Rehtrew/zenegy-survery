@@ -4,6 +4,13 @@ create table submissions (
   track              text not null check (track in ('zenegy', 'non-zenegy')),
   role               text,
 
+  is_employee       boolean,
+  e_payslip         text,
+  e_payroll_satisfaction text,
+  e_expenses        text,
+  e_ai_trust        text,
+  ai_interest       text,
+
   b_payroll_system   text,
   b_payroll_other    text,
   b_frustrations     text[],

@@ -59,6 +59,14 @@ export interface SurveyAnswers {
   // Shared
   accounting_system?: string
   accounting_other?: string
+  // Employee track
+  is_employee?: boolean
+  e_payslip?: string
+  e_payroll_satisfaction?: string
+  e_expenses?: string
+  e_ai_trust?: string
+  // AI question (decision-maker track)
+  ai_interest?: string
 }
 
 export interface Submission extends SurveyAnswers {

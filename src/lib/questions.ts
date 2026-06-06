@@ -6,6 +6,18 @@ import intectLogo from '../assets/logos/intect.png'
 import sdloenLogo from '../assets/logos/sdloen.svg'
 import danloenLogo from '../assets/logos/danloen.svg'
 
+export const GATE_QUESTION: Question = {
+  id: 'gate',
+  type: 'choice-single',
+  question: 'Spiller du en rolle i valg af løn- eller regnskabssoftware?',
+  subText: 'Dit svar afgør hvilke spørgsmål du ser.',
+  autoAdvance: true,
+  options: [
+    { value: 'decision-maker', label: 'Ja, jeg er med til at beslutte', subLabel: 'Direktør, bogholder, HR eller lignende' },
+    { value: 'employee', label: 'Nej, jeg bruger systemerne som medarbejder', subLabel: 'Lønmodtager uden systemansvar' },
+  ],
+}
+
 export const OPENING_QUESTION: Question = {
   id: 'q0',
   type: 'choice-single',
@@ -170,20 +182,100 @@ export const TRACK_A_QUESTIONS: Question[] = [
   },
 ]
 
-export function getQuestionSequence(
-  answers: Pick<SurveyAnswers, 'track' | 'a_products'>
-): Question[] {
-  if (!answers.track) return [OPENING_QUESTION]
+export const EMPLOYEE_QUESTIONS: Question[] = [
+  {
+    id: 'e1',
+    type: 'choice-single',
+    question: 'Modtager du din lønseddel digitalt?',
+    subText: 'Fortæl os om din nuværende oplevelse.',
+    autoAdvance: true,
+    options: [
+      { value: 'app', label: 'Ja, via app eller selvbetjeningsportal' },
+      { value: 'email', label: 'Ja, som PDF på email' },
+      { value: 'paper', label: 'Nej, på papir eller print' },
+    ],
+  },
+  {
+    id: 'e2',
+    type: 'emoji-rating',
+    question: 'Hvad synes du om lønprocessen i din virksomhed?',
+    subText: 'Tænk på din daglige oplevelse som medarbejder.',
+    autoAdvance: true,
+    options: [
+      { value: 'bad', label: 'Besværlig' },
+      { value: 'ok', label: 'Det fungerer' },
+      { value: 'good', label: 'Problemfri' },
+    ],
+  },
+  {
+    id: 'e3',
+    type: 'choice-single',
+    question: 'Indberetter du udgifter eller udlæg til din virksomhed?',
+    autoAdvance: true,
+    options: [
+      { value: 'yes-easy', label: 'Ja, regelmæssigt og det er nemt' },
+      { value: 'yes-hard', label: 'Ja, men processen er besværlig' },
+      { value: 'no', label: 'Nej, ikke relevant for mig' },
+    ],
+  },
+  {
+    id: 'e4',
+    type: 'choice-single',
+    question: 'Ville du have tillid til en AI der håndterede din lønseddel?',
+    subText: 'Der er ingen forkerte svar.',
+    autoAdvance: true,
+    options: [
+      { value: 'yes', label: 'Ja, hvis systemet er nøjagtigt' },
+      { value: 'controlled', label: 'Kun med menneskelig kontrol undervejs' },
+      { value: 'no', label: 'Nej — løn er for vigtigt til AI' },
+    ],
+  },
+]
 
-  if (answers.track === 'non-zenegy') {
-    return [OPENING_QUESTION, ROLE_QUESTION, ...TRACK_B_QUESTIONS, NUMBERS_AWARENESS]
+const AI_QUESTION: Question = {
+  id: 'ai',
+  type: 'choice-single',
+  question: 'Ville du overveje AI-automatisering i jeres lønproces?',
+  subText: 'AI er på alles læber — vi er nysgerrige på jeres holdning.',
+  autoAdvance: true,
+  options: [
+    { value: 'using', label: 'Ja, vi bruger det allerede' },
+    { value: 'interested', label: 'Ja, vi er interesserede' },
+    { value: 'exploring', label: 'Måske — vi undersøger det' },
+    { value: 'no', label: 'Nej, ikke foreløbigt' },
+  ],
+}
+
+export function getQuestionSequence(
+  answers: Pick<SurveyAnswers, 'track' | 'a_products' | 'is_employee'>
+): Question[] {
+  // Employee track
+  if (answers.is_employee) {
+    return [GATE_QUESTION, ...EMPLOYEE_QUESTIONS]
   }
 
+  // No gate answer yet
+  if (answers.is_employee === undefined && !answers.track) {
+    return [GATE_QUESTION]
+  }
+
+  // Decision-maker track: no track selected yet
+  if (!answers.track) {
+    return [GATE_QUESTION, OPENING_QUESTION]
+  }
+
+  if (answers.track === 'non-zenegy') {
+    return [GATE_QUESTION, OPENING_QUESTION, ROLE_QUESTION, ...TRACK_B_QUESTIONS, AI_QUESTION, NUMBERS_AWARENESS]
+  }
+
+  // zenegy track
   const usesNumbers = answers.a_products?.includes('numbers') ?? false
   return [
+    GATE_QUESTION,
     OPENING_QUESTION,
     ROLE_QUESTION,
     ...TRACK_A_QUESTIONS,
+    AI_QUESTION,
     ...(usesNumbers ? [] : [NUMBERS_AWARENESS]),
   ]
 }

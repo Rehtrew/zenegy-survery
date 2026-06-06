@@ -5,98 +5,174 @@ interface Props {
   totalQuestions: number
   direction: Direction
   animKey: number
+  stepGroups: Array<{ label: string; questionIds: string[] }>
+  currentStepIndex: number
   children: React.ReactNode
 }
 
-const ZenegyLogo = () => (
-  <svg width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="64" height="64" rx="14" fill="#6e30fd"/>
-    <g transform="translate(10, 13.15) scale(0.662)">
-      <path d="M36.1862 13.5684H6.07046C2.7593 13.5684 0 16.2488 0 19.6388V47.9414C0 54.7213 8.82975 57.4018 12.6139 51.7255L36.9746 15.0663C37.3688 14.4356 36.9746 13.5684 36.1862 13.5684Z" fill="white"/>
-      <path d="M30.2737 41.242H60.3895C63.7007 41.242 66.46 38.5615 66.46 35.1715V6.869C66.46 0.0890055 57.6302 -2.59146 53.846 3.08482L29.4854 39.7441C29.0912 40.3748 29.4854 41.242 30.2737 41.242Z" fill="white"/>
+const ZenegyLogoFull = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="117" height="22" viewBox="0 0 117 22" fill="none">
+    <g clipPath="url(#clip0_475_547)">
+      <path d="M11.1015 15.8272H22.4715C23.6357 15.8272 24.581 14.5143 24.581 12.895V3.65488C24.581 2.03559 23.6357 0.722656 22.4715 0.722656H21.5029C20.9135 0.722656 20.3504 1.06402 19.9507 1.66797L10.9294 15.2758C10.7893 15.4859 10.8973 15.8272 11.1044 15.8272H11.1015Z" fill="white"/>
+      <path d="M13.4795 5.65344H2.10945C0.945313 5.65344 0 6.96638 0 8.58566V17.8258C0 19.4451 0.945313 20.758 2.10945 20.758H3.0781C3.66746 20.758 4.23057 20.4167 4.63028 19.8127L13.6516 6.20488C13.7917 5.99481 13.6837 5.65344 13.4765 5.65344H13.4795Z" fill="white"/>
+      <path d="M31.385 15.5763V13.0438L37.6025 5.98899H31.458V3.38354H41.1912V5.91605L34.8745 12.9709H41.3137V15.5763H31.385Z" fill="white"/>
+      <path d="M48.885 15.871C47.6567 15.871 46.5655 15.6084 45.6173 15.0833C44.6661 14.5581 43.9221 13.8228 43.3795 12.8717C42.8397 11.9205 42.5684 10.8235 42.5684 9.57768C42.5684 8.33185 42.8339 7.19398 43.3678 6.21073C43.8988 5.22749 44.637 4.46307 45.5794 3.91164C46.5218 3.36312 47.6305 3.08887 48.9084 3.08887C50.1046 3.08887 51.1608 3.35145 52.0798 3.87663C52.9989 4.4018 53.7137 5.11662 54.2301 6.02692C54.7466 6.93722 55.0033 7.94964 55.0033 9.06126C55.0033 9.24216 54.9975 9.42888 54.9916 9.62728C54.9829 9.82276 54.9712 10.0299 54.9537 10.2429H45.6873C45.7515 11.1941 46.0841 11.938 46.6822 12.4807C47.2803 13.0205 48.0068 13.2918 48.8588 13.2918C49.4977 13.2918 50.0346 13.1489 50.4693 12.8629C50.904 12.577 51.2279 12.2036 51.4409 11.7455H54.6357C54.4052 12.5157 54.0259 13.216 53.492 13.8462C52.9581 14.4764 52.3045 14.9724 51.5255 15.3342C50.7465 15.696 49.8654 15.8739 48.8821 15.8739L48.885 15.871ZM48.9113 5.64471C48.141 5.64471 47.4612 5.86062 46.8719 6.29535C46.2825 6.73007 45.9061 7.38946 45.7427 8.2735H51.8143C51.7647 7.47115 51.4701 6.83219 50.9303 6.35662C50.3905 5.88104 49.7166 5.64471 48.9142 5.64471H48.9113Z" fill="white"/>
+      <path d="M56.1848 15.5763V3.38355H58.9624L59.2075 5.44923C59.5839 4.72858 60.1295 4.1538 60.8414 3.72783C61.5533 3.30185 62.3935 3.08887 63.3593 3.08887C64.8677 3.08887 66.0377 3.56444 66.875 4.51559C67.7095 5.46674 68.1296 6.85845 68.1296 8.69364V15.5763H64.9844V8.98832C64.9844 7.94089 64.7714 7.13562 64.3454 6.57836C63.9195 6.02109 63.2542 5.74391 62.3556 5.74391C61.457 5.74391 60.7451 6.0561 60.179 6.67756C59.613 7.30193 59.33 8.16847 59.33 9.283V15.5763H56.1848Z" fill="white"/>
+      <path d="M75.5784 15.871C74.3501 15.871 73.2589 15.6084 72.3106 15.0833C71.3595 14.5581 70.6155 13.8228 70.0728 12.8717C69.5331 11.9205 69.2617 10.8235 69.2617 9.57768C69.2617 8.33185 69.5272 7.19398 70.0612 6.21073C70.5922 5.22749 71.3303 4.46307 72.2727 3.91164C73.2151 3.36312 74.3238 3.08887 75.6017 3.08887C76.798 3.08887 77.8541 3.35145 78.7732 3.87663C79.6923 4.4018 80.4071 5.11662 80.9235 6.02692C81.4399 6.93722 81.6967 7.94964 81.6967 9.06126C81.6967 9.24216 81.6908 9.42888 81.685 9.62728C81.6762 9.82276 81.6646 10.0299 81.6471 10.2429H72.3807C72.4449 11.1941 72.7775 11.938 73.3756 12.4807C73.9737 13.0205 74.7002 13.2918 75.5521 13.2918C76.1911 13.2918 76.7279 13.1489 77.1627 12.8629C77.5974 12.577 77.9212 12.2036 78.1342 11.7455H81.329C81.0986 12.5157 80.7193 13.216 80.1853 13.8462C79.6514 14.4764 78.9979 14.9724 78.2189 15.3342C77.4398 15.696 76.5587 15.8739 75.5755 15.8739L75.5784 15.871ZM75.6017 5.64471C74.8315 5.64471 74.1517 5.86062 73.5623 6.29535C72.9729 6.73007 72.5966 7.38946 72.4332 8.2735H78.5048C78.4552 7.47115 78.1605 6.83219 77.6207 6.35662C77.081 5.88104 76.407 5.64471 75.6047 5.64471H75.6017Z" fill="white"/>
+      <path d="M96.7896 20.9827L99.926 14.0825L98.5868 14.065L94.1345 3.38354H97.5511L100.968 11.9614L104.53 3.38354H107.874L100.13 20.9827H96.7866H96.7896Z" fill="white"/>
+      <path d="M113.75 9.26066C113.173 9.26066 112.638 9.13774 112.144 8.85095C111.649 8.56415 111.279 8.19541 110.99 7.74473C110.702 7.29405 110.578 6.76143 110.578 6.18783C110.578 5.73715 110.661 5.36841 110.826 4.9587C110.99 4.58996 111.196 4.26219 111.485 3.9754C111.773 3.6886 112.102 3.48375 112.514 3.31986C112.885 3.15598 113.297 3.07404 113.75 3.07404C114.162 3.07404 114.574 3.15598 114.944 3.31986C115.315 3.48375 115.645 3.6886 115.933 3.9754C116.221 4.26219 116.427 4.58996 116.592 4.9587C116.757 5.32744 116.839 5.73715 116.839 6.14686C116.839 6.55657 116.757 6.96628 116.592 7.37599C116.427 7.74473 116.221 8.0725 115.933 8.3593C115.645 8.64609 115.315 8.85095 114.944 9.01483C114.574 9.17872 114.203 9.26066 113.75 9.26066ZM113.75 8.48221C114.162 8.48221 114.533 8.40027 114.903 8.19541C115.233 7.99056 115.521 7.70376 115.727 7.37599C115.933 7.00725 116.015 6.63851 116.015 6.2288C116.015 5.81909 115.933 5.40938 115.727 5.08161C115.521 4.71288 115.233 4.46705 114.903 4.26219C114.574 4.05734 114.162 3.93443 113.75 3.93443C113.297 3.93443 112.885 4.05734 112.555 4.26219C112.185 4.46705 111.896 4.75385 111.69 5.08161C111.485 5.45035 111.361 5.81909 111.361 6.2288C111.361 6.67948 111.485 7.04822 111.69 7.41696C111.896 7.7857 112.185 8.03153 112.555 8.23638C112.926 8.3593 113.297 8.48221 113.75 8.48221ZM112.473 7.62182V4.63093H113.997C114.327 4.63093 114.574 4.71288 114.78 4.87676C114.986 5.04064 115.068 5.28647 115.068 5.57327C115.068 5.86006 114.944 6.10589 114.738 6.26977C114.533 6.43366 114.285 6.55657 113.956 6.55657H113.256L113.42 6.39269V7.62182H112.473ZM113.503 6.02395L113.338 5.94201H113.75C113.832 5.94201 113.915 5.90104 113.997 5.86006C114.079 5.81909 114.079 5.73715 114.079 5.65521C114.079 5.49133 114.038 5.40938 113.997 5.45035C113.956 5.40938 113.873 5.36841 113.75 5.36841H113.256L113.462 5.28647V6.02395H113.503ZM114.162 7.62182L113.709 6.5156L114.574 6.31075L115.274 7.62182H114.162Z" fill="white"/>
+      <path d="M90.324 3.38355C89.7346 3.18807 89.0957 3.08887 88.4071 3.08887C87.3597 3.08887 86.464 3.28435 85.7287 3.67823C84.9906 4.07211 84.4216 4.60312 84.0219 5.27709C83.6193 5.94815 83.4209 6.69506 83.4209 7.51492C83.4209 8.70531 83.8177 9.70022 84.6025 10.4967C85.2619 11.0423 86.3123 11.7017 87.6748 11.8972C87.914 11.9205 88.1562 11.941 88.41 11.941C89.4254 11.941 90.3065 11.7455 91.0534 11.3516C91.7974 10.9577 92.3693 10.4267 92.7602 9.75566C93.1541 9.0846 93.3496 8.33769 93.3496 7.51783C93.3496 6.76508 93.1862 6.07652 92.8594 5.45215L94.9485 5.30335V3.38647H90.3269L90.324 3.38355ZM89.9943 9.01458C89.5771 9.35886 89.049 9.531 88.41 9.531C87.739 9.531 87.1963 9.35886 86.7878 9.01458C86.3794 8.6703 86.1751 8.17722 86.1751 7.54117C86.1751 6.90513 86.3794 6.40913 86.7878 6.06777C87.1963 5.72349 87.739 5.55135 88.41 5.55135C89.0811 5.55135 89.5771 5.72349 89.9943 6.06777C90.4115 6.41205 90.6216 6.90221 90.6216 7.54117C90.6216 8.18014 90.4115 8.6703 89.9943 9.01458Z" fill="white"/>
+      <path d="M89.2941 13.3152C88.2291 13.216 87.4589 13.1197 86.9833 13.0205C86.5077 12.9213 86.1313 12.7987 85.8512 12.6529L85.8571 12.647C85.1189 12.3465 84.5062 11.9614 84.0336 11.5938L82.706 12.9971V13.5632C82.8869 13.744 83.0941 13.9162 83.3333 14.0796C83.5697 14.243 83.8527 14.3976 84.1824 14.5464C83.1174 15.3487 82.5835 16.2999 82.5835 17.3969C82.5835 18.6924 83.1145 19.661 84.1824 20.3087C85.2473 20.9564 86.6478 21.2803 88.3867 21.2803C89.6646 21.2803 90.712 21.079 91.5319 20.6793C92.3517 20.2766 92.9586 19.7544 93.3496 19.1067C93.7434 18.4589 93.9389 17.7762 93.9389 17.0526C93.9389 15.9556 93.5713 15.0949 92.8331 14.4705C92.095 13.8491 90.9163 13.464 89.2941 13.3152ZM90.3006 18.4152C89.8105 18.7361 89.1715 18.8937 88.3838 18.8937C87.596 18.8937 86.8724 18.742 86.3064 18.4385C85.7404 18.1351 85.4574 17.6799 85.4574 17.0731C85.4574 16.7463 85.5595 16.4253 85.7637 16.1161C85.968 15.8039 86.3093 15.518 86.7849 15.2554C87.3597 15.3546 87.9811 15.4275 88.6522 15.4771C89.6033 15.5442 90.2365 15.7222 90.5574 16.0169C90.8754 16.3116 91.0359 16.6821 91.0359 17.1227C91.0359 17.6624 90.7908 18.0942 90.2977 18.4123L90.3006 18.4152Z" fill="white"/>
     </g>
+    <defs>
+      <clipPath id="clip0_475_547">
+        <rect width="117" height="20.5547" fill="white" transform="translate(0 0.722656)"/>
+      </clipPath>
+    </defs>
   </svg>
 )
 
-export function SurveyShell({ currentIndex, totalQuestions, direction, animKey, children }: Props) {
-  const progressPct = totalQuestions > 1
-    ? Math.round((currentIndex / (totalQuestions - 1)) * 100)
-    : 0
-
+export function SurveyShell({ currentIndex, direction, animKey, stepGroups, currentStepIndex, children }: Props) {
   const enterClass = direction === 'forward' ? 'anim-slide-in-right' : 'anim-slide-in-left'
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-surface-page)', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
-      <header style={{
-        background: 'var(--color-surface-default)',
-        borderBottom: '1px solid var(--color-border-default)',
-        padding: '14px 32px',
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
+
+      {/* LEFT SIDEBAR */}
+      <aside style={{
+        width: 260,
+        flexShrink: 0,
+        background: '#120c2b',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        flexDirection: 'column',
+        padding: '32px 28px',
         position: 'sticky',
         top: 0,
-        zIndex: 10,
+        height: '100vh',
+        overflowY: 'auto',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <ZenegyLogo />
-          <span style={{ fontSize: 18, fontWeight: 500, color: 'var(--color-text-primary)', letterSpacing: '-0.3px' }}>zenegy</span>
+        {/* Logo */}
+        <div style={{ marginBottom: 48 }}>
+          <ZenegyLogoFull />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
-            {currentIndex + 1} af {totalQuestions}
-          </span>
-          <div style={{
-            width: 160,
-            height: 4,
-            background: 'var(--color-surface-subtle)',
-            borderRadius: 9999,
-            overflow: 'hidden',
-          }}>
-            <div style={{
-              height: '100%',
-              background: 'var(--color-action-primary)',
-              borderRadius: 9999,
-              width: `${progressPct}%`,
-              transition: 'width 400ms ease-in-out',
+        {/* Step list */}
+        <nav style={{ flex: 1 }}>
+          {stepGroups.map((group, i) => {
+            const isActive = i === currentStepIndex
+            const isPast = i < currentStepIndex
+            return (
+              <div key={group.label} style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '10px 0',
+                borderBottom: i < stepGroups.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+              }}>
+                {/* Step dot */}
+                <div style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  flexShrink: 0,
+                  background: isActive ? '#6e30fd' : isPast ? '#9d94ff' : 'rgba(255,255,255,0.2)',
+                  boxShadow: isActive ? '0 0 0 3px rgba(110,48,253,0.3)' : 'none',
+                  transition: 'all 0.2s ease',
+                }} />
+                <span style={{
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: isActive ? 'white' : isPast ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.3)',
+                  transition: 'color 0.2s ease',
+                }}>
+                  {group.label}
+                </span>
+                {isPast && (
+                  <svg style={{ marginLeft: 'auto', flexShrink: 0 }} width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6l3 3 5-5" stroke="#9d94ff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+              </div>
+            )
+          })}
+        </nav>
+
+        {/* Keyboard hint */}
+        <div style={{ marginTop: 'auto', paddingTop: 24 }}>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', lineHeight: 1.5 }}>
+            Enter for at fortsætte · ← for at gå tilbage
+          </p>
+        </div>
+      </aside>
+
+      {/* MAIN CONTENT */}
+      <main style={{
+        flex: 1,
+        background: 'var(--color-surface-page)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '48px 48px',
+        minHeight: '100vh',
+      }}>
+        {/* Progress bars at top */}
+        <div style={{ display: 'flex', gap: 6, marginBottom: 40, alignSelf: 'flex-start', maxWidth: 580, width: '100%', marginLeft: 'auto', marginRight: 'auto' }}>
+          {stepGroups.map((_, i) => (
+            <div key={i} style={{
+              flex: 1,
+              height: 3,
+              borderRadius: 99,
+              background: i <= currentStepIndex ? '#6e30fd' : 'var(--color-border-default)',
+              transition: 'background 0.3s ease',
             }} />
+          ))}
+        </div>
+
+        {/* Card stack wrapper */}
+        <div style={{ position: 'relative', width: '100%', maxWidth: 580 }}>
+          {/* Card shadow layers (stacked effect) */}
+          <div style={{
+            position: 'absolute',
+            top: -6, left: 14, right: 14,
+            bottom: 0,
+            background: 'white',
+            borderRadius: 20,
+            opacity: 0.7,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
+          }} />
+          <div style={{
+            position: 'absolute',
+            top: -11, left: 26, right: 26,
+            bottom: 0,
+            background: 'white',
+            borderRadius: 22,
+            opacity: 0.45,
+            boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+          }} />
+
+          {/* Main card */}
+          <div
+            key={animKey}
+            className={enterClass}
+            style={{
+              position: 'relative',
+              background: 'white',
+              borderRadius: 20,
+              padding: '40px 44px 36px',
+              boxShadow: '0 8px 40px rgba(0,0,0,0.09)',
+              zIndex: 1,
+            }}
+          >
+            {/* Question counter */}
+            <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-text-tertiary)', marginBottom: 16, letterSpacing: '0.06em' }}>
+              Q.{String(currentIndex + 1).padStart(2, '0')}
+            </p>
+
+            {children}
           </div>
         </div>
-      </header>
-
-      {/* Question area */}
-      <main style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '56px 24px', overflow: 'hidden' }}>
-        <div key={animKey} className={`w-full max-w-[640px] ${enterClass}`}>
-          {children}
-        </div>
       </main>
-
-      {/* Keyboard hint */}
-      <div style={{ paddingBottom: 24, textAlign: 'center' }}>
-        <span style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>
-          Tryk{' '}
-          <kbd style={{
-            padding: '2px 6px',
-            borderRadius: 4,
-            background: 'var(--color-surface-subtle)',
-            color: 'var(--color-text-secondary)',
-            fontFamily: 'monospace',
-            fontSize: 10,
-          }}>Enter</kbd>
-          {' '}for at fortsætte ·{' '}
-          <kbd style={{
-            padding: '2px 6px',
-            borderRadius: 4,
-            background: 'var(--color-surface-subtle)',
-            color: 'var(--color-text-secondary)',
-            fontFamily: 'monospace',
-            fontSize: 10,
-          }}>←</kbd>
-          {' '}for at gå tilbage
-        </span>
-      </div>
     </div>
   )
 }
