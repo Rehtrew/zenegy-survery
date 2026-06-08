@@ -70,34 +70,8 @@ describe('QuestionRenderer', () => {
     expect(screen.getByText('10')).toBeInTheDocument()
   })
 
-  it('shows Næste button for non-auto-advance questions', () => {
-    const q: Question = {
-      id: 'b2', type: 'pill-select',
-      question: 'Multi?',
-      options: [],
-    }
-    render(<QuestionRenderer question={q} {...baseProps} />)
-    expect(screen.getByText('Næste')).toBeInTheDocument()
-  })
-
-  it('hides Næste button for auto-advance questions', () => {
-    const q: Question = {
-      id: 'q0', type: 'choice-single',
-      question: 'Single?', autoAdvance: true,
-      options: [],
-    }
-    render(<QuestionRenderer question={q} {...baseProps} />)
-    expect(screen.queryByText('Næste')).not.toBeInTheDocument()
-  })
-
-  it('disables Næste when no answer selected', () => {
-    const q: Question = {
-      id: 'b2', type: 'pill-select',
-      question: 'Multi?', options: [{ value: 'a', label: 'A' }],
-    }
-    render(<QuestionRenderer question={q} answers={{ b_frustrations: [] }} onAnswer={vi.fn()} onAdvance={vi.fn()} />)
-    expect(screen.getByText('Næste')).toBeDisabled()
-  })
+  // Tilbage/Næste navigation moved out of QuestionRenderer into SurveyShell's
+  // bottom bar, so the card itself no longer renders nav buttons.
 
   it('calls onAdvance after 300ms on auto-advance single-select', async () => {
     vi.useFakeTimers()

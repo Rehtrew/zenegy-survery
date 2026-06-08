@@ -1,23 +1,19 @@
+import { SCENES, type Scene } from '../../lib/scenes'
+
 interface Props {
   value: string
   onChange: (value: string) => void
   placeholder?: string
   maxLength?: number
   label?: string
+  scene?: Scene
 }
 
-export function OpenText({ value, onChange, placeholder, maxLength = 300, label }: Props) {
+export function OpenText({ value, onChange, placeholder, maxLength = 300, label, scene = SCENES[0] }: Props) {
   return (
-    <div className="mt-5">
+    <div style={{ marginTop: 20 }}>
       {label && (
-        <div
-          className="mb-2"
-          style={{
-            fontSize: 13,
-            fontWeight: 600,
-            color: 'var(--color-text-secondary)',
-          }}
-        >
+        <div style={{ fontSize: 13.5, fontWeight: 500, color: scene.inkMuted, marginBottom: 8 }}>
           {label}
         </div>
       )}
@@ -27,17 +23,24 @@ export function OpenText({ value, onChange, placeholder, maxLength = 300, label 
         placeholder={placeholder}
         maxLength={maxLength}
         rows={3}
-        className="w-full px-4 py-3.5 rounded-xl outline-none text-sm font-sans resize-none transition-colors"
         style={{
-          background: 'var(--color-surface-subtle)',
-          border: 'none',
-          color: 'var(--color-text-primary)',
+          width: '100%',
+          padding: '14px 16px',
+          borderRadius: 14,
+          outline: 'none',
+          fontSize: 14.5,
+          fontFamily: 'var(--font-sans)',
+          resize: 'none',
+          background: '#f6f6f7',
+          border: '1.5px solid #ededf0',
+          color: scene.ink,
+          boxSizing: 'border-box',
+          transition: 'border-color 0.14s ease, background 0.14s ease',
         }}
+        onFocus={e => { e.currentTarget.style.borderColor = scene.accent; e.currentTarget.style.background = '#ffffff' }}
+        onBlur={e => { e.currentTarget.style.borderColor = '#ededf0'; e.currentTarget.style.background = '#f6f6f7' }}
       />
-      <div
-        className="text-xs text-right mt-1"
-        style={{ color: 'var(--color-text-tertiary)' }}
-      >
+      <div style={{ fontSize: 12, textAlign: 'right', marginTop: 5, color: scene.inkMuted }}>
         {value.length} / {maxLength}
       </div>
     </div>

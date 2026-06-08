@@ -1,19 +1,18 @@
 import { useState, useCallback } from 'react'
-import type { Phase, Direction, SurveyAnswers } from '../types'
+import type { Phase, Direction, SurveyAnswers, Question } from '../types'
 import { getQuestionSequence } from '../lib/questions'
+import { getScene } from '../lib/scenes'
 import { useKeyboard } from '../lib/useKeyboard'
-import { SurveyShell } from '../components/SurveyShell'
+import { SurveyShell, type StepGroup } from '../components/SurveyShell'
 import { QuestionRenderer } from '../components/QuestionRenderer'
 
-// These are imported lazily to avoid circular dependencies at compile time
-// They will be provided by App.tsx in the actual render tree
 interface SurveyFlowProps {
-  renderLanding: (onStart: () => void) => React.ReactNode
+  renderLanding: () => React.ReactNode
   renderLeadGen: (answers: SurveyAnswers, onSubmitted: () => void) => React.ReactNode
   renderThankYou: () => React.ReactNode
 }
 
-function getStepGroups(answers: SurveyAnswers): Array<{ label: string; questionIds: string[] }> {
+function getStepGroups(answers: SurveyAnswers): StepGroup[] {
   if (answers.is_employee) {
     return [
       { label: 'Om dig', questionIds: ['gate'] },
@@ -22,7 +21,7 @@ function getStepGroups(answers: SurveyAnswers): Array<{ label: string; questionI
       { label: 'Deltag', questionIds: [] },
     ]
   }
-  const base = [
+  const base: StepGroup[] = [
     { label: 'Om dig', questionIds: ['gate', 'q0', 'role'] },
   ]
   if (answers.track === 'zenegy') {
@@ -43,6 +42,50 @@ function getStepGroups(answers: SurveyAnswers): Array<{ label: string; questionI
     { label: 'Regnskab', questionIds: ['numbers'] },
     { label: 'Deltag', questionIds: [] },
   ]
+}
+
+/** Whether the current question has a usable answer (drives the Next button). */
+function isAnswered(question: Question, answers: SurveyAnswers): boolean {
+  const lookup: Record<string, unknown> = {
+    gate: answers.is_employee !== undefined ? 'answered' : undefined,
+    q0: answers.track,
+    role: answers.role,
+    b1: answers.b_payroll_system,
+    b2: answers.b_frustrations,
+    b3: answers.b_priorities,
+    b4: answers.b_barriers,
+    a1: answers.a_products,
+    a2: answers.a_satisfaction,
+    a3: answers.a_best_thing,
+    a4: answers.a_nps,
+    numbers: answers.accounting_system,
+    e1: answers.e_payslip,
+    e2: answers.e_payroll_satisfaction,
+    e3: answers.e_expenses,
+    e4: answers.e_ai_trust,
+    ai: answers.ai_interest,
+  }
+  const ans = lookup[question.id]
+  return ans !== null && ans !== undefined && ans !== '' &&
+    !(Array.isArray(ans) && (ans as unknown[]).length === 0)
+}
+
+function computePercent(
+  phase: Phase, stepGroups: StepGroup[], currentStepIndex: number, currentQuestion?: Question,
+): number {
+  if (phase === 'landing') return 0
+  if (phase === 'thank-you') return 100
+  const total = stepGroups.length || 1
+  if (phase === 'lead-gen') return Math.round(((currentStepIndex + 0.5) / total) * 100)
+  // questions — base on section progress so it stays stable as the sequence branches
+  const group = stepGroups[currentStepIndex]
+  let frac = 0.5
+  if (group && currentQuestion) {
+    const within = group.questionIds.indexOf(currentQuestion.id)
+    const len = Math.max(group.questionIds.length, 1)
+    if (within >= 0) frac = (within + 1) / len
+  }
+  return Math.round(((currentStepIndex + frac) / total) * 100)
 }
 
 export function SurveyFlow({ renderLanding, renderLeadGen, renderThankYou }: SurveyFlowProps) {
@@ -96,38 +139,13 @@ export function SurveyFlow({ renderLanding, renderLeadGen, renderThankYou }: Sur
 
   const advance = useCallback(() => {
     if (phase === 'landing') {
+      setDirection('forward')
       setPhase('questions')
       setAnimKey(k => k + 1)
       return
     }
     if (phase !== 'questions' || !currentQuestion) return
-
-    // Block keyboard Enter from advancing without a selection on non-auto-advance questions
-    if (!currentQuestion.autoAdvance) {
-      const answerLookup: Record<string, unknown> = {
-        gate: answers.is_employee !== undefined ? 'answered' : undefined,
-        q0: answers.track,
-        role: answers.role,
-        b1: answers.b_payroll_system,
-        b2: answers.b_frustrations,
-        b3: answers.b_priorities,
-        b4: answers.b_barriers,
-        a1: answers.a_products,
-        a2: answers.a_satisfaction,
-        a3: answers.a_best_thing,
-        a4: answers.a_nps,
-        numbers: answers.accounting_system,
-        e1: answers.e_payslip,
-        e2: answers.e_payroll_satisfaction,
-        e3: answers.e_expenses,
-        e4: answers.e_ai_trust,
-        ai: answers.ai_interest,
-      }
-      const ans = answerLookup[currentQuestion.id]
-      const answered = ans !== null && ans !== undefined && ans !== '' &&
-        !(Array.isArray(ans) && (ans as unknown[]).length === 0)
-      if (!answered) return
-    }
+    if (!currentQuestion.autoAdvance && !isAnswered(currentQuestion, answers)) return
 
     if (questionIndex < questions.length - 1) {
       setDirection('forward')
@@ -141,13 +159,29 @@ export function SurveyFlow({ renderLanding, renderLeadGen, renderThankYou }: Sur
   }, [phase, questionIndex, questions.length, currentQuestion, answers])
 
   const back = useCallback(() => {
+    if (phase === 'lead-gen') {
+      setDirection('backward')
+      setAnimKey(k => k + 1)
+      setPhase('questions')
+      return
+    }
     if (phase !== 'questions') return
     if (questionIndex > 0) {
       setDirection('backward')
       setAnimKey(k => k + 1)
       setQuestionIndex(i => i - 1)
+    } else {
+      setDirection('backward')
+      setAnimKey(k => k + 1)
+      setPhase('landing')
     }
   }, [phase, questionIndex])
+
+  const goToLanding = useCallback(() => {
+    setDirection('backward')
+    setAnimKey(k => k + 1)
+    setPhase('landing')
+  }, [])
 
   const handleKeySelectIndex = useCallback((index: number) => {
     if (phase !== 'questions' || !currentQuestion?.options) return
@@ -165,41 +199,71 @@ export function SurveyFlow({ renderLanding, renderLeadGen, renderThankYou }: Sur
 
   const stepGroups = getStepGroups(answers)
 
-  if (phase === 'landing') return <>{renderLanding(advance)}</>
-  if (phase === 'lead-gen') return (
-    <SurveyShell
-      currentIndex={questions.length}
-      totalQuestions={questions.length}
-      direction="forward"
-      animKey={animKey}
-      stepGroups={stepGroups}
-      currentStepIndex={stepGroups.length - 1}
-      hideCounter
-    >
-      {renderLeadGen(answers, () => setPhase('thank-you'))}
-    </SurveyShell>
-  )
-  if (phase === 'thank-you') return <>{renderThankYou()}</>
-  if (!currentQuestion) return null
+  // ── Landing ──
+  if (phase === 'landing') {
+    return (
+      <SurveyShell
+        stepGroups={stepGroups} currentStepIndex={-1}
+        percent={computePercent('landing', stepGroups, -1)}
+        phase="landing" direction={direction} animKey={animKey}
+        showNext nextLabel="Start undersøgelsen" onNext={advance}
+      >
+        {renderLanding()}
+      </SurveyShell>
+    )
+  }
 
-  const currentStepIndex = stepGroups.findIndex(g => g.questionIds.includes(currentQuestion.id))
+  // ── Lead-gen ──
+  if (phase === 'lead-gen') {
+    const idx = stepGroups.length - 1
+    return (
+      <SurveyShell
+        stepGroups={stepGroups} currentStepIndex={idx}
+        percent={computePercent('lead-gen', stepGroups, idx)}
+        phase="lead-gen" direction={direction} animKey={animKey}
+        showBack onBack={back} onExit={goToLanding}
+      >
+        {renderLeadGen(answers, () => { setDirection('forward'); setAnimKey(k => k + 1); setPhase('thank-you') })}
+      </SurveyShell>
+    )
+  }
+
+  // ── Thank-you ──
+  if (phase === 'thank-you') {
+    return (
+      <SurveyShell
+        stepGroups={stepGroups} currentStepIndex={stepGroups.length}
+        percent={100} phase="thank-you" direction={direction} animKey={animKey}
+      >
+        {renderThankYou()}
+      </SurveyShell>
+    )
+  }
+
+  // ── Questions ──
+  if (!currentQuestion) return null
+  const found = stepGroups.findIndex(g => g.questionIds.includes(currentQuestion.id))
+  const currentStepIndex = found >= 0 ? found : 0
+  const scene = getScene(questionIndex)
+  const isFirst = questionIndex === 0
+  const answered = isAnswered(currentQuestion, answers)
 
   return (
     <SurveyShell
-      currentIndex={questionIndex}
-      totalQuestions={questions.length}
-      direction={direction}
-      animKey={animKey}
-      stepGroups={stepGroups}
-      currentStepIndex={currentStepIndex >= 0 ? currentStepIndex : 0}
+      stepGroups={stepGroups} currentStepIndex={currentStepIndex}
+      percent={computePercent('questions', stepGroups, currentStepIndex, currentQuestion)}
+      phase="questions" direction={direction} animKey={animKey}
+      showBack backLabel={isFirst ? 'Forsiden' : 'Tilbage'} onBack={back}
+      showNext={!currentQuestion.autoAdvance} nextLabel="Næste" nextDisabled={!answered} onNext={advance}
+      onExit={goToLanding}
     >
       <QuestionRenderer
         question={currentQuestion}
+        scene={scene}
         answers={answers}
         onAnswer={handleAnswer}
         onAdvance={advance}
-        onBack={back}
-        isFirst={questionIndex === 0}
+        eyebrow={stepGroups[currentStepIndex]?.label}
       />
     </SurveyShell>
   )

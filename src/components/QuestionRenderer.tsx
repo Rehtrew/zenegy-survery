@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react'
 import type { Question, SurveyAnswers, RankEntry } from '../types'
+import { BRAND_SCENE, type Scene } from '../lib/scenes'
 import { ChoiceList } from './inputs/ChoiceList'
 import { LogoGrid } from './inputs/LogoGrid'
 import { PillSelect } from './inputs/PillSelect'
@@ -13,8 +14,8 @@ interface Props {
   answers: SurveyAnswers
   onAnswer: (id: string, value: unknown) => void
   onAdvance: () => void
-  onBack?: () => void
-  isFirst?: boolean
+  eyebrow?: string
+  scene?: Scene
 }
 
 function getAnswer(answers: SurveyAnswers, id: string): unknown {
@@ -33,19 +34,13 @@ function getAnswer(answers: SurveyAnswers, id: string): unknown {
   return map[id] ?? (id.endsWith('_text') ? '' : '')
 }
 
-function hasAnswer(answer: unknown): boolean {
-  if (answer === null || answer === undefined || answer === '') return false
-  if (Array.isArray(answer)) return answer.length > 0
-  return true
-}
-
 export function QuestionRenderer({
   question,
   answers,
   onAnswer,
   onAdvance,
-  onBack,
-  isFirst = false,
+  eyebrow,
+  scene = BRAND_SCENE,
 }: Props) {
   const answer = getAnswer(answers, question.id)
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -68,68 +63,30 @@ export function QuestionRenderer({
   const renderInput = () => {
     switch (question.type) {
       case 'choice-single':
-        return (
-          <ChoiceList
-            options={question.options ?? []}
-            value={answer as string}
-            onChange={handleSingleSelect}
-          />
-        )
+        return <ChoiceList options={question.options ?? []} value={answer as string} onChange={handleSingleSelect} scene={scene} />
       case 'choice-multi':
-        return (
-          <ChoiceList
-            options={question.options ?? []}
-            value={answer as string[]}
-            onChange={v => onAnswer(question.id, v)}
-            multi
-          />
-        )
+        return <ChoiceList options={question.options ?? []} value={answer as string[]} onChange={v => onAnswer(question.id, v)} multi scene={scene} />
       case 'logo-grid':
         return (
           <LogoGrid
             options={question.options ?? []}
             value={answer as string}
             onChange={handleSingleSelect}
-            otherValue={
-              question.id === 'b1' ? (answers.b_payroll_other ?? '') : (answers.accounting_other ?? '')
-            }
-            onOtherChange={v =>
-              onAnswer(question.id === 'b1' ? 'b_payroll_other' : 'accounting_other', v)
-            }
+            scene={scene}
+            otherValue={question.id === 'b1' ? (answers.b_payroll_other ?? '') : (answers.accounting_other ?? '')}
+            onOtherChange={v => onAnswer(question.id === 'b1' ? 'b_payroll_other' : 'accounting_other', v)}
           />
         )
       case 'pill-select':
-        return (
-          <PillSelect
-            options={question.options ?? []}
-            value={answer as string[]}
-            onChange={v => onAnswer(question.id, v)}
-          />
-        )
+        return <PillSelect options={question.options ?? []} value={answer as string[]} onChange={v => onAnswer(question.id, v)} scene={scene} />
       case 'emoji-rating':
-        return (
-          <EmojiRating
-            options={question.options ?? []}
-            value={answer as string}
-            onChange={handleSingleSelect}
-          />
-        )
+        return <EmojiRating options={question.options ?? []} value={answer as string} onChange={handleSingleSelect} scene={scene} />
       case 'priority-rank':
-        return (
-          <PriorityRank
-            options={question.options ?? []}
-            value={answer as RankEntry[]}
-            onChange={v => onAnswer(question.id, v)}
-            maxRank={question.maxRank}
-          />
-        )
+        return <PriorityRank options={question.options ?? []} value={answer as RankEntry[]} onChange={v => onAnswer(question.id, v)} maxRank={question.maxRank} scene={scene} />
       case 'nps-scale':
         return (
           <div>
-            <NPSScale
-              value={answer as number | null}
-              onChange={v => onAnswer(question.id, v)}
-            />
+            <NPSScale value={answers.a_nps ?? null} onChange={v => onAnswer(question.id, v)} scene={scene} />
             {question.hasOpenText && (
               <OpenText
                 value={question.id === 'a4' ? (answers.a_improve_text ?? '') : ''}
@@ -137,6 +94,7 @@ export function QuestionRenderer({
                 label={question.openTextLabel}
                 placeholder={question.openTextPlaceholder}
                 maxLength={question.openTextMaxLength}
+                scene={scene}
               />
             )}
           </div>
@@ -147,25 +105,15 @@ export function QuestionRenderer({
   }
 
   return (
-    <div className="w-full max-w-[640px] mx-auto">
-      <h2
-        className="leading-snug mb-1.5"
-        style={{
-          fontSize: 23,
-          fontWeight: 500,
-          color: 'var(--color-text-primary)',
-        }}
-      >
+    <div style={{ width: '100%' }}>
+      {eyebrow && (
+        <div style={{ fontSize: 13, fontWeight: 500, color: '#b3a4e8', marginBottom: 14 }}>{eyebrow}</div>
+      )}
+      <h2 style={{ fontSize: 'clamp(22px, 5.5vw, 28px)', fontWeight: 500, lineHeight: 1.18, letterSpacing: '-0.025em', color: scene.ink, marginBottom: question.subText ? 10 : 28 }}>
         {question.question}
       </h2>
       {question.subText && (
-        <p
-          className="mb-7 leading-relaxed"
-          style={{
-            fontSize: 14,
-            color: 'var(--color-text-secondary)',
-          }}
-        >
+        <p style={{ fontSize: 15, color: scene.inkMuted, lineHeight: 1.55, marginBottom: 28 }}>
           {question.subText}
         </p>
       )}
@@ -179,63 +127,8 @@ export function QuestionRenderer({
           label={question.openTextLabel}
           placeholder={question.openTextPlaceholder}
           maxLength={question.openTextMaxLength}
+          scene={scene}
         />
-      )}
-
-      {!question.autoAdvance && (
-        <div className="flex justify-between mt-8">
-          {!isFirst && onBack ? (
-            <button
-              type="button"
-              onClick={onBack}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '12px 20px',
-                borderRadius: 8,
-                border: 'none',
-                background: 'var(--color-surface-subtle)',
-                color: 'var(--color-text-secondary)',
-                fontSize: 14,
-                fontWeight: 500,
-                cursor: 'pointer',
-                fontFamily: 'var(--font-sans)',
-              }}
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Tilbage
-            </button>
-          ) : <div />}
-          <button
-            type="button"
-            onClick={onAdvance}
-            disabled={!hasAnswer(answer)}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '12px 24px',
-              borderRadius: 8,
-              border: 'none',
-              background: '#6e30fd',
-              color: 'white',
-              fontSize: 14,
-              fontWeight: 500,
-              cursor: hasAnswer(answer) ? 'pointer' : 'not-allowed',
-              opacity: hasAnswer(answer) ? 1 : 0.4,
-              fontFamily: 'var(--font-sans)',
-              transition: 'opacity 0.15s ease',
-            }}
-          >
-            Næste
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-        </div>
       )}
     </div>
   )

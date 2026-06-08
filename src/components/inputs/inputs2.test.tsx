@@ -63,24 +63,28 @@ describe('PriorityRank', () => {
 })
 
 describe('NPSScale', () => {
-  it('renders 11 buttons (0–10)', () => {
+  it('renders 11 stops (0–10) and the boundary labels', () => {
     render(<NPSScale value={null} onChange={vi.fn()} />)
     expect(screen.getAllByRole('button')).toHaveLength(11)
     expect(screen.getByText('0')).toBeInTheDocument()
     expect(screen.getByText('10')).toBeInTheDocument()
   })
 
-  it('calls onChange with numeric value on click', async () => {
+  it('shows a placeholder readout when no value is selected', () => {
+    render(<NPSScale value={null} onChange={vi.fn()} />)
+    expect(screen.getByTestId('nps-readout')).toHaveTextContent('–')
+  })
+
+  it('calls onChange with numeric value when a stop is clicked', async () => {
     const onChange = vi.fn()
     render(<NPSScale value={null} onChange={onChange} />)
-    await userEvent.click(screen.getByText('7'))
+    await userEvent.click(screen.getByRole('button', { name: '7' }))
     expect(onChange).toHaveBeenCalledWith(7)
   })
 
-  it('marks selected value visually', () => {
+  it('surfaces the selected value in the giant readout', () => {
     render(<NPSScale value={7} onChange={vi.fn()} />)
-    const btn = screen.getByText('7')
-    expect(btn).toHaveStyle({ background: 'rgb(110, 48, 253)', color: 'rgb(255, 255, 255)' })
+    expect(screen.getByTestId('nps-readout')).toHaveTextContent('7')
   })
 })
 

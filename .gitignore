@@ -18,6 +18,9 @@ dist-ssr
 # Assets to exclude
 src/assets/*.pdf
 
+# Brainstorming visual-companion mockups (scratch)
+.superpowers/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

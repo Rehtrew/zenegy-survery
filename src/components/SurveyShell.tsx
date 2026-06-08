@@ -1,196 +1,287 @@
-import type { Direction } from '../types'
+import type { Direction, Phase } from '../types'
+import { useIsMobile } from '../lib/useIsMobile'
+
+export interface StepGroup {
+  label: string
+  questionIds: string[]
+}
 
 interface Props {
-  currentIndex: number
-  totalQuestions: number
+  stepGroups: StepGroup[]
+  currentStepIndex: number
+  percent: number
+  phase: Phase
   direction: Direction
   animKey: number
-  stepGroups: Array<{ label: string; questionIds: string[] }>
-  currentStepIndex: number
-  hideCounter?: boolean
+  showBack?: boolean
+  backLabel?: string
+  onBack?: () => void
+  showNext?: boolean
+  nextLabel?: string
+  nextDisabled?: boolean
+  onNext?: () => void
+  onExit?: () => void
   children: React.ReactNode
 }
 
-const ZenegyLogoFull = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="117" height="22" viewBox="0 0 117 22" fill="none">
-    <g clipPath="url(#clip0_shell_logo)">
-      <path d="M11.1015 15.8272H22.4715C23.6357 15.8272 24.581 14.5143 24.581 12.895V3.65488C24.581 2.03559 23.6357 0.722656 22.4715 0.722656H21.5029C20.9135 0.722656 20.3504 1.06402 19.9507 1.66797L10.9294 15.2758C10.7893 15.4859 10.8973 15.8272 11.1044 15.8272H11.1015Z" fill="#111111"/>
-      <path d="M13.4795 5.65344H2.10945C0.945313 5.65344 0 6.96638 0 8.58566V17.8258C0 19.4451 0.945313 20.758 2.10945 20.758H3.0781C3.66746 20.758 4.23057 20.4167 4.63028 19.8127L13.6516 6.20488C13.7917 5.99481 13.6837 5.65344 13.4765 5.65344H13.4795Z" fill="#111111"/>
-      <path d="M31.385 15.5763V13.0438L37.6025 5.98899H31.458V3.38354H41.1912V5.91605L34.8745 12.9709H41.3137V15.5763H31.385Z" fill="#111111"/>
-      <path d="M48.885 15.871C47.6567 15.871 46.5655 15.6084 45.6173 15.0833C44.6661 14.5581 43.9221 13.8228 43.3795 12.8717C42.8397 11.9205 42.5684 10.8235 42.5684 9.57768C42.5684 8.33185 42.8339 7.19398 43.3678 6.21073C43.8988 5.22749 44.637 4.46307 45.5794 3.91164C46.5218 3.36312 47.6305 3.08887 48.9084 3.08887C50.1046 3.08887 51.1608 3.35145 52.0798 3.87663C52.9989 4.4018 53.7137 5.11662 54.2301 6.02692C54.7466 6.93722 55.0033 7.94964 55.0033 9.06126C55.0033 9.24216 54.9975 9.42888 54.9916 9.62728C54.9829 9.82276 54.9712 10.0299 54.9537 10.2429H45.6873C45.7515 11.1941 46.0841 11.938 46.6822 12.4807C47.2803 13.0205 48.0068 13.2918 48.8588 13.2918C49.4977 13.2918 50.0346 13.1489 50.4693 12.8629C50.904 12.577 51.2279 12.2036 51.4409 11.7455H54.6357C54.4052 12.5157 54.0259 13.216 53.492 13.8462C52.9581 14.4764 52.3045 14.9724 51.5255 15.3342C50.7465 15.696 49.8654 15.8739 48.8821 15.8739L48.885 15.871ZM48.9113 5.64471C48.141 5.64471 47.4612 5.86062 46.8719 6.29535C46.2825 6.73007 45.9061 7.38946 45.7427 8.2735H51.8143C51.7647 7.47115 51.4701 6.83219 50.9303 6.35662C50.3905 5.88104 49.7166 5.64471 48.9142 5.64471H48.9113Z" fill="#111111"/>
-      <path d="M56.1848 15.5763V3.38355H58.9624L59.2075 5.44923C59.5839 4.72858 60.1295 4.1538 60.8414 3.72783C61.5533 3.30185 62.3935 3.08887 63.3593 3.08887C64.8677 3.08887 66.0377 3.56444 66.875 4.51559C67.7095 5.46674 68.1296 6.85845 68.1296 8.69364V15.5763H64.9844V8.98832C64.9844 7.94089 64.7714 7.13562 64.3454 6.57836C63.9195 6.02109 63.2542 5.74391 62.3556 5.74391C61.457 5.74391 60.7451 6.0561 60.179 6.67756C59.613 7.30193 59.33 8.16847 59.33 9.283V15.5763H56.1848Z" fill="#111111"/>
-      <path d="M75.5784 15.871C74.3501 15.871 73.2589 15.6084 72.3106 15.0833C71.3595 14.5581 70.6155 13.8228 70.0728 12.8717C69.5331 11.9205 69.2617 10.8235 69.2617 9.57768C69.2617 8.33185 69.5272 7.19398 70.0612 6.21073C70.5922 5.22749 71.3303 4.46307 72.2727 3.91164C73.2151 3.36312 74.3238 3.08887 75.6017 3.08887C76.798 3.08887 77.8541 3.35145 78.7732 3.87663C79.6923 4.4018 80.4071 5.11662 80.9235 6.02692C81.4399 6.93722 81.6967 7.94964 81.6967 9.06126C81.6967 9.24216 81.6908 9.42888 81.685 9.62728C81.6762 9.82276 81.6646 10.0299 81.6471 10.2429H72.3807C72.4449 11.1941 72.7775 11.938 73.3756 12.4807C73.9737 13.0205 74.7002 13.2918 75.5521 13.2918C76.1911 13.2918 76.7279 13.1489 77.1627 12.8629C77.5974 12.577 77.9212 12.2036 78.1342 11.7455H81.329C81.0986 12.5157 80.7193 13.216 80.1853 13.8462C79.6514 14.4764 78.9979 14.9724 78.2189 15.3342C77.4398 15.696 76.5587 15.8739 75.5755 15.8739L75.5784 15.871ZM75.6017 5.64471C74.8315 5.64471 74.1517 5.86062 73.5623 6.29535C72.9729 6.73007 72.5966 7.38946 72.4332 8.2735H78.5048C78.4552 7.47115 78.1605 6.83219 77.6207 6.35662C77.081 5.88104 76.407 5.64471 75.6047 5.64471H75.6017Z" fill="#111111"/>
-      <path d="M96.7896 20.9827L99.926 14.0825L98.5868 14.065L94.1345 3.38354H97.5511L100.968 11.9614L104.53 3.38354H107.874L100.13 20.9827H96.7866H96.7896Z" fill="#111111"/>
-      <path d="M113.75 9.26066C113.173 9.26066 112.638 9.13774 112.144 8.85095C111.649 8.56415 111.279 8.19541 110.99 7.74473C110.702 7.29405 110.578 6.76143 110.578 6.18783C110.578 5.73715 110.661 5.36841 110.826 4.9587C110.99 4.58996 111.196 4.26219 111.485 3.9754C111.773 3.6886 112.102 3.48375 112.514 3.31986C112.885 3.15598 113.297 3.07404 113.75 3.07404C114.162 3.07404 114.574 3.15598 114.944 3.31986C115.315 3.48375 115.645 3.6886 115.933 3.9754C116.221 4.26219 116.427 4.58996 116.592 4.9587C116.757 5.32744 116.839 5.73715 116.839 6.14686C116.839 6.55657 116.757 6.96628 116.592 7.37599C116.427 7.74473 116.221 8.0725 115.933 8.3593C115.645 8.64609 115.315 8.85095 114.944 9.01483C114.574 9.17872 114.203 9.26066 113.75 9.26066ZM113.75 8.48221C114.162 8.48221 114.533 8.40027 114.903 8.19541C115.233 7.99056 115.521 7.70376 115.727 7.37599C115.933 7.00725 116.015 6.63851 116.015 6.2288C116.015 5.81909 115.933 5.40938 115.727 5.08161C115.521 4.71288 115.233 4.46705 114.903 4.26219C114.574 4.05734 114.162 3.93443 113.75 3.93443C113.297 3.93443 112.885 4.05734 112.555 4.26219C112.185 4.46705 111.896 4.75385 111.69 5.08161C111.485 5.45035 111.361 5.81909 111.361 6.2288C111.361 6.67948 111.485 7.04822 111.69 7.41696C111.896 7.7857 112.185 8.03153 112.555 8.23638C112.926 8.3593 113.297 8.48221 113.75 8.48221ZM112.473 7.62182V4.63093H113.997C114.327 4.63093 114.574 4.71288 114.78 4.87676C114.986 5.04064 115.068 5.28647 115.068 5.57327C115.068 5.86006 114.944 6.10589 114.738 6.26977C114.533 6.43366 114.285 6.55657 113.956 6.55657H113.256L113.42 6.39269V7.62182H112.473ZM113.503 6.02395L113.338 5.94201H113.75C113.832 5.94201 113.915 5.90104 113.997 5.86006C114.079 5.81909 114.079 5.73715 114.079 5.65521C114.079 5.49133 114.038 5.40938 113.997 5.45035C113.956 5.40938 113.873 5.36841 113.75 5.36841H113.256L113.462 5.28647V6.02395H113.503ZM114.162 7.62182L113.709 6.5156L114.574 6.31075L115.274 7.62182H114.162Z" fill="#111111"/>
-      <path d="M90.324 3.38355C89.7346 3.18807 89.0957 3.08887 88.4071 3.08887C87.3597 3.08887 86.464 3.28435 85.7287 3.67823C84.9906 4.07211 84.4216 4.60312 84.0219 5.27709C83.6193 5.94815 83.4209 6.69506 83.4209 7.51492C83.4209 8.70531 83.8177 9.70022 84.6025 10.4967C85.2619 11.0423 86.3123 11.7017 87.6748 11.8972C87.914 11.9205 88.1562 11.941 88.41 11.941C89.4254 11.941 90.3065 11.7455 91.0534 11.3516C91.7974 10.9577 92.3693 10.4267 92.7602 9.75566C93.1541 9.0846 93.3496 8.33769 93.3496 7.51783C93.3496 6.76508 93.1862 6.07652 92.8594 5.45215L94.9485 5.30335V3.38647H90.3269L90.324 3.38355ZM89.9943 9.01458C89.5771 9.35886 89.049 9.531 88.41 9.531C87.739 9.531 87.1963 9.35886 86.7878 9.01458C86.3794 8.6703 86.1751 8.17722 86.1751 7.54117C86.1751 6.90513 86.3794 6.40913 86.7878 6.06777C87.1963 5.72349 87.739 5.55135 88.41 5.55135C89.0811 5.55135 89.5771 5.72349 89.9943 6.06777C90.4115 6.41205 90.6216 6.90221 90.6216 7.54117C90.6216 8.18014 90.4115 8.6703 89.9943 9.01458Z" fill="#111111"/>
-      <path d="M89.2941 13.3152C88.2291 13.216 87.4589 13.1197 86.9833 13.0205C86.5077 12.9213 86.1313 12.7987 85.8512 12.6529L85.8571 12.647C85.1189 12.3465 84.5062 11.9614 84.0336 11.5938L82.706 12.9971V13.5632C82.8869 13.744 83.0941 13.9162 83.3333 14.0796C83.5697 14.243 83.8527 14.3976 84.1824 14.5464C83.1174 15.3487 82.5835 16.2999 82.5835 17.3969C82.5835 18.6924 83.1145 19.661 84.1824 20.3087C85.2473 20.9564 86.6478 21.2803 88.3867 21.2803C89.6646 21.2803 90.712 21.079 91.5319 20.6793C92.3517 20.2766 92.9586 19.7544 93.3496 19.1067C93.7434 18.4589 93.9389 17.7762 93.9389 17.0526C93.9389 15.9556 93.5713 15.0949 92.8331 14.4705C92.095 13.8491 90.9163 13.464 89.2941 13.3152ZM90.3006 18.4152C89.8105 18.7361 89.1715 18.8937 88.3838 18.8937C87.596 18.8937 86.8724 18.742 86.3064 18.4385C85.7404 18.1351 85.4574 17.6799 85.4574 17.0731C85.4574 16.7463 85.5595 16.4253 85.7637 16.1161C85.968 15.8039 86.3093 15.518 86.7849 15.2554C87.3597 15.3546 87.9811 15.4275 88.6522 15.4771C89.6033 15.5442 90.2365 15.7222 90.5574 16.0169C90.8754 16.3116 91.0359 16.6821 91.0359 17.1227C91.0359 17.6624 90.7908 18.0942 90.2977 18.4123L90.3006 18.4152Z" fill="#111111"/>
-    </g>
-    <defs>
-      <clipPath id="clip0_shell_logo">
-        <rect width="117" height="20.5547" fill="white" transform="translate(0 0.722656)"/>
-      </clipPath>
-    </defs>
-  </svg>
-)
+const ACCENT = '#6e30fd'
+const PILL = '#efeafe'
 
-export function SurveyShell({ currentIndex, direction, animKey, stepGroups, currentStepIndex, hideCounter = false, children }: Props) {
-  const enterClass = direction === 'forward' ? 'anim-slide-in-right' : 'anim-slide-in-left'
-
+/** The Zenegy app symbol — lavender square + purple mark. */
+function AppSymbol({ size = 36 }: { size?: number }) {
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" style={{ display: 'block' }}>
+      <rect width="40" height="40" rx="8" fill="#EBE6FF" />
+      <path d="M20.8139 16.679H12.3237C11.3902 16.679 10.6123 17.4287 10.6123 18.3769V26.2927C10.6123 28.189 13.1016 28.9387 14.1684 27.3511L21.0362 17.098C21.1473 16.9216 21.0362 16.679 20.8139 16.679Z" fill="#6E30FD" />
+      <path d="M19.1471 24.419H27.6373C28.5708 24.419 29.3487 23.6693 29.3487 22.7212V14.8053C29.3487 12.909 26.8594 12.1593 25.7926 13.7469L18.9248 24.0001C18.8137 24.1765 18.9248 24.419 19.1471 24.419Z" fill="#6E30FD" />
+    </svg>
+  )
+}
 
-      {/* LEFT SIDEBAR */}
-      <aside style={{
-        width: 260,
-        flexShrink: 0,
-        background: '#ffffff',
-        borderRight: '1px solid #e8e8e8',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '32px 28px',
-        position: 'sticky',
-        top: 0,
-        height: '100vh',
-        overflowY: 'auto',
-      }}>
-        {/* Logo */}
-        <div style={{ marginBottom: 48 }}>
-          <ZenegyLogoFull />
-        </div>
+type StepState = 'done' | 'active' | 'upcoming'
 
-        {/* Step list */}
-        <nav style={{ flex: 1 }}>
-          {stepGroups.map((group, i) => {
-            const isActive = i === currentStepIndex
-            const isPast = i < currentStepIndex
-            const isLast = i === stepGroups.length - 1
-            return (
-              <div key={group.label}>
-                {/* Step row */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  {/* Circle */}
-                  <div style={{
-                    width: 22,
-                    height: 22,
-                    borderRadius: '50%',
-                    flexShrink: 0,
-                    border: `1.5px solid ${isActive ? '#6e30fd' : '#e0e0e0'}`,
-                    background: isActive ? '#6e30fd' : '#ffffff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: isActive ? '0 0 0 3px rgba(110,48,253,0.1)' : 'none',
-                    transition: 'all 0.2s ease',
-                  }}>
-                    {isPast ? (
-                      <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
-                        <path d="M1 4L4 7.5L10 1" stroke="#6e30fd" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    ) : (
-                      <span style={{
-                        fontSize: 9,
-                        fontWeight: 700,
-                        color: isActive ? '#ffffff' : '#c0c0c0',
-                        lineHeight: 1,
-                        letterSpacing: '0.02em',
-                      }}>
-                        {i + 1}
-                      </span>
-                    )}
-                  </div>
+function StatusDot({ state }: { state: StepState }) {
+  const base: React.CSSProperties = { width: 11, height: 11, borderRadius: '50%', flexShrink: 0, transition: 'all 0.25s ease' }
+  if (state === 'done') return <span style={{ ...base, background: ACCENT }} />
+  if (state === 'active') return <span style={{ ...base, border: `2px solid ${ACCENT}`, boxShadow: `0 0 0 4px ${ACCENT}24` }} />
+  return <span style={{ ...base, border: '2px solid #d6d6de' }} />
+}
 
-                  {/* Label */}
-                  <span style={{
-                    fontSize: 13,
-                    fontWeight: isActive ? 600 : 500,
-                    color: isActive ? '#111111' : isPast ? '#999999' : '#c0c0c0',
-                    transition: 'color 0.2s ease',
-                  }}>
-                    {group.label}
-                  </span>
-                </div>
+function MilestoneIcon({ state, kind }: { state: StepState; kind: 'home' | 'flag' }) {
+  const on = state === 'active' || state === 'done'
+  return (
+    <span style={{
+      width: 22, height: 22, borderRadius: 7, flexShrink: 0,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      background: on ? PILL : '#f1f1f4', color: on ? ACCENT : '#b1b1bb', transition: 'all 0.25s ease',
+    }}>
+      {kind === 'home' ? (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V20h14V9.5" />
+        </svg>
+      ) : (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5 21V5a2 2 0 0 1 2-2h7l-1 4h6v8h-7l1-4H7" />
+        </svg>
+      )}
+    </span>
+  )
+}
 
-                {/* Connector line */}
-                {!isLast && (
-                  <div style={{
-                    width: 1,
-                    height: 20,
-                    background: isPast ? '#6e30fd' : '#e8e8e8',
-                    marginLeft: 10,
-                    transition: 'background 0.3s ease',
-                  }} />
-                )}
-              </div>
-            )
-          })}
-        </nav>
-      </aside>
+function StepRow({ label, state, icon }: { label: string; state: StepState; icon?: React.ReactNode }) {
+  const color = state === 'active' ? '#4a1fb0' : state === 'done' ? '#86868b' : '#b1b1bb'
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 12, padding: '9px 12px', borderRadius: 10, fontSize: 14,
+      background: state === 'active' ? PILL : 'transparent', color, transition: 'background 0.25s ease, color 0.25s ease',
+    }}>
+      {icon ?? <StatusDot state={state} />}
+      <span style={{ flex: 1, fontWeight: 500 }}>{label}</span>
+    </div>
+  )
+}
 
-      {/* MAIN CONTENT */}
-      <main style={{
-        flex: 1,
-        background: 'var(--color-surface-page)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '48px 48px',
-        minHeight: '100vh',
-      }}>
-        {/* Progress bars at top */}
-        <div style={{ display: 'flex', gap: 6, marginBottom: 40, alignSelf: 'flex-start', maxWidth: 580, width: '100%', marginLeft: 'auto', marginRight: 'auto' }}>
-          {stepGroups.map((_, i) => (
-            <div key={i} style={{
-              flex: 1,
-              height: 3,
-              borderRadius: 99,
-              background: i <= currentStepIndex ? '#6e30fd' : 'var(--color-border-default)',
-              transition: 'background 0.3s ease',
-            }} />
-          ))}
-        </div>
+function progressCopy(phase: Phase, percent: number): { title: string; desc: string } {
+  if (phase === 'thank-you') return { title: 'Færdig', desc: 'Tak for din tid.' }
+  if (phase === 'landing') return { title: 'Klar?', desc: 'Det tager kun 2–3 minutter.' }
+  if (percent >= 50) return { title: 'Du er over halvvejs', desc: 'Færdiggør de sidste spørgsmål.' }
+  return { title: 'Godt i gang', desc: 'Tag den tid du har brug for.' }
+}
 
-        {/* Card stack wrapper */}
-        <div style={{ position: 'relative', width: '100%', maxWidth: 580 }}>
-          {/* Ghost card layers */}
-          <div style={{
-            position: 'absolute',
-            top: -6, left: 14, right: 14, bottom: 0,
-            background: 'white',
-            borderRadius: 20,
-            opacity: 0.7,
-            boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
-          }} />
-          <div style={{
-            position: 'absolute',
-            top: -11, left: 26, right: 26, bottom: 0,
-            background: 'white',
-            borderRadius: 22,
-            opacity: 0.45,
-            boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
-          }} />
+/** Segmented tick bar (light→deep purple gradient on the filled ticks). */
+function TickBar({ percent, total = 28 }: { percent: number; total?: number }) {
+  const filled = Math.round((percent / 100) * total)
+  return (
+    <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', height: 22 }}>
+      {Array.from({ length: total }, (_, i) => {
+        if (i >= filled) return <span key={i} style={{ flex: 1, height: '100%', borderRadius: 3, background: '#e9e7f1' }} />
+        const t = filled > 1 ? i / (filled - 1) : 1
+        const r = Math.round(189 + (110 - 189) * t)
+        const g = Math.round(163 + (48 - 163) * t)
+        const b = Math.round(255 + (253 - 255) * t)
+        return <span key={i} style={{ flex: 1, height: '100%', borderRadius: 3, background: `rgb(${r},${g},${b})` }} />
+      })}
+    </div>
+  )
+}
 
-          {/* Main card */}
-          <div
-            key={animKey}
-            className={enterClass}
+function ProgressCard({ phase, percent }: { phase: Phase; percent: number }) {
+  const { title, desc } = progressCopy(phase, percent)
+  return (
+    <div style={{ marginTop: 14, background: '#faf8ff', border: '1px solid #eee8ff', borderRadius: 15, padding: '15px 15px 16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontSize: 14.5, fontWeight: 500, color: '#14132b', letterSpacing: '-0.01em' }}>{title}</span>
+        <span style={{ fontSize: 12.5, fontWeight: 500, color: '#fff', background: ACCENT, borderRadius: 8, padding: '3px 9px' }}>{Math.round(percent)}%</span>
+      </div>
+      <div style={{ fontSize: 12.5, fontWeight: 500, color: '#9a9aa3', lineHeight: 1.45, marginTop: 5, marginBottom: 14 }}>{desc}</div>
+      <TickBar percent={percent} />
+    </div>
+  )
+}
+
+function ExitLink({ onExit, style }: { onExit: () => void; style?: React.CSSProperties }) {
+  return (
+    <button
+      type="button"
+      onClick={onExit}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6, border: 'none', background: 'none', cursor: 'pointer',
+        fontSize: 12.5, fontWeight: 500, color: '#9a9aa3', fontFamily: 'var(--font-sans)', transition: 'color 0.12s ease', ...style,
+      }}
+      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5b5b66' }}
+      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#9a9aa3' }}
+    >
+      <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+        <path d="M9 3L5 7L9 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      Forlad undersøgelsen
+    </button>
+  )
+}
+
+function NavBar({
+  showBack, backLabel = 'Tilbage', onBack, showNext, nextLabel = 'Næste', nextDisabled, onNext, padInline, sticky,
+}: {
+  showBack?: boolean; backLabel?: string; onBack?: () => void
+  showNext?: boolean; nextLabel?: string; nextDisabled?: boolean; onNext?: () => void
+  padInline: number; sticky?: boolean
+}) {
+  return (
+    <div style={{
+      borderTop: '1px solid #ededf0', padding: `0 ${padInline}px`, background: 'rgba(244,244,246,0.92)',
+      backdropFilter: 'saturate(180%) blur(8px)',
+      ...(sticky ? { position: 'sticky', bottom: 0, zIndex: 5 } : null),
+    }}>
+      <div style={{ maxWidth: 580, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0' }}>
+        {showBack ? (
+          <button
+            type="button" onClick={onBack}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 7, border: 'none', background: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 500, color: '#9a9aa3', fontFamily: 'var(--font-sans)', transition: 'color 0.12s ease' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5b5b66' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#9a9aa3' }}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            {backLabel}
+          </button>
+        ) : <span />}
+        {showNext && (
+          <button
+            type="button" onClick={onNext} disabled={nextDisabled}
             style={{
-              position: 'relative',
-              background: 'white',
-              borderRadius: 20,
-              padding: '40px 44px 36px',
-              boxShadow: '0 8px 40px rgba(0,0,0,0.09)',
-              zIndex: 1,
+              display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', borderRadius: 13, border: 'none',
+              background: ACCENT, color: '#fff', fontSize: 15, fontWeight: 500, fontFamily: 'var(--font-sans)',
+              cursor: nextDisabled ? 'not-allowed' : 'pointer', opacity: nextDisabled ? 0.4 : 1,
+              boxShadow: nextDisabled ? 'none' : '0 8px 22px rgba(110,48,253,0.28)', transition: 'opacity 0.15s ease, box-shadow 0.15s ease',
             }}
           >
-            {!hideCounter && (
-              <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-text-tertiary)', marginBottom: 16, letterSpacing: '0.06em' }}>
-                Q.{String(currentIndex + 1).padStart(2, '0')}
-              </p>
-            )}
-            {children}
+            {nextLabel}
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export function SurveyShell({
+  stepGroups, currentStepIndex, percent, phase, direction, animKey,
+  showBack = false, backLabel = 'Tilbage', onBack,
+  showNext = false, nextLabel = 'Næste', nextDisabled = false, onNext,
+  onExit, children,
+}: Props) {
+  const isMobile = useIsMobile()
+  const enterClass = direction === 'forward' ? 'anim-slide-in-right' : 'anim-slide-in-left'
+  const canExit = onExit && phase !== 'landing' && phase !== 'thank-you'
+
+  const currentLabel = phase === 'landing' ? 'Velkommen'
+    : phase === 'thank-you' ? 'Tak'
+      : (stepGroups[currentStepIndex]?.label ?? '')
+
+  // ── MOBILE: compact top bar + stacked card + sticky bottom nav ──
+  if (isMobile) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#f4f4f6' }}>
+        <header style={{ position: 'sticky', top: 0, zIndex: 10, background: '#fff', borderBottom: '1px solid #ededf0', padding: '12px 16px 10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+            <button
+              type="button" onClick={onExit} aria-label="Til forsiden"
+              style={{ border: 'none', background: 'none', padding: 0, cursor: onExit ? 'pointer' : 'default', flexShrink: 0 }}
+            >
+              <AppSymbol size={30} />
+            </button>
+            <span style={{ flex: 1, fontSize: 14, fontWeight: 500, color: '#14132b' }}>{currentLabel}</span>
+            <span style={{ fontSize: 12.5, fontWeight: 500, color: '#fff', background: ACCENT, borderRadius: 8, padding: '3px 9px' }}>{Math.round(percent)}%</span>
+          </div>
+          <div style={{ height: 5, borderRadius: 99, background: '#e9e7f1', overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${percent}%`, borderRadius: 99, background: ACCENT, transition: 'width 0.4s cubic-bezier(0.22,1,0.36,1)' }} />
+          </div>
+        </header>
+
+        <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, padding: '20px 16px 24px' }}>
+            <div key={animKey} className={enterClass} style={{ background: '#fff', borderRadius: 20, padding: '28px 22px 32px', boxShadow: '0 8px 30px rgba(20,12,43,0.06)' }}>
+              {children}
+            </div>
+            {canExit && <div style={{ textAlign: 'center', marginTop: 18 }}><ExitLink onExit={onExit!} /></div>}
+          </div>
+          {(showBack || showNext) && (
+            <NavBar showBack={showBack} backLabel={backLabel} onBack={onBack} showNext={showNext} nextLabel={nextLabel} nextDisabled={nextDisabled} onNext={onNext} padInline={16} sticky />
+          )}
+        </main>
+      </div>
+    )
+  }
+
+  // ── DESKTOP: persistent sidebar + main ──
+  const groupState = (i: number): StepState => {
+    if (phase === 'landing') return 'upcoming'
+    if (phase === 'thank-you') return 'done'
+    if (i < currentStepIndex) return 'done'
+    if (i === currentStepIndex) return 'active'
+    return 'upcoming'
+  }
+  const velkommenState: StepState = phase === 'landing' ? 'active' : 'done'
+  const takState: StepState = phase === 'thank-you' ? 'active' : 'upcoming'
+
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#f4f4f6' }}>
+      <aside style={{
+        width: 280, flexShrink: 0, background: '#fff', borderRight: '1px solid #ededf0',
+        display: 'flex', flexDirection: 'column', padding: '24px 18px 20px',
+        position: 'sticky', top: 0, height: '100vh', overflowY: 'auto',
+      }}>
+        <button
+          type="button" onClick={onExit} aria-label="Til forsiden"
+          style={{ border: 'none', background: 'none', padding: 0, marginBottom: 28, marginLeft: 6, cursor: onExit ? 'pointer' : 'default', alignSelf: 'flex-start', transition: 'opacity 0.12s ease', borderRadius: 8 }}
+          onMouseEnter={e => { if (onExit) (e.currentTarget as HTMLButtonElement).style.opacity = '0.7' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '1' }}
+        >
+          <AppSymbol />
+        </button>
+
+        <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <StepRow label="Velkommen" state={velkommenState} icon={<MilestoneIcon state={velkommenState} kind="home" />} />
+          <div style={{ height: 1, background: '#f0f0f3', margin: '7px 6px' }} />
+          {stepGroups.map((g, i) => <StepRow key={g.label} label={g.label} state={groupState(i)} />)}
+          <div style={{ height: 1, background: '#f0f0f3', margin: '7px 6px' }} />
+          <StepRow label="Tak" state={takState} icon={<MilestoneIcon state={takState} kind="flag" />} />
+        </nav>
+
+        <ProgressCard phase={phase} percent={percent} />
+        {canExit && <ExitLink onExit={onExit!} style={{ marginTop: 14, paddingLeft: 6, alignSelf: 'flex-start' }} />}
+      </aside>
+
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 48px 16px' }}>
+          <div style={{ width: '100%', maxWidth: 580 }}>
+            <div key={animKey} className={enterClass} style={{ background: '#fff', borderRadius: 24, padding: '42px 46px 46px', boxShadow: '0 10px 40px rgba(20,12,43,0.06)' }}>
+              {children}
+            </div>
           </div>
         </div>
+        {(showBack || showNext) && (
+          <NavBar showBack={showBack} backLabel={backLabel} onBack={onBack} showNext={showNext} nextLabel={nextLabel} nextDisabled={nextDisabled} onNext={onNext} padInline={48} />
+        )}
       </main>
     </div>
   )
