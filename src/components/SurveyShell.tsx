@@ -135,6 +135,42 @@ function ProgressCard({ phase, percent }: { phase: Phase; percent: number }) {
   )
 }
 
+/** The question card sitting on a short deck of ghost cards; it rises off the
+ *  stack on advance (and descends when going back). */
+function CardStack({
+  animKey, direction, stacked, radius, padding, shadow, children,
+}: {
+  animKey: number; direction: Direction; stacked: boolean
+  radius: number; padding: string; shadow: string; children: React.ReactNode
+}) {
+  const rise = direction === 'forward' ? 'anim-card-rise-up' : 'anim-card-rise-down'
+  const ghost = (ty: number, scale: number, opacity: number): React.CSSProperties => ({
+    position: 'absolute', left: 0, right: 0, top: 0, bottom: 0,
+    background: '#fff', borderRadius: radius, opacity, zIndex: 0,
+    transform: `translateY(${ty}px) scale(${scale})`,
+    boxShadow: '0 12px 30px rgba(20,12,43,0.06)',
+    border: '1px solid #eef0f4',
+    transition: 'transform 0.38s cubic-bezier(0.23,1,0.32,1), opacity 0.38s ease',
+  })
+  return (
+    <div style={{ position: 'relative', perspective: 1400 }}>
+      {stacked && (
+        <>
+          <div aria-hidden style={ghost(24, 0.93, 0.6)} />
+          <div aria-hidden style={ghost(12, 0.965, 0.9)} />
+        </>
+      )}
+      <div
+        key={animKey}
+        className={rise}
+        style={{ position: 'relative', zIndex: 1, background: '#fff', borderRadius: radius, padding, boxShadow: shadow, transformOrigin: 'bottom center' }}
+      >
+        {children}
+      </div>
+    </div>
+  )
+}
+
 function ExitLink({ onExit, style }: { onExit: () => void; style?: React.CSSProperties }) {
   return (
     <button
@@ -206,7 +242,6 @@ export function SurveyShell({
   onExit, onNavigateWelcome, onNavigateStep, children,
 }: Props) {
   const isMobile = useIsMobile()
-  const enterClass = direction === 'forward' ? 'anim-slide-in-right' : 'anim-slide-in-left'
   const canExit = onExit && phase !== 'landing' && phase !== 'thank-you'
 
   const currentLabel = phase === 'landing' ? 'Velkommen'
@@ -235,9 +270,9 @@ export function SurveyShell({
 
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <div style={{ flex: 1, padding: '20px 16px 24px' }}>
-            <div key={animKey} className={enterClass} style={{ background: '#fff', borderRadius: 20, padding: '28px 22px 32px', boxShadow: '0 8px 30px rgba(20,12,43,0.06)' }}>
+            <CardStack animKey={animKey} direction={direction} stacked={phase === 'questions'} radius={20} padding="28px 22px 32px" shadow="0 8px 30px rgba(20,12,43,0.06)">
               {children}
-            </div>
+            </CardStack>
             {canExit && <div style={{ textAlign: 'center', marginTop: 18 }}><ExitLink onExit={onExit!} /></div>}
           </div>
           {(showBack || showNext) && (
@@ -299,9 +334,9 @@ export function SurveyShell({
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 48px 16px' }}>
           <div style={{ width: '100%', maxWidth: 580 }}>
-            <div key={animKey} className={enterClass} style={{ background: '#fff', borderRadius: 24, padding: '42px 46px 46px', boxShadow: '0 10px 40px rgba(20,12,43,0.06)' }}>
+            <CardStack animKey={animKey} direction={direction} stacked={phase === 'questions'} radius={24} padding="42px 46px 46px" shadow="0 10px 40px rgba(20,12,43,0.06)">
               {children}
-            </div>
+            </CardStack>
           </div>
         </div>
         {(showBack || showNext) && (

@@ -5,6 +5,12 @@ import lessorLogo from '../assets/logos/lessor.svg'
 import intectLogo from '../assets/logos/intect.png'
 import sdloenLogo from '../assets/logos/sdloen.svg'
 import danloenLogo from '../assets/logos/danloen.svg'
+import economicLogo from '../assets/logos/economic.png'
+import dineroLogo from '../assets/logos/dinero.png'
+import billyLogo from '../assets/logos/billy.png'
+import unicontaLogo from '../assets/logos/uniconta.png'
+import vismaLogo from '../assets/logos/visma.png'
+import zenegyLogo from '../assets/logos/zenegy.svg'
 
 export const GATE_QUESTION: Question = {
   id: 'gate',
@@ -51,12 +57,12 @@ const NUMBERS_AWARENESS: Question = {
   subText: 'Vi er nysgerrige — ikke på jagt efter salg.',
   autoAdvance: true,
   options: [
-    { value: 'e-conomic', label: 'e-conomic', logoInitials: 'ec', logoStyle: { background: 'linear-gradient(135deg,#0057B8,#004499)' } },
-    { value: 'dinero', label: 'Dinero', logoInitials: 'Di', logoStyle: { background: 'linear-gradient(135deg,#FF6B2B,#E55520)' } },
-    { value: 'billy', label: 'Billy', logoInitials: 'Bi', logoStyle: { background: 'linear-gradient(135deg,#F59E0B,#D97706)', color: '#111111' } },
-    { value: 'uniconta', label: 'Uniconta', logoInitials: 'Un', logoStyle: { background: 'linear-gradient(135deg,#1E40AF,#1E3A8A)' } },
-    { value: 'visma', label: 'Visma', logoInitials: 'Vi', logoStyle: { background: 'linear-gradient(135deg,#0066B3,#004F8A)' } },
-    { value: 'zenegy-numbers', label: 'Zenegy Numbers', logoInitials: 'Ze', logoStyle: { background: 'linear-gradient(135deg,#6e30fd,#331070)' } },
+    { value: 'e-conomic', label: 'e-conomic', logoSrc: economicLogo },
+    { value: 'dinero', label: 'Dinero', logoSrc: dineroLogo },
+    { value: 'billy', label: 'Billy', logoSrc: billyLogo },
+    { value: 'uniconta', label: 'Uniconta', logoSrc: unicontaLogo },
+    { value: 'visma', label: 'Visma', logoSrc: vismaLogo },
+    { value: 'zenegy-numbers', label: 'Zenegy Numbers', logoSrc: zenegyLogo },
     { value: 'andet', label: 'Andet', logoInitials: '?', logoStyle: { background: 'linear-gradient(135deg,#616161,#323232)' } },
   ],
 }
