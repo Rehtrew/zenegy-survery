@@ -136,15 +136,10 @@ function ProgressCard({ phase, percent }: { phase: Phase; percent: number }) {
   )
 }
 
-/** The question card on a short deck of ghost cards. On advance the outgoing
- *  card slides off one way while the incoming card slides in from the other and
- *  settles on top — one continuous spring, a real exit (not a remount flash). */
-const cardVariants = {
-  enter: (dir: number) => ({ x: 120 * dir, scale: 0.92, opacity: 0 }),
-  center: { x: 0, scale: 1, opacity: 1 },
-  exit: (dir: number) => ({ x: -120 * dir, scale: 0.92, opacity: 0 }),
-}
-
+/** The question card on a short deck of ghost cards. On advance the new card
+ *  drops onto the pile from above — lifted (slightly larger, bigger shadow) →
+ *  settling flat with a spring bounce — while the previous card sinks underneath
+ *  it (it does NOT slide off, so it reads as stacking, not a gallery swipe). */
 function CardStack({
   animKey, direction, stacked, radius, padding, shadow, children,
 }: {
@@ -152,6 +147,15 @@ function CardStack({
   radius: number; padding: string; shadow: string; children: React.ReactNode
 }) {
   const dir = direction === 'forward' ? 1 : -1
+  const liftedShadow = '0 34px 70px rgba(20,12,43,0.22)'
+  const variants = {
+    // Held above the pile: lifted, a touch larger, tilted, with a big drop-shadow.
+    enter: { y: -64, scale: 1.06, rotate: dir * -3, opacity: 0, zIndex: 2, boxShadow: liftedShadow },
+    // Landed flat on top.
+    center: { y: 0, scale: 1, rotate: 0, opacity: 1, zIndex: 2, boxShadow: shadow },
+    // Pressed down into the pile underneath the new card.
+    exit: { y: 14, scale: 0.95, rotate: 0, opacity: 0, zIndex: 1, boxShadow: shadow },
+  }
   const ghost = (ty: number, scale: number, opacity: number): React.CSSProperties => ({
     position: 'absolute', left: 0, right: 0, top: 0, bottom: 0,
     background: '#fff', borderRadius: radius, opacity, zIndex: 0,
@@ -167,16 +171,18 @@ function CardStack({
           <div aria-hidden style={ghost(12, 0.965, 0.9)} />
         </>
       )}
-      <AnimatePresence mode="popLayout" custom={dir} initial={false}>
+      <AnimatePresence mode="popLayout" initial={false}>
         <motion.div
           key={animKey}
-          custom={dir}
-          variants={cardVariants}
+          variants={variants}
           initial="enter"
           animate="center"
           exit="exit"
-          transition={{ type: 'spring', stiffness: 320, damping: 34, mass: 0.9 }}
-          style={{ position: 'relative', zIndex: 1, background: '#fff', borderRadius: radius, padding, boxShadow: shadow }}
+          transition={{
+            type: 'spring', stiffness: 460, damping: 25, mass: 1,
+            opacity: { duration: 0.15 }, boxShadow: { duration: 0.32 },
+          }}
+          style={{ position: 'relative', background: '#fff', borderRadius: radius, padding, transformOrigin: 'center' }}
         >
           {children}
         </motion.div>
