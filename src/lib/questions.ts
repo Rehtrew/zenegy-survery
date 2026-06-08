@@ -11,6 +11,10 @@ import billyLogo from '../assets/logos/billy.png'
 import unicontaLogo from '../assets/logos/uniconta.png'
 import vismaLogo from '../assets/logos/visma.png'
 import zenegyLogo from '../assets/logos/zenegy.svg'
+import payrollIcon from '../assets/products/payroll.png'
+import numbersIcon from '../assets/products/numbers.png'
+import expenseIcon from '../assets/products/expense.png'
+import timeIcon from '../assets/products/time.png'
 
 export const GATE_QUESTION: Question = {
   id: 'gate',
@@ -142,10 +146,10 @@ export const TRACK_A_QUESTIONS: Question[] = [
     question: 'Hvilke Zenegy-produkter bruger du?',
     subText: 'Markér alle du bruger aktivt — det hjælper os forstå din brug.',
     options: [
-      { value: 'payroll', label: 'Løn', subLabel: 'Lønkørsel og lønsedler' },
-      { value: 'numbers', label: 'Numbers', subLabel: 'Bogføring og regnskab' },
-      { value: 'expense', label: 'Expense', subLabel: 'Udlæg og kvitteringer' },
-      { value: 'time', label: 'Time', subLabel: 'Tidsregistrering og fravær' },
+      { value: 'payroll', label: 'Løn', subLabel: 'Lønkørsel og lønsedler', logoSrc: payrollIcon },
+      { value: 'numbers', label: 'Numbers', subLabel: 'Bogføring og regnskab', logoSrc: numbersIcon },
+      { value: 'expense', label: 'Expense', subLabel: 'Udlæg og kvitteringer', logoSrc: expenseIcon },
+      { value: 'time', label: 'Time', subLabel: 'Tidsregistrering og fravær', logoSrc: timeIcon },
     ],
   },
   {

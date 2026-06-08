@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Option } from '../../types'
-import { SCENES, type Scene } from '../../lib/scenes'
+import { BRAND_SCENE, type Scene } from '../../lib/scenes'
 
 interface Props {
   options: Option[]
@@ -10,7 +10,7 @@ interface Props {
   scene?: Scene
 }
 
-export function ChoiceList({ options, value, onChange, multi = false, scene = SCENES[0] }: Props) {
+export function ChoiceList({ options, value, onChange, multi = false, scene = BRAND_SCENE }: Props) {
   const selected = Array.isArray(value) ? value : value ? [value] : []
   const [popped, setPopped] = useState<string | null>(null)
   const [hovered, setHovered] = useState<string | null>(null)
@@ -32,6 +32,32 @@ export function ChoiceList({ options, value, onChange, multi = false, scene = SC
       {options.map((opt, i) => {
         const isSelected = selected.includes(opt.value)
         const isHover = hovered === opt.value
+        const hasLogo = !!opt.logoSrc
+
+        const indicator = (
+          <span style={{
+            width: 22, height: 22, flexShrink: 0,
+            borderRadius: multi ? 7 : '50%',
+            border: `1.5px solid ${isSelected ? scene.accent : 'rgba(0,0,0,0.18)'}`,
+            background: isSelected ? scene.accent : 'transparent',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'background 0.14s ease, border-color 0.14s ease',
+          }}>
+            {isSelected && (
+              <svg width="12" height="12" viewBox="0 0 11 11" fill="none">
+                <path d="M2 5.5L4.5 8L9 3" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </span>
+        )
+
+        const text = (
+          <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
+            <span style={{ fontSize: 15.5, fontWeight: 500, color: scene.ink }}>{opt.label}</span>
+            {opt.subLabel && <span style={{ fontSize: 13, color: scene.inkMuted, marginTop: 2 }}>{opt.subLabel}</span>}
+          </span>
+        )
+
         return (
           <button
             key={opt.value}
@@ -45,44 +71,32 @@ export function ChoiceList({ options, value, onChange, multi = false, scene = SC
               display: 'flex',
               alignItems: 'center',
               gap: 14,
-              padding: '16px 18px',
+              padding: hasLogo ? '12px 16px' : '16px 18px',
               borderRadius: 14,
               border: `1.5px solid ${isSelected ? scene.accent : isHover ? '#dcdce2' : '#ededf0'}`,
-              background: isSelected ? '#efeafe' : isHover ? '#f1f1f4' : '#f6f6f7',
+              background: isSelected ? (hasLogo ? '#ffffff' : '#efeafe') : isHover ? '#f1f1f4' : '#f6f6f7',
               cursor: 'pointer',
               textAlign: 'left',
               width: '100%',
-              transition: 'background 0.14s ease, border-color 0.14s ease, transform 0.14s ease',
+              transition: 'background 0.14s ease, border-color 0.14s ease, transform 0.14s ease, box-shadow 0.14s ease',
               transform: isHover && !isSelected ? 'translateY(-1px)' : 'translateY(0)',
-              boxShadow: 'none',
+              boxShadow: hasLogo && isSelected ? '0 6px 18px rgba(20,12,43,0.07)' : 'none',
               fontFamily: 'var(--font-sans)',
               animationDelay: `${i * 35}ms`,
             }}
           >
-            <span style={{
-              width: 22,
-              height: 22,
-              flexShrink: 0,
-              borderRadius: multi ? 7 : '50%',
-              border: `1.5px solid ${isSelected ? scene.accent : 'rgba(0,0,0,0.18)'}`,
-              background: isSelected ? scene.accent : 'transparent',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'background 0.14s ease, border-color 0.14s ease',
-            }}>
-              {isSelected && (
-                <svg width="12" height="12" viewBox="0 0 11 11" fill="none">
-                  <path d="M2 5.5L4.5 8L9 3" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              )}
-            </span>
-            <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-              <span style={{ fontSize: 15.5, fontWeight: 500, color: scene.ink }}>{opt.label}</span>
-              {opt.subLabel && (
-                <span style={{ fontSize: 13, color: scene.inkMuted, marginTop: 2 }}>{opt.subLabel}</span>
-              )}
-            </span>
+            {hasLogo ? (
+              <>
+                <img src={opt.logoSrc} alt="" style={{ width: 42, height: 42, borderRadius: 11, flexShrink: 0, objectFit: 'contain' }} />
+                {text}
+                {indicator}
+              </>
+            ) : (
+              <>
+                {indicator}
+                {text}
+              </>
+            )}
           </button>
         )
       })}

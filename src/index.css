@@ -76,16 +76,20 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── Card stack: the question card rises off the deck when advancing ── */
+/* The new card travels up from the deck and lands on top — opacity completes
+   early (by 30%) so the motion dominates and it doesn't read as a fade. */
 @keyframes card-rise-up {
-  from { opacity: 0; transform: translateY(26px) scale(0.94) rotateX(7deg); }
-  to   { opacity: 1; transform: translateY(0)    scale(1)    rotateX(0); }
+  0%   { opacity: 0; transform: translateY(72px) scale(0.9)  rotateX(10deg); }
+  30%  { opacity: 1; }
+  100% { opacity: 1; transform: translateY(0)    scale(1)    rotateX(0); }
 }
 @keyframes card-rise-down {
-  from { opacity: 0; transform: translateY(-20px) scale(0.96) rotateX(-5deg); }
-  to   { opacity: 1; transform: translateY(0)     scale(1)    rotateX(0); }
+  0%   { opacity: 0; transform: translateY(-52px) scale(0.94) rotateX(-8deg); }
+  30%  { opacity: 1; }
+  100% { opacity: 1; transform: translateY(0)     scale(1)    rotateX(0); }
 }
-.anim-card-rise-up   { animation: card-rise-up   380ms cubic-bezier(0.23, 1, 0.32, 1) both; }
-.anim-card-rise-down { animation: card-rise-down 320ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+.anim-card-rise-up   { animation: card-rise-up   460ms cubic-bezier(0.16, 0.84, 0.44, 1) both; }
+.anim-card-rise-down { animation: card-rise-down 400ms cubic-bezier(0.16, 0.84, 0.44, 1) both; }
 
 /* ── Animated value-prop icons (play on hover, lucide-animated style) ── */
 .ic-clock-hand { transform-origin: 12px 12px; }
