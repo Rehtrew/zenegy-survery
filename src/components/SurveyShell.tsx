@@ -21,6 +21,8 @@ interface Props {
   nextDisabled?: boolean
   onNext?: () => void
   onExit?: () => void
+  onNavigateWelcome?: () => void
+  onNavigateStep?: (groupIndex: number) => void
   children: React.ReactNode
 }
 
@@ -68,16 +70,30 @@ function MilestoneIcon({ state, kind }: { state: StepState; kind: 'home' | 'flag
   )
 }
 
-function StepRow({ label, state, icon }: { label: string; state: StepState; icon?: React.ReactNode }) {
+function StepRow({ label, state, icon, onClick }: { label: string; state: StepState; icon?: React.ReactNode; onClick?: () => void }) {
   const color = state === 'active' ? '#4a1fb0' : state === 'done' ? '#86868b' : '#b1b1bb'
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 12, padding: '9px 12px', borderRadius: 10, fontSize: 14,
-      background: state === 'active' ? PILL : 'transparent', color, transition: 'background 0.25s ease, color 0.25s ease',
-    }}>
+  const isActive = state === 'active'
+  const style: React.CSSProperties = {
+    display: 'flex', alignItems: 'center', gap: 12, padding: '9px 12px', borderRadius: 10, fontSize: 14,
+    background: isActive ? PILL : 'transparent', color, transition: 'background 0.18s ease, color 0.25s ease',
+    width: '100%', textAlign: 'left', border: 'none', fontFamily: 'var(--font-sans)',
+    cursor: onClick ? 'pointer' : 'default',
+  }
+  const inner = (
+    <>
       {icon ?? <StatusDot state={state} />}
       <span style={{ flex: 1, fontWeight: 500 }}>{label}</span>
-    </div>
+    </>
+  )
+  if (!onClick) return <div style={style}>{inner}</div>
+  return (
+    <button
+      type="button" style={style} onClick={onClick}
+      onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = '#f4f4f6' }}
+      onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
+    >
+      {inner}
+    </button>
   )
 }
 
@@ -187,7 +203,7 @@ export function SurveyShell({
   stepGroups, currentStepIndex, percent, phase, direction, animKey,
   showBack = false, backLabel = 'Tilbage', onBack,
   showNext = false, nextLabel = 'Næste', nextDisabled = false, onNext,
-  onExit, children,
+  onExit, onNavigateWelcome, onNavigateStep, children,
 }: Props) {
   const isMobile = useIsMobile()
   const enterClass = direction === 'forward' ? 'anim-slide-in-right' : 'anim-slide-in-left'
@@ -242,6 +258,8 @@ export function SurveyShell({
   }
   const velkommenState: StepState = phase === 'landing' ? 'active' : 'done'
   const takState: StepState = phase === 'thank-you' ? 'active' : 'upcoming'
+  // Let respondents jump back to steps they've reached (not while on landing/thank-you).
+  const navEnabled = phase === 'questions' || phase === 'lead-gen'
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#f4f4f6' }}>
@@ -260,9 +278,16 @@ export function SurveyShell({
         </button>
 
         <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <StepRow label="Velkommen" state={velkommenState} icon={<MilestoneIcon state={velkommenState} kind="home" />} />
+          <StepRow
+            label="Velkommen" state={velkommenState} icon={<MilestoneIcon state={velkommenState} kind="home" />}
+            onClick={navEnabled && onNavigateWelcome ? onNavigateWelcome : undefined}
+          />
           <div style={{ height: 1, background: '#f0f0f3', margin: '7px 6px' }} />
-          {stepGroups.map((g, i) => <StepRow key={g.label} label={g.label} state={groupState(i)} />)}
+          {stepGroups.map((g, i) => {
+            const st = groupState(i)
+            const clickable = navEnabled && onNavigateStep && st !== 'upcoming'
+            return <StepRow key={g.label} label={g.label} state={st} onClick={clickable ? () => onNavigateStep!(i) : undefined} />
+          })}
           <div style={{ height: 1, background: '#f0f0f3', margin: '7px 6px' }} />
           <StepRow label="Tak" state={takState} icon={<MilestoneIcon state={takState} kind="flag" />} />
         </nav>

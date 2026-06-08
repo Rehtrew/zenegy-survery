@@ -69,8 +69,11 @@ export interface SurveyAnswers {
   ai_interest?: string
 }
 
-export interface Submission extends SurveyAnswers {
-  track: Track
+/** Track stored on a submission — employees use 'employee' (no payroll-system track). */
+export type SubmittedTrack = Track | 'employee'
+
+export interface Submission extends Omit<SurveyAnswers, 'track'> {
+  track: SubmittedTrack
   email: string
   newsletter_opt_in: boolean
 }

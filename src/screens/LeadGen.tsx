@@ -21,11 +21,18 @@ export function LeadGen({ answers, onSubmitted }: Props) {
     if (!isValidEmail) { setError('Indtast venligst en gyldig email.'); return }
     setLoading(true)
     setError('')
+    // Employees never choose a zenegy/non-zenegy payroll track.
+    const track = answers.is_employee ? 'employee' : answers.track
+    if (!track) {
+      setError('Noget gik galt. Prøv igen.')
+      setLoading(false)
+      return
+    }
     try {
-      if (!answers.track) throw new Error('track is required')
-      await submitSurvey({ ...answers, track: answers.track, email, newsletter_opt_in: newsletter })
+      await submitSurvey({ ...answers, track, email, newsletter_opt_in: newsletter })
       onSubmitted()
-    } catch {
+    } catch (err) {
+      console.error('Survey submission failed:', err)
       setError('Noget gik galt. Prøv igen.')
       setLoading(false)
     }

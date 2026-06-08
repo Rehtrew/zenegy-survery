@@ -199,6 +199,20 @@ export function SurveyFlow({ renderLanding, renderLeadGen, renderThankYou }: Sur
 
   const stepGroups = getStepGroups(answers)
 
+  // Jump back to the first (reachable) question of an already-visited section.
+  const jumpToStep = (groupIndex: number) => {
+    const group = stepGroups[groupIndex]
+    if (!group) return
+    const targetId = group.questionIds.find(id => questions.some(q => q.id === id))
+    if (!targetId) return
+    const idx = questions.findIndex(q => q.id === targetId)
+    if (idx < 0) return
+    setDirection(idx <= questionIndex ? 'backward' : 'forward')
+    setAnimKey(k => k + 1)
+    setPhase('questions')
+    setQuestionIndex(idx)
+  }
+
   // ── Landing ──
   if (phase === 'landing') {
     return (
@@ -222,6 +236,7 @@ export function SurveyFlow({ renderLanding, renderLeadGen, renderThankYou }: Sur
         percent={computePercent('lead-gen', stepGroups, idx)}
         phase="lead-gen" direction={direction} animKey={animKey}
         showBack onBack={back} onExit={goToLanding}
+        onNavigateWelcome={goToLanding} onNavigateStep={jumpToStep}
       >
         {renderLeadGen(answers, () => { setDirection('forward'); setAnimKey(k => k + 1); setPhase('thank-you') })}
       </SurveyShell>
@@ -256,6 +271,7 @@ export function SurveyFlow({ renderLanding, renderLeadGen, renderThankYou }: Sur
       showBack backLabel={isFirst ? 'Forsiden' : 'Tilbage'} onBack={back}
       showNext={!currentQuestion.autoAdvance} nextLabel="Næste" nextDisabled={!answered} onNext={advance}
       onExit={goToLanding}
+      onNavigateWelcome={goToLanding} onNavigateStep={jumpToStep}
     >
       <QuestionRenderer
         question={currentQuestion}
