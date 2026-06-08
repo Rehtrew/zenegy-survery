@@ -264,9 +264,11 @@ export function SurveyFlow({ renderLanding, renderLeadGen, renderThankYou }: Sur
   const answered = isAnswered(currentQuestion, answers)
 
   // Progress within the active category (e.g. question 2 of 3 in "Din oplevelse").
-  const reachable = (stepGroups[currentStepIndex]?.questionIds ?? []).filter(qid => questions.some(q => q.id === qid))
-  const sectionTotal = reachable.length || 1
-  const sectionStep = Math.max(1, reachable.indexOf(currentQuestion.id) + 1)
+  // Use the group's full question list, NOT the live sequence — the sequence grows
+  // as answers unlock later questions, which made "Om dig" read 1/1 → 2/2 → 3/3.
+  const sectionIds = stepGroups[currentStepIndex]?.questionIds ?? []
+  const sectionTotal = sectionIds.length || 1
+  const sectionStep = Math.max(1, sectionIds.indexOf(currentQuestion.id) + 1)
 
   return (
     <SurveyShell
