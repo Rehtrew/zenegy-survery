@@ -148,18 +148,6 @@ export function QuestionRenderer({
 
   return (
     <div className="w-full max-w-[640px] mx-auto">
-      {question.subText && (
-        <div
-          className="mb-1 tracking-widest uppercase"
-          style={{
-            color: '#6e30fd',
-            fontSize: 11,
-            fontWeight: 700,
-          }}
-        >
-          ✦ Spørgsmål
-        </div>
-      )}
       <h2
         className="leading-snug mb-1.5"
         style={{
@@ -201,17 +189,24 @@ export function QuestionRenderer({
               type="button"
               onClick={onBack}
               style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
                 padding: '12px 20px',
                 borderRadius: 8,
                 border: 'none',
                 background: 'var(--color-surface-subtle)',
                 color: 'var(--color-text-secondary)',
                 fontSize: 14,
-                fontWeight: 600,
+                fontWeight: 500,
                 cursor: 'pointer',
+                fontFamily: 'var(--font-sans)',
               }}
             >
-              ← Tilbage
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Tilbage
             </button>
           ) : <div />}
           <button
@@ -219,6 +214,9 @@ export function QuestionRenderer({
             onClick={onAdvance}
             disabled={!hasAnswer(answer)}
             style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
               padding: '12px 24px',
               borderRadius: 8,
               border: 'none',
@@ -226,11 +224,16 @@ export function QuestionRenderer({
               color: 'white',
               fontSize: 14,
               fontWeight: 500,
-              cursor: 'pointer',
+              cursor: hasAnswer(answer) ? 'pointer' : 'not-allowed',
               opacity: hasAnswer(answer) ? 1 : 0.4,
+              fontFamily: 'var(--font-sans)',
+              transition: 'opacity 0.15s ease',
             }}
           >
-            Næste →
+            Næste
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </button>
         </div>
       )}

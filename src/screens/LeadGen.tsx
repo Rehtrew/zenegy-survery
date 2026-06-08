@@ -30,121 +30,156 @@ export function LeadGen({ answers, onSubmitted }: Props) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-surface-page)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '64px 24px' }}>
-      <div style={{ width: '100%', maxWidth: 560, background: '#120c2b', borderRadius: 16, padding: '44px 44px', color: 'white' }}>
+    <div>
+      {/* Badge */}
+      <div style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 8,
+        background: 'var(--color-surface-brand-subtle)',
+        borderRadius: 9999,
+        padding: '6px 14px',
+        fontSize: 13,
+        fontWeight: 500,
+        color: 'var(--color-action-primary)',
+        marginBottom: 24,
+      }}>
+        <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#6e30fd', flexShrink: 0 }} />
+        Dine svar er registreret
+      </div>
 
-        {/* Badge */}
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.08)', borderRadius: 9999, padding: '6px 14px', fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.75)', marginBottom: 24 }}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#9d94ff', flexShrink: 0 }} />
-          Du er næsten i mål!
-        </div>
+      <h2 style={{ fontSize: 24, fontWeight: 500, lineHeight: 1.25, marginBottom: 10, color: 'var(--color-text-primary)' }}>
+        Vil du modtage resultaterne?
+      </h2>
+      <p style={{ fontSize: 14, color: 'var(--color-text-secondary)', lineHeight: 1.6, marginBottom: 28 }}>
+        Indtast din email, og vi sender dig resultaterne, når undersøgelsen lukker. Det er helt frivilligt.
+      </p>
 
-        <h2 style={{ fontSize: 26, fontWeight: 500, lineHeight: 1.25, marginBottom: 10, color: 'white' }}>
-          Tak — dine svar hjælper os med at gøre løn nemmere for alle.
-        </h2>
-        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, marginBottom: 32 }}>
-          Indtast din email for at deltage i lodtrækningen om en iPad. Vi trækker en vinder d. 1. august 2025.
-        </p>
-
-        {/* Email */}
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.7)', marginBottom: 8 }}>
-            Email <span style={{ color: '#9d94ff' }}>*</span>
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={e => { setEmail(e.target.value); setError('') }}
-            placeholder="din@email.dk"
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              borderRadius: 8,
-              background: 'rgba(255,255,255,0.08)',
-              border: '1.5px solid rgba(255,255,255,0.12)',
-              color: 'white',
-              fontSize: 14,
-              fontWeight: 500,
-              outline: 'none',
-              fontFamily: 'var(--font-sans)',
-              boxSizing: 'border-box',
-            }}
-          />
-          {error && <p style={{ color: '#ff6b6b', fontSize: 12, marginTop: 6 }}>{error}</p>}
-        </div>
-
-        {/* Newsletter */}
-        <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', marginBottom: 32 }}>
-          <input
-            type="checkbox"
-            checked={newsletter}
-            onChange={e => setNewsletter(e.target.checked)}
-            style={{ marginTop: 2, accentColor: '#6e30fd', width: 16, height: 16, cursor: 'pointer', flexShrink: 0 }}
-          />
-          <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.55 }}>
-            Ja tak, jeg vil gerne modtage Zenegys nyhedsbrev med tips, nyheder og produktopdateringer.{' '}
-            <span style={{ color: 'rgba(255,255,255,0.35)' }}>(Helt valgfrit — du er med i konkurrencen uanset.)</span>
-          </span>
+      {/* Email */}
+      <div style={{ marginBottom: 16 }}>
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
+          Email
         </label>
+        <input
+          type="email"
+          value={email}
+          onChange={e => { setEmail(e.target.value); setError('') }}
+          placeholder="din@email.dk"
+          style={{
+            width: '100%',
+            padding: '12px 16px',
+            borderRadius: 8,
+            background: 'var(--color-surface-subtle)',
+            border: `1.5px solid ${error ? 'var(--color-feedback-error)' : 'var(--color-border-default)'}`,
+            color: 'var(--color-text-primary)',
+            fontSize: 14,
+            fontWeight: 500,
+            outline: 'none',
+            fontFamily: 'var(--font-sans)',
+            boxSizing: 'border-box',
+            transition: 'border-color 0.12s ease',
+          }}
+        />
+        {error && <p style={{ color: 'var(--color-feedback-error)', fontSize: 12, marginTop: 6 }}>{error}</p>}
+      </div>
 
-        {/* Submit */}
+      {/* Newsletter */}
+      <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', marginBottom: 28 }}>
+        <input
+          type="checkbox"
+          checked={newsletter}
+          onChange={e => setNewsletter(e.target.checked)}
+          style={{ marginTop: 2, accentColor: '#6e30fd', width: 16, height: 16, cursor: 'pointer', flexShrink: 0 }}
+        />
+        <span style={{ fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.55 }}>
+          Ja tak, jeg vil gerne modtage Zenegys nyhedsbrev med tips og produktopdateringer.
+        </span>
+      </label>
+
+      {/* Submit */}
+      <button
+        type="button"
+        onClick={handleSubmit}
+        disabled={loading || !isValidEmail}
+        style={{
+          width: '100%',
+          padding: '14px',
+          borderRadius: 8,
+          background: '#6e30fd',
+          color: 'white',
+          fontWeight: 500,
+          fontSize: 15,
+          border: 'none',
+          cursor: loading || !isValidEmail ? 'not-allowed' : 'pointer',
+          opacity: loading || !isValidEmail ? 0.5 : 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          marginBottom: 12,
+          fontFamily: 'var(--font-sans)',
+          transition: 'background 0.12s ease, opacity 0.12s ease',
+        }}
+      >
+        {loading ? (
+          <span style={{ display: 'inline-block', width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.75s linear infinite' }} />
+        ) : 'Modtag resultater'}
+      </button>
+
+      {/* Book demo */}
+      <a
+        href="https://zenegy.com/book-demo"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          padding: '13px',
+          borderRadius: 8,
+          border: '1.5px solid var(--color-border-default)',
+          color: 'var(--color-text-primary)',
+          fontWeight: 500,
+          fontSize: 14,
+          textDecoration: 'none',
+          marginBottom: 20,
+          transition: 'background 0.12s ease',
+          fontFamily: 'var(--font-sans)',
+          boxSizing: 'border-box',
+        }}
+      >
+        Book en gratis demo med Zenegy
+      </a>
+
+      {/* Skip */}
+      <div style={{ textAlign: 'center' }}>
         <button
           type="button"
-          onClick={handleSubmit}
-          disabled={loading || !isValidEmail}
+          onClick={onSubmitted}
           style={{
-            width: '100%',
-            padding: '14px',
-            borderRadius: 8,
-            background: '#6e30fd',
-            color: 'white',
-            fontWeight: 500,
-            fontSize: 15,
+            background: 'none',
             border: 'none',
-            cursor: loading || !isValidEmail ? 'not-allowed' : 'pointer',
-            opacity: loading || !isValidEmail ? 0.5 : 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            marginBottom: 12,
+            cursor: 'pointer',
+            fontSize: 13,
+            color: 'var(--color-text-tertiary)',
             fontFamily: 'var(--font-sans)',
-            transition: 'background 0.12s ease',
-          }}
-        >
-          {loading ? (
-            <span style={{ display: 'inline-block', width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.75s linear infinite' }} />
-          ) : 'Send svar og deltag i konkurrencen'}
-        </button>
-
-        {/* Book demo */}
-        <a
-          href="https://zenegy.com/book-demo"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: 'flex',
+            display: 'inline-flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            padding: '13px',
-            borderRadius: 8,
-            border: '1.5px solid rgba(255,255,255,0.18)',
-            color: 'white',
-            fontWeight: 500,
-            fontSize: 14,
-            textDecoration: 'none',
-            transition: 'background 0.12s ease',
+            gap: 4,
           }}
         >
-          Book en gratis demo med Zenegy
-        </a>
-
-        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textAlign: 'center', marginTop: 20, lineHeight: 1.6 }}>
-          Din email bruges udelukkende til konkurrencen og evt. nyhedsbrev.<br />
-          Vi deler ikke dine data med tredjepart.
-        </p>
+          Spring over
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5 3L9 7L5 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
       </div>
+
+      <p style={{ fontSize: 11, color: 'var(--color-text-tertiary)', textAlign: 'center', marginTop: 16, lineHeight: 1.6 }}>
+        Din email bruges udelukkende til at sende dig resultaterne og evt. nyhedsbrev.<br />
+        Vi deler ikke dine data med tredjepart.
+      </p>
     </div>
   )
 }

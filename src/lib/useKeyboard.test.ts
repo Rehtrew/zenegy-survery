@@ -16,16 +16,16 @@ function setup(overrides: Partial<Parameters<typeof useKeyboard>[0]> = {}) {
 }
 
 describe('useKeyboard', () => {
-  it('calls onAdvance on Enter', async () => {
+  it('does NOT call onAdvance on Enter', async () => {
     const { onAdvance } = setup()
     await userEvent.keyboard('{Enter}')
-    expect(onAdvance).toHaveBeenCalledOnce()
+    expect(onAdvance).not.toHaveBeenCalled()
   })
 
-  it('calls onAdvance on Space', async () => {
+  it('does NOT call onAdvance on Space', async () => {
     const { onAdvance } = setup()
     await userEvent.keyboard(' ')
-    expect(onAdvance).toHaveBeenCalledOnce()
+    expect(onAdvance).not.toHaveBeenCalled()
   })
 
   it('calls onBack on ArrowLeft', async () => {

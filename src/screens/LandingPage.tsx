@@ -1,5 +1,5 @@
-import ipadImg from '../assets/ipad.png'
-import { ShieldCheck, SlidersHorizontal, Star, MessageCircle } from '../components/icons'
+import megaphoneUrl from '../assets/Illustrations/Business/Business _ megaphone, announcement, communication, marketing, promotion.svg'
+import { ShieldCheck, SlidersHorizontal, Sparkles, MessageCircle } from '../components/icons'
 
 interface Props {
   onStart: () => void
@@ -39,9 +39,9 @@ const perks = [
     desc: 'Spørgsmålene tilpasser sig, om du er Zenegy-kunde eller bruger et andet system.',
   },
   {
-    Icon: Star,
-    title: 'iPad konkurrence',
-    desc: 'Alle der deltager er med i lodtrækningen — uanset om du tilmelder nyhedsbrev eller ej.',
+    Icon: Sparkles,
+    title: 'Resultater deles',
+    desc: 'Når undersøgelsen lukker, deler vi resultaterne med alle der har deltaget.',
   },
   {
     Icon: MessageCircle,
@@ -95,12 +95,12 @@ export function LandingPage({ onStart }: Props) {
             </h1>
 
             <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.58)', lineHeight: 1.65, marginBottom: 36 }}>
-              Del din mening på 3 minutter og vær med i lodtrækningen om en iPad. Dine svar er anonyme.
+              Del din mening på 3 minutter. Dine svar er anonyme — og vi deler resultaterne med dig.
             </p>
 
             {/* Stats */}
             <div style={{ display: 'flex', gap: 36, marginBottom: 40 }}>
-              {[['~3 min', 'at gennemføre'], ['7 spm', 'korte spørgsmål'], ['1 iPad', 'til en heldig deltager']].map(([n, l]) => (
+              {[['~3 min', 'at gennemføre'], ['100%', 'anonymt'], ['Resultater', 'deles med dig']].map(([n, l]) => (
                 <div key={n}>
                   <div style={{ fontSize: 22, fontWeight: 500, color: 'white', lineHeight: 1 }}>{n}</div>
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{l}</div>
@@ -138,22 +138,24 @@ export function LandingPage({ onStart }: Props) {
             </p>
           </div>
 
-          {/* iPad photo — positioned right side */}
+          {/* Illustration — right side */}
           <img
-            src={ipadImg}
-            alt="iPad"
+            src={megaphoneUrl}
+            alt=""
+            aria-hidden="true"
             style={{
               position: 'absolute',
-              right: 0,
+              right: -20,
               bottom: 0,
-              height: '100%',
+              height: '88%',
               width: 'auto',
-              maxWidth: 280,
-              objectFit: 'cover',
-              objectPosition: 'center top',
-              maskImage: 'linear-gradient(to right, transparent 0%, black 20%)',
-              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 20%)',
+              maxWidth: 300,
+              objectFit: 'contain',
+              objectPosition: 'bottom',
+              maskImage: 'linear-gradient(to right, transparent 0%, black 25%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 25%)',
               pointerEvents: 'none',
+              opacity: 0.9,
             }}
           />
         </div>

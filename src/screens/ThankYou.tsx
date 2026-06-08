@@ -1,4 +1,4 @@
-import { CircleCheck } from '../components/icons'
+import trophyUrl from '../assets/Illustrations/Success/Success _ achievement, success, trophy, awards, celebration.svg'
 
 export function ThankYou() {
   return (
@@ -11,30 +11,22 @@ export function ThankYou() {
         maxWidth: 440,
         width: '100%',
       }}>
-        {/* Animated check icon */}
-        <div
-          className="anim-check-pop"
-          style={{
-            width: 64,
-            height: 64,
-            borderRadius: '50%',
-            background: 'var(--color-surface-brand-subtle)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 28px',
-          }}
-        >
-          <CircleCheck size={28} color="var(--color-action-primary)" strokeWidth={1.75}/>
+        {/* Illustration */}
+        <div className="anim-check-pop" style={{ marginBottom: 28 }}>
+          <img
+            src={trophyUrl}
+            alt=""
+            aria-hidden="true"
+            style={{ width: 140, height: 140, objectFit: 'contain', margin: '0 auto' }}
+          />
         </div>
 
-        <h1 style={{ fontSize: 28, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 12 }}>Du er med!</h1>
+        <h1 style={{ fontSize: 28, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 12 }}>
+          Tak for din tid!
+        </h1>
 
-        <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
-          Lodtrækning d. 1. august 2025
-        </p>
         <p style={{ fontSize: 15, color: 'var(--color-text-secondary)', lineHeight: 1.6, marginBottom: 36 }}>
-          Vi trækker en vinder og giver dig besked direkte på din email. Tak fordi du tog dig tid.
+          Dine svar hjælper os med at gøre løn nemmere for alle i Danmark. Hvis du har indtastet din email, sender vi dig resultaterne, når undersøgelsen lukker.
         </p>
 
         <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 16 }}>

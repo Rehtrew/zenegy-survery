@@ -24,10 +24,7 @@ export function useKeyboard({
         (e.target instanceof HTMLElement && e.target.isContentEditable)
       ) return
 
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        onAdvance()
-      } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+      if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
         e.preventDefault()
         onBack()
       } else if (/^[1-9]$/.test(e.key)) {

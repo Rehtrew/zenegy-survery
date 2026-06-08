@@ -134,6 +134,8 @@ export function SurveyFlow({ renderLanding, renderLeadGen, renderThankYou }: Sur
       setAnimKey(k => k + 1)
       setQuestionIndex(i => i + 1)
     } else {
+      setDirection('forward')
+      setAnimKey(k => k + 1)
       setPhase('lead-gen')
     }
   }, [phase, questionIndex, questions.length, currentQuestion, answers])
@@ -161,12 +163,25 @@ export function SurveyFlow({ renderLanding, renderLeadGen, renderThankYou }: Sur
     enabled: phase === 'questions',
   })
 
+  const stepGroups = getStepGroups(answers)
+
   if (phase === 'landing') return <>{renderLanding(advance)}</>
-  if (phase === 'lead-gen') return <>{renderLeadGen(answers, () => setPhase('thank-you'))}</>
+  if (phase === 'lead-gen') return (
+    <SurveyShell
+      currentIndex={questions.length}
+      totalQuestions={questions.length}
+      direction="forward"
+      animKey={animKey}
+      stepGroups={stepGroups}
+      currentStepIndex={stepGroups.length - 1}
+      hideCounter
+    >
+      {renderLeadGen(answers, () => setPhase('thank-you'))}
+    </SurveyShell>
+  )
   if (phase === 'thank-you') return <>{renderThankYou()}</>
   if (!currentQuestion) return null
 
-  const stepGroups = getStepGroups(answers)
   const currentStepIndex = stepGroups.findIndex(g => g.questionIds.includes(currentQuestion.id))
 
   return (

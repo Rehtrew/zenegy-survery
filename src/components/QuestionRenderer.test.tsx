@@ -77,7 +77,7 @@ describe('QuestionRenderer', () => {
       options: [],
     }
     render(<QuestionRenderer question={q} {...baseProps} />)
-    expect(screen.getByText('Næste →')).toBeInTheDocument()
+    expect(screen.getByText('Næste')).toBeInTheDocument()
   })
 
   it('hides Næste button for auto-advance questions', () => {
@@ -87,7 +87,7 @@ describe('QuestionRenderer', () => {
       options: [],
     }
     render(<QuestionRenderer question={q} {...baseProps} />)
-    expect(screen.queryByText('Næste →')).not.toBeInTheDocument()
+    expect(screen.queryByText('Næste')).not.toBeInTheDocument()
   })
 
   it('disables Næste when no answer selected', () => {
@@ -96,7 +96,7 @@ describe('QuestionRenderer', () => {
       question: 'Multi?', options: [{ value: 'a', label: 'A' }],
     }
     render(<QuestionRenderer question={q} answers={{ b_frustrations: [] }} onAnswer={vi.fn()} onAdvance={vi.fn()} />)
-    expect(screen.getByText('Næste →')).toBeDisabled()
+    expect(screen.getByText('Næste')).toBeDisabled()
   })
 
   it('calls onAdvance after 300ms on auto-advance single-select', async () => {
