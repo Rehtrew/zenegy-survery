@@ -75,24 +75,8 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Card stack: the question card rises off the deck when advancing ── */
-/* Dealt onto the deck: the card slides in from the side (still small), then
-   scales up to land on top. Lateral travel first, scale second — opacity
-   finishes early so it never reads as a fade. */
-@keyframes card-rise-up {
-  0%   { opacity: 0; transform: translateX(150px) scale(0.82) rotate(3deg); }
-  35%  { opacity: 1; }
-  55%  { transform: translateX(26px) scale(0.86) rotate(1deg); }
-  100% { opacity: 1; transform: translateX(0) scale(1) rotate(0deg); }
-}
-@keyframes card-rise-down {
-  0%   { opacity: 0; transform: translateX(-140px) scale(0.84) rotate(-3deg); }
-  35%  { opacity: 1; }
-  55%  { transform: translateX(-24px) scale(0.87) rotate(-1deg); }
-  100% { opacity: 1; transform: translateX(0) scale(1) rotate(0deg); }
-}
-.anim-card-rise-up   { animation: card-rise-up   520ms cubic-bezier(0.22, 1, 0.32, 1) both; }
-.anim-card-rise-down { animation: card-rise-down 460ms cubic-bezier(0.22, 1, 0.32, 1) both; }
+/* Card advance transition is handled by motion (AnimatePresence + spring) in
+   SurveyShell — see CardStack. */
 
 /* ── Animated value-prop icons (play on hover, lucide-animated style) ── */
 .ic-clock-hand { transform-origin: 12px 12px; }

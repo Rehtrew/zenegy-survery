@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'motion/react'
 import type { Direction, Phase } from '../types'
 import { useIsMobile } from '../lib/useIsMobile'
 
@@ -135,38 +136,51 @@ function ProgressCard({ phase, percent }: { phase: Phase; percent: number }) {
   )
 }
 
-/** The question card sitting on a short deck of ghost cards; it rises off the
- *  stack on advance (and descends when going back). */
+/** The question card on a short deck of ghost cards. On advance the outgoing
+ *  card slides off one way while the incoming card slides in from the other and
+ *  settles on top — one continuous spring, a real exit (not a remount flash). */
+const cardVariants = {
+  enter: (dir: number) => ({ x: 120 * dir, scale: 0.92, opacity: 0 }),
+  center: { x: 0, scale: 1, opacity: 1 },
+  exit: (dir: number) => ({ x: -120 * dir, scale: 0.92, opacity: 0 }),
+}
+
 function CardStack({
   animKey, direction, stacked, radius, padding, shadow, children,
 }: {
   animKey: number; direction: Direction; stacked: boolean
   radius: number; padding: string; shadow: string; children: React.ReactNode
 }) {
-  const rise = direction === 'forward' ? 'anim-card-rise-up' : 'anim-card-rise-down'
+  const dir = direction === 'forward' ? 1 : -1
   const ghost = (ty: number, scale: number, opacity: number): React.CSSProperties => ({
     position: 'absolute', left: 0, right: 0, top: 0, bottom: 0,
     background: '#fff', borderRadius: radius, opacity, zIndex: 0,
     transform: `translateY(${ty}px) scale(${scale})`,
     boxShadow: '0 12px 30px rgba(20,12,43,0.06)',
     border: '1px solid #eef0f4',
-    transition: 'transform 0.38s cubic-bezier(0.23,1,0.32,1), opacity 0.38s ease',
   })
   return (
-    <div style={{ position: 'relative', perspective: 1400 }}>
+    <div style={{ position: 'relative' }}>
       {stacked && (
         <>
           <div aria-hidden style={ghost(24, 0.93, 0.6)} />
           <div aria-hidden style={ghost(12, 0.965, 0.9)} />
         </>
       )}
-      <div
-        key={animKey}
-        className={rise}
-        style={{ position: 'relative', zIndex: 1, background: '#fff', borderRadius: radius, padding, boxShadow: shadow, transformOrigin: 'center' }}
-      >
-        {children}
-      </div>
+      <AnimatePresence mode="popLayout" custom={dir} initial={false}>
+        <motion.div
+          key={animKey}
+          custom={dir}
+          variants={cardVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ type: 'spring', stiffness: 320, damping: 34, mass: 0.9 }}
+          style={{ position: 'relative', zIndex: 1, background: '#fff', borderRadius: radius, padding, boxShadow: shadow }}
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
     </div>
   )
 }
