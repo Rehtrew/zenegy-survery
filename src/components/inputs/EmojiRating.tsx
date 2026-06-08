@@ -17,9 +17,10 @@ interface Props {
 export function EmojiRating({ options, value, onChange, scene = SCENES[0] }: Props) {
   const [justPicked, setJustPicked] = useState<string | null>(null)
   const n = options.length
+  const compact = n >= 5 // 5-point scales need tighter tiles/faces to fit
 
   return (
-    <div style={{ display: 'flex', gap: 12 }}>
+    <div style={{ display: 'flex', gap: compact ? 8 : 12 }}>
       {options.map((opt, i) => {
         const isSelected = value === opt.value
         // mood: 0 = saddest, 1 = happiest
@@ -32,12 +33,13 @@ export function EmojiRating({ options, value, onChange, scene = SCENES[0] }: Pro
             onClick={() => { onChange(opt.value); setJustPicked(opt.value) }}
             style={{
               flex: 1,
+              minWidth: 0,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: 12,
-              padding: '22px 12px 18px',
-              borderRadius: 18,
+              gap: compact ? 9 : 12,
+              padding: compact ? '15px 6px 13px' : '22px 12px 18px',
+              borderRadius: 16,
               border: `1.5px solid ${isSelected ? scene.accent : '#ededf0'}`,
               background: isSelected ? '#efeafe' : '#f6f6f7',
               cursor: 'pointer',
@@ -53,10 +55,13 @@ export function EmojiRating({ options, value, onChange, scene = SCENES[0] }: Pro
               selected={isSelected}
               accent={scene.accent}
               animate={justPicked === opt.value && isSelected}
+              size={compact ? 46 : 60}
             />
             <span style={{
-              fontSize: 14,
+              fontSize: compact ? 12 : 14,
               fontWeight: 500,
+              lineHeight: 1.25,
+              textAlign: 'center',
               color: isSelected ? scene.ink : scene.inkMuted,
               transition: 'color 0.16s ease',
             }}>
@@ -69,8 +74,7 @@ export function EmojiRating({ options, value, onChange, scene = SCENES[0] }: Pro
   )
 }
 
-function Face({ mood, selected, accent, animate }: { mood: number; selected: boolean; accent: string; animate: boolean }) {
-  const size = 60
+function Face({ mood, selected, accent, animate, size = 60 }: { mood: number; selected: boolean; accent: string; animate: boolean; size?: number }) {
   // Mouth: control-point y rises for happy (dip down = smile), drops for sad (peak up = frown)
   const controlY = 22 + mood * 17
   const stroke = selected ? '#ffffff' : '#b6b6b6'
@@ -85,7 +89,7 @@ function Face({ mood, selected, accent, animate }: { mood: number; selected: boo
         transition: 'background 0.18s ease, border-color 0.18s ease',
       }}
     >
-      <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
+      <svg width={Math.round(size * 0.66)} height={Math.round(size * 0.66)} viewBox="0 0 48 48" fill="none">
         <circle cx="17" cy="20" r="2.6" fill={stroke} />
         <circle cx="31" cy="20" r="2.6" fill={stroke} />
         <path

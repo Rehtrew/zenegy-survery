@@ -159,9 +159,11 @@ export const TRACK_A_QUESTIONS: Question[] = [
     subText: 'Tænk på din daglige oplevelse — ikke kun onboarding.',
     autoAdvance: true,
     options: [
+      { value: 'very-unhappy', label: 'Meget utilfreds' },
       { value: 'unhappy', label: 'Ikke tilfreds' },
       { value: 'meh', label: 'Det går' },
       { value: 'happy', label: 'Tilfreds' },
+      { value: 'very-happy', label: 'Meget tilfreds' },
     ],
   },
   {

@@ -24,6 +24,8 @@ interface Props {
   onExit?: () => void
   onNavigateWelcome?: () => void
   onNavigateStep?: (groupIndex: number) => void
+  sectionStep?: number
+  sectionTotal?: number
   children: React.ReactNode
 }
 
@@ -71,7 +73,41 @@ function MilestoneIcon({ state, kind }: { state: StepState; kind: 'home' | 'flag
   )
 }
 
-function StepRow({ label, state, icon, onClick }: { label: string; state: StepState; icon?: React.ReactNode; onClick?: () => void }) {
+/** A ring that fills to show how far through the active category the user is. */
+function ProgressRing({ step, total }: { step: number; total: number }) {
+  const r = 7, c = 2 * Math.PI * r
+  const frac = Math.min(1, Math.max(0, step / total))
+  return (
+    <span style={{ width: 16, height: 16, flexShrink: 0, display: 'flex' }}>
+      <svg width="16" height="16" viewBox="0 0 18 18">
+        <circle cx="9" cy="9" r={r} fill="none" stroke="#e2e2e8" strokeWidth="2.4" />
+        <circle
+          cx="9" cy="9" r={r} fill="none" stroke={ACCENT} strokeWidth="2.4" strokeLinecap="round"
+          strokeDasharray={c} strokeDashoffset={c * (1 - frac)} transform="rotate(-90 9 9)"
+          style={{ transition: 'stroke-dashoffset 0.4s ease' }}
+        />
+      </svg>
+    </span>
+  )
+}
+
+/** Expanded under the active category: one pip per question, filled up to the
+ *  current one, with a small "x/y" so it's clear how many remain. */
+function SectionDots({ step, total }: { step: number; total: number }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 0 8px 39px' }}>
+      {Array.from({ length: total }).map((_, i) => (
+        <span key={i} style={{
+          width: i < step ? 15 : 7, height: 7, borderRadius: 99,
+          background: i < step ? ACCENT : '#dcdce2', transition: 'all 0.3s ease',
+        }} />
+      ))}
+      <span style={{ fontSize: 11.5, fontWeight: 500, color: '#9a9aa3', marginLeft: 4 }}>{step}/{total}</span>
+    </div>
+  )
+}
+
+function StepRow({ label, state, icon, onClick, ring }: { label: string; state: StepState; icon?: React.ReactNode; onClick?: () => void; ring?: { step: number; total: number } }) {
   const color = state === 'active' ? '#4a1fb0' : state === 'done' ? '#86868b' : '#b1b1bb'
   const isActive = state === 'active'
   const style: React.CSSProperties = {
@@ -82,7 +118,7 @@ function StepRow({ label, state, icon, onClick }: { label: string; state: StepSt
   }
   const inner = (
     <>
-      {icon ?? <StatusDot state={state} />}
+      {ring ? <ProgressRing step={ring.step} total={ring.total} /> : (icon ?? <StatusDot state={state} />)}
       <span style={{ flex: 1, fontWeight: 500 }}>{label}</span>
     </>
   )
@@ -260,7 +296,7 @@ export function SurveyShell({
   stepGroups, currentStepIndex, percent, phase, direction, animKey,
   showBack = false, backLabel = 'Tilbage', onBack,
   showNext = false, nextLabel = 'Næste', nextDisabled = false, onNext,
-  onExit, onNavigateWelcome, onNavigateStep, children,
+  onExit, onNavigateWelcome, onNavigateStep, sectionStep, sectionTotal, children,
 }: Props) {
   const isMobile = useIsMobile()
   const canExit = onExit && phase !== 'landing' && phase !== 'thank-you'
@@ -342,7 +378,17 @@ export function SurveyShell({
           {stepGroups.map((g, i) => {
             const st = groupState(i)
             const clickable = navEnabled && onNavigateStep && st !== 'upcoming'
-            return <StepRow key={g.label} label={g.label} state={st} onClick={clickable ? () => onNavigateStep!(i) : undefined} />
+            const showProgress = st === 'active' && phase === 'questions' && sectionTotal != null && sectionStep != null
+            return (
+              <div key={g.label}>
+                <StepRow
+                  label={g.label} state={st}
+                  ring={showProgress ? { step: sectionStep, total: sectionTotal } : undefined}
+                  onClick={clickable ? () => onNavigateStep!(i) : undefined}
+                />
+                {showProgress && sectionTotal > 1 && <SectionDots step={sectionStep} total={sectionTotal} />}
+              </div>
+            )
           })}
           <div style={{ height: 1, background: '#f0f0f3', margin: '7px 6px' }} />
           <StepRow label="Tak" state={takState} icon={<MilestoneIcon state={takState} kind="flag" />} />

@@ -263,10 +263,16 @@ export function SurveyFlow({ renderLanding, renderLeadGen, renderThankYou }: Sur
   const isFirst = questionIndex === 0
   const answered = isAnswered(currentQuestion, answers)
 
+  // Progress within the active category (e.g. question 2 of 3 in "Din oplevelse").
+  const reachable = (stepGroups[currentStepIndex]?.questionIds ?? []).filter(qid => questions.some(q => q.id === qid))
+  const sectionTotal = reachable.length || 1
+  const sectionStep = Math.max(1, reachable.indexOf(currentQuestion.id) + 1)
+
   return (
     <SurveyShell
       stepGroups={stepGroups} currentStepIndex={currentStepIndex}
       percent={computePercent('questions', stepGroups, currentStepIndex, currentQuestion)}
+      sectionStep={sectionStep} sectionTotal={sectionTotal}
       phase="questions" direction={direction} animKey={animKey}
       showBack backLabel={isFirst ? 'Forsiden' : 'Tilbage'} onBack={back}
       showNext={!currentQuestion.autoAdvance} nextLabel="Næste" nextDisabled={!answered} onNext={advance}
