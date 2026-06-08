@@ -153,8 +153,8 @@ function CardStack({
     enter: { y: -64, scale: 1.06, rotate: dir * -3, opacity: 0, zIndex: 2, boxShadow: liftedShadow },
     // Landed flat on top.
     center: { y: 0, scale: 1, rotate: 0, opacity: 1, zIndex: 2, boxShadow: shadow },
-    // Pressed down into the pile underneath the new card.
-    exit: { y: 14, scale: 0.95, rotate: 0, opacity: 0, zIndex: 1, boxShadow: shadow },
+    // Pressed down and shrinking into the pile underneath the new card.
+    exit: { y: 22, scale: 0.88, rotate: 0, opacity: 0, zIndex: 1, boxShadow: shadow },
   }
   const ghost = (ty: number, scale: number, opacity: number): React.CSSProperties => ({
     position: 'absolute', left: 0, right: 0, top: 0, bottom: 0,
@@ -167,8 +167,9 @@ function CardStack({
     <div style={{ position: 'relative' }}>
       {stacked && (
         <>
-          <div aria-hidden style={ghost(24, 0.93, 0.6)} />
-          <div aria-hidden style={ghost(12, 0.965, 0.9)} />
+          <div aria-hidden style={ghost(44, 0.9, 0.45)} />
+          <div aria-hidden style={ghost(28, 0.935, 0.7)} />
+          <div aria-hidden style={ghost(13, 0.97, 0.92)} />
         </>
       )}
       <AnimatePresence mode="popLayout" initial={false}>
