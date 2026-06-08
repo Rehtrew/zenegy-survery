@@ -269,7 +269,7 @@ export function SurveyShell({
         </header>
 
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <div style={{ flex: 1, padding: '20px 16px 24px' }}>
+          <div style={{ flex: 1, padding: '20px 16px 24px', overflowX: 'hidden' }}>
             <CardStack animKey={animKey} direction={direction} stacked={phase === 'questions'} radius={20} padding="28px 22px 32px" shadow="0 8px 30px rgba(20,12,43,0.06)">
               {children}
             </CardStack>
@@ -332,7 +332,7 @@ export function SurveyShell({
       </aside>
 
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 48px 16px' }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 48px 16px', overflowX: 'hidden' }}>
           <div style={{ width: '100%', maxWidth: 580 }}>
             <CardStack animKey={animKey} direction={direction} stacked={phase === 'questions'} radius={24} padding="42px 46px 46px" shadow="0 10px 40px rgba(20,12,43,0.06)">
               {children}
