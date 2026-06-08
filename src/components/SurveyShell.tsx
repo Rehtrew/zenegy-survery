@@ -163,7 +163,7 @@ function CardStack({
       <div
         key={animKey}
         className={rise}
-        style={{ position: 'relative', zIndex: 1, background: '#fff', borderRadius: radius, padding, boxShadow: shadow, transformOrigin: 'bottom center' }}
+        style={{ position: 'relative', zIndex: 1, background: '#fff', borderRadius: radius, padding, boxShadow: shadow, transformOrigin: 'center' }}
       >
         {children}
       </div>
