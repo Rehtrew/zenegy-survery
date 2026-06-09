@@ -1,16 +1,26 @@
 /**
  * LandingReport — the right-hand hero visual. A fictional "market report" floating
- * on the Zenegy gradient with a pulsating dotted grid, plus a couple of floating
- * stat cards. Its job is to signal at a glance that this is a tool for gathering
- * survey data and turning it into insight. All numbers are illustrative.
- *
- * Charts are tiny inline SVGs (no chart library) with one-shot entrance animations;
- * everything sits under the global prefers-reduced-motion guard.
+ * on the Zenegy gradient with a pulsating dotted grid, plus two real survey-question
+ * previews (satisfaction smileys + NPS slider) floating in front. Its job is to show
+ * at a glance that this is a survey tool that turns answers into insight. All numbers
+ * are illustrative; the preview cards are non-interactive.
  */
 import { Glyph } from '../components/icons/glyphs'
+import { EmojiRating } from '../components/inputs/EmojiRating'
+import { NPSScale } from '../components/inputs/NPSScale'
+import type { Option } from '../types'
 
 const ACCENT = '#6e30fd'
 const GRADIENT = 'linear-gradient(145deg, #120C2B 0%, #9D94FF 56%, #EBE6FF 100%)'
+const noop = () => {}
+
+const SAT_OPTIONS: Option[] = [
+  { value: 'very-unhappy', label: 'Meget utilfreds' },
+  { value: 'unhappy', label: 'Ikke tilfreds' },
+  { value: 'meh', label: 'Det går' },
+  { value: 'happy', label: 'Tilfreds' },
+  { value: 'very-happy', label: 'Meget tilfreds' },
+]
 
 /** Grey skeleton bar standing in for text. */
 function Sk({ w, h = 7, style }: { w: number | string; h?: number; style?: React.CSSProperties }) {
@@ -28,10 +38,7 @@ function DonutGauge({ score = '42', pct = 0.74 }: { score?: string; pct?: number
   return (
     <svg width="66" height="66" viewBox="0 0 64 64">
       <circle cx="32" cy="32" r={r} fill="none" stroke="#ece8fb" strokeWidth="8" />
-      <circle
-        cx="32" cy="32" r={r} fill="none" stroke={ACCENT} strokeWidth="8" strokeLinecap="round"
-        strokeDasharray={c} transform="rotate(-90 32 32)" style={sweep}
-      />
+      <circle cx="32" cy="32" r={r} fill="none" stroke={ACCENT} strokeWidth="8" strokeLinecap="round" strokeDasharray={c} transform="rotate(-90 32 32)" style={sweep} />
       <text x="32" y="36" textAnchor="middle" fontSize="16" fontWeight="500" fill="#14132b" fontFamily="var(--font-sans)">{score}</text>
     </svg>
   )
@@ -48,10 +55,7 @@ function BarChart() {
         </linearGradient>
       </defs>
       {bars.map((h, i) => (
-        <rect
-          key={i} x={i * 23 + 4} y={56 - h} width="15" height={h} rx="3.5" fill="url(#barGrad)"
-          className="chart-bar" style={{ animationDelay: `${i * 70}ms` }}
-        />
+        <rect key={i} x={i * 23 + 4} y={56 - h} width="15" height={h} rx="3.5" fill="url(#barGrad)" className="chart-bar" style={{ animationDelay: `${i * 70}ms` }} />
       ))}
     </svg>
   )
@@ -69,26 +73,33 @@ function AreaTrend() {
         </linearGradient>
       </defs>
       <path d={area} fill="url(#areaGrad)" />
-      <path
-        d={line} fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-        pathLength={1} vectorEffect="non-scaling-stroke" className="spark-draw"
-      />
+      <path d={line} fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" pathLength={1} vectorEffect="non-scaling-stroke" className="spark-draw" />
     </svg>
   )
 }
 
-/** Tiny up-and-to-the-right sparkline for the floating stat card. */
-function MiniSpark() {
+/** A floating, non-interactive preview of a real survey question. */
+function PreviewCard({ className, style, question, children }: {
+  className?: string; style: React.CSSProperties; question: string; children: React.ReactNode
+}) {
   return (
-    <svg width="52" height="20" viewBox="0 0 52 20" fill="none">
-      <path d="M2 16 L12 11 L22 13 L32 6 L42 8 L50 2" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" pathLength={1} className="spark-draw" />
-    </svg>
+    <div
+      className={className}
+      style={{
+        position: 'absolute', background: '#fff', borderRadius: 16, padding: '18px 18px 16px',
+        boxShadow: '0 22px 52px rgba(20,12,43,0.22)', pointerEvents: 'none', ...style,
+      }}
+    >
+      <div style={{ fontSize: 12, fontWeight: 500, color: '#b3a4e8', marginBottom: 8 }}>Din oplevelse</div>
+      <div style={{ fontSize: 15, fontWeight: 500, color: '#14132b', marginBottom: 14 }}>{question}</div>
+      {children}
+    </div>
   )
 }
 
 export function LandingReport() {
   return (
-    <div className="landing-report" style={{ position: 'relative', overflow: 'hidden', background: GRADIENT }}>
+    <div className="landing-report" style={{ background: GRADIENT }}>
       {/* Pulsating dotted grid */}
       <div
         className="dot-grid-pulse"
@@ -100,33 +111,15 @@ export function LandingReport() {
         }}
       />
 
-      {/* Floating stat card (top-left, over the dark corner) */}
-      <div
-        className="anim-float"
-        style={{
-          position: 'absolute', top: 38, left: 26, zIndex: 3,
-          background: '#fff', borderRadius: 14, padding: '13px 15px',
-          boxShadow: '0 16px 38px rgba(20,12,43,0.20)', minWidth: 132,
-        }}
-      >
-        <div style={{ fontSize: 12, fontWeight: 500, color: '#86868b', marginBottom: 5 }}>Svar i alt</div>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 10 }}>
-          <span style={{ fontSize: 21, fontWeight: 500, color: '#14132b', letterSpacing: '-0.02em' }}>1.248</span>
-          <MiniSpark />
-        </div>
-        <div style={{ fontSize: 11.5, fontWeight: 500, color: '#1f9d63', marginTop: 4 }}>+18% denne uge</div>
-      </div>
-
       {/* Main report card (right side, bleeds off the right edge) */}
       <div
         className="anim-rise-in"
         style={{
-          position: 'absolute', top: 60, right: -8, width: 332, zIndex: 2,
+          position: 'absolute', top: 64, right: -8, width: 334, zIndex: 2,
           background: '#fff', borderRadius: 16, padding: '20px 20px 22px',
           boxShadow: '0 26px 60px rgba(20,12,43,0.24)',
         }}
       >
-        {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginBottom: 16 }}>
           <Glyph name="zenegy" size={30} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
@@ -138,7 +131,6 @@ export function LandingReport() {
 
         <div style={{ height: 1, background: '#f0f0f3', margin: '0 -20px 16px' }} />
 
-        {/* Two mini charts */}
         <div style={{ display: 'flex', gap: 14, marginBottom: 16 }}>
           <div style={{ flex: 1, background: '#faf9fe', borderRadius: 12, padding: '12px 12px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
             <DonutGauge />
@@ -150,13 +142,11 @@ export function LandingReport() {
           </div>
         </div>
 
-        {/* Trend */}
         <div style={{ marginBottom: 14 }}>
           <Sk w={84} h={6} style={{ marginBottom: 8 }} />
           <AreaTrend />
         </div>
 
-        {/* Skeleton paragraph */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <Sk w="100%" />
           <Sk w="92%" />
@@ -164,20 +154,21 @@ export function LandingReport() {
         </div>
       </div>
 
-      {/* Floating check chip (bottom-left, overlaps the report) */}
-      <div
-        style={{
-          position: 'absolute', bottom: 46, left: 22, zIndex: 4,
-          display: 'inline-flex', alignItems: 'center', gap: 9,
-          background: '#fff', borderRadius: 12, padding: '11px 15px',
-          boxShadow: '0 16px 38px rgba(20,12,43,0.20)',
-        }}
+      {/* Survey-question previews (real components, non-interactive) */}
+      <PreviewCard
+        className="anim-float"
+        style={{ top: 128, left: 26, width: 'min(354px, calc(100% - 52px))', zIndex: 4 }}
+        question="Hvor tilfreds er du med Zenegy?"
       >
-        <span style={{ width: 22, height: 22, borderRadius: '50%', background: '#e2f5ec', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 7.5L5.5 10.5L11.5 4" stroke="#1f9d63" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" /></svg>
-        </span>
-        <span style={{ fontSize: 12.5, fontWeight: 500, color: '#14132b' }}>Anonymt · GDPR-sikkert</span>
-      </div>
+        <EmojiRating options={SAT_OPTIONS} value="very-happy" onChange={noop} />
+      </PreviewCard>
+
+      <PreviewCard
+        style={{ top: 392, left: 48, width: 'min(360px, calc(100% - 72px))', zIndex: 3 }}
+        question="Ville du anbefale os til en kollega?"
+      >
+        <NPSScale value={9} onChange={noop} />
+      </PreviewCard>
     </div>
   )
 }

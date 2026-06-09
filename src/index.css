@@ -78,14 +78,34 @@
 }
 .glyph-pop { animation: glyph-pop 440ms cubic-bezier(0.34,1.56,0.64,1) both; }
 
-/* ── Landing hero ── */
-.hero-grid { display: grid; grid-template-columns: 1.02fr 1.05fr; align-items: stretch; }
-.hero-copy { display: flex; flex-direction: column; justify-content: center; padding: 52px 30px 52px 52px; }
-.landing-report { min-height: 552px; height: 100%; }
+/* ── Landing hero (full-bleed marketing page, no sidebar) ── */
+.lp-root { min-height: 100vh; display: flex; flex-direction: column; background: #fff; overflow-x: hidden; }
+.lp-header { display: flex; align-items: center; justify-content: space-between; padding: 20px clamp(24px, 5vw, 64px); }
+.lp-cta-sm {
+  border: none; cursor: pointer; font-family: var(--font-sans); font-size: 14px; font-weight: 500;
+  color: #6e30fd; background: #efeafe; border-radius: 9999px; padding: 10px 18px; transition: background 0.14s ease;
+}
+.lp-cta-sm:hover { background: #e6def9; }
+
+.lp-hero { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.06fr); align-items: stretch; }
+.lp-copy {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 8px clamp(36px, 4vw, 64px) 48px clamp(24px, 5vw, 64px); max-width: 720px;
+}
+.lp-cta {
+  display: inline-flex; align-items: center; gap: 8px; align-self: flex-start;
+  border: none; cursor: pointer; font-family: var(--font-sans); font-size: 16px; font-weight: 500;
+  color: #fff; background: #6e30fd; border-radius: 13px; padding: 15px 26px;
+  box-shadow: 0 10px 26px rgba(110,48,253,0.30); transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.lp-cta:hover { transform: translateY(-1px); box-shadow: 0 14px 30px rgba(110,48,253,0.36); }
+
+.landing-report { position: relative; overflow: hidden; height: 100%; min-height: 600px; border-radius: 36px 0 0 0; }
+
 @media (max-width: 900px) {
-  .hero-grid { grid-template-columns: 1fr; }
-  .hero-copy { padding: 30px 24px 20px; }
-  .landing-report { min-height: 408px; }
+  .lp-hero { grid-template-columns: 1fr; }
+  .lp-copy { padding: 4px 24px 36px; }
+  .landing-report { min-height: 600px; border-radius: 28px 28px 0 0; }
 }
 
 /* Pulsating dotted grid (Zenegy Flow reference) */

@@ -7,7 +7,7 @@ import type { SurveyAnswers } from './types'
 export default function App() {
   return (
     <SurveyFlow
-      renderLanding={() => <LandingPage />}
+      renderLanding={(onStart) => <LandingPage onStart={onStart} />}
       renderLeadGen={(answers: SurveyAnswers, onSubmitted) => (
         <LeadGen answers={answers} onSubmitted={onSubmitted} />
       )}

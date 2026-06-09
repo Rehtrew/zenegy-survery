@@ -7,7 +7,7 @@ import { SurveyShell, type StepGroup } from '../components/SurveyShell'
 import { QuestionRenderer } from '../components/QuestionRenderer'
 
 interface SurveyFlowProps {
-  renderLanding: () => React.ReactNode
+  renderLanding: (onStart: () => void) => React.ReactNode
   renderLeadGen: (answers: SurveyAnswers, onSubmitted: () => void) => React.ReactNode
   renderThankYou: () => React.ReactNode
 }
@@ -215,17 +215,10 @@ export function SurveyFlow({ renderLanding, renderLeadGen, renderThankYou }: Sur
   }
 
   // ── Landing ──
+  // Full-bleed marketing hero — intentionally NOT inside SurveyShell (no sidebar).
+  // The sidebar shell appears once the survey starts.
   if (phase === 'landing') {
-    return (
-      <SurveyShell
-        stepGroups={stepGroups} currentStepIndex={-1}
-        percent={computePercent('landing', stepGroups, -1)}
-        phase="landing" direction={direction} animKey={animKey}
-        showNext nextLabel="Start undersøgelsen" onNext={advance}
-      >
-        {renderLanding()}
-      </SurveyShell>
-    )
+    return <>{renderLanding(advance)}</>
   }
 
   // ── Lead-gen ──

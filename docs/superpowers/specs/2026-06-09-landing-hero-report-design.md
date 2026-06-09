@@ -1,5 +1,27 @@
 # Landing hero with report visual — design (2026-06-09)
 
+Status: approved (revised 2026-06-09 — pivot)
+
+## Revision — pivot to a sidebar-less marketing hero
+
+After first build, the landing pivoted **closer to fabrichealth.com**:
+- The **sidebar is removed on the landing/homepage**. The landing now renders
+  *outside* `SurveyShell` (a full-bleed `LandingPage` with its own top header:
+  Zenegy lockup left, "Start undersøgelsen" CTA right). The sidebar shell appears
+  only once the survey starts. `SurveyFlow` renders `renderLanding(advance)`
+  directly; the Start CTA is inline in the hero (no bottom bar on landing).
+- The two floating accent cards changed from stat/anonymity chips to **real
+  survey-question previews**: a satisfaction smiley card (`EmojiRating`) and an NPS
+  slider card (`NPSScale`), reused as non-interactive previews — showing the actual
+  survey UI, fabric-style.
+- The gradient report panel now bleeds to the viewport's right + bottom edges with a
+  rounded top-left corner; the "Lønmarkedet 2026" report card stays as the anchor.
+
+The sections below describe the original (in-card) design; the live implementation
+follows this revision.
+
+---
+
 Status: approved
 
 Expand the landing into a **wide split hero** (inspired by fabrichealth.com) that
