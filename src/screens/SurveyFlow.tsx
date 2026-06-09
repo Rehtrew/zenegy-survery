@@ -22,7 +22,7 @@ function getStepGroups(answers: SurveyAnswers): StepGroup[] {
     ]
   }
   const base: StepGroup[] = [
-    { label: 'Om dig', questionIds: ['gate', 'q0', 'role'] },
+    { label: 'Om dig', questionIds: ['gate', 'q0'] },
   ]
   if (answers.track === 'zenegy') {
     return [
@@ -49,7 +49,6 @@ function isAnswered(question: Question, answers: SurveyAnswers): boolean {
   const lookup: Record<string, unknown> = {
     gate: answers.is_employee !== undefined ? 'answered' : undefined,
     q0: answers.track,
-    role: answers.role,
     b1: answers.b_payroll_system,
     b2: answers.b_frustrations,
     b3: answers.b_priorities,
@@ -111,14 +110,16 @@ export function SurveyFlow({ renderLanding, renderLeadGen, renderThankYou }: Sur
     setAnswers(prev => {
       const keyMap: Record<string, keyof SurveyAnswers> = {
         q0: 'track',
-        role: 'role',
         b1: 'b_payroll_system',
         b_payroll_other: 'b_payroll_other',
         b2: 'b_frustrations',
+        b2_other: 'b_frustration_other',
         b3: 'b_priorities',
         b4: 'b_barriers',
+        b4_other: 'b_barrier_other',
         a1: 'a_products',
         a2: 'a_satisfaction',
+        a2_text: 'a_satisfaction_text',
         a3: 'a_best_thing',
         a3_text: 'a_best_thing_text',
         a4: 'a_nps',

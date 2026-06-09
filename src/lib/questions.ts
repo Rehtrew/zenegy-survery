@@ -30,27 +30,13 @@ export const GATE_QUESTION: Question = {
 
 export const OPENING_QUESTION: Question = {
   id: 'q0',
-  type: 'choice-single',
+  type: 'choice-tiles',
   question: 'Bruger du Zenegy som dit lønsystem i dag?',
   subText: 'Dit svar afgør hvilke spørgsmål du ser — vi giver dig den mest relevante oplevelse.',
   autoAdvance: true,
   options: [
-    { value: 'zenegy', label: 'Ja, jeg bruger Zenegy', subLabel: 'Jeg er eksisterende kunde' },
-    { value: 'non-zenegy', label: 'Nej, jeg bruger et andet system', subLabel: 'Dataløn, Bluegarden, Lessor, eller andet' },
-  ],
-}
-
-const ROLE_QUESTION: Question = {
-  id: 'role',
-  type: 'choice-single',
-  question: 'Hvad er din rolle i virksomheden?',
-  subText: 'Det hjælper os forstå, hvem der håndterer løn og økonomi i danske virksomheder.',
-  autoAdvance: true,
-  options: [
-    { value: 'cfo', label: 'Direktør / CFO', subLabel: 'Øverste ansvar for økonomi og drift' },
-    { value: 'accountant', label: 'Bogholder / Revisor', subLabel: 'Daglig bogføring, løn og regnskab' },
-    { value: 'hr', label: 'HR / Lønadministrator', subLabel: 'Personale og lønkørsel' },
-    { value: 'decision-maker', label: 'Anden beslutningstager', subLabel: 'Indflydelse på valg af systemer' },
+    { value: 'zenegy', label: 'Ja, jeg bruger Zenegy', subLabel: 'Jeg er eksisterende kunde', iconName: 'zenegy' },
+    { value: 'non-zenegy', label: 'Nej, jeg bruger et andet system', subLabel: 'Dataløn, Bluegarden, Lessor, eller andet', iconName: 'other-system' },
   ],
 }
 
@@ -91,19 +77,21 @@ export const TRACK_B_QUESTIONS: Question[] = [
   },
   {
     id: 'b2',
-    type: 'pill-select',
+    type: 'tile-select',
     question: 'Hvad frustrerer dig mest ved dit nuværende lønsystem?',
     subText: 'Vær ærlig — det er præcis den slags input vi har brug for. Vælg alle der passer.',
+    openTextPlaceholder: 'Hvad frustrerer dig?',
     options: [
-      { value: 'price', label: 'Prisen er for høj' },
-      { value: 'slow', label: 'Det er langsomt og tungt' },
-      { value: 'ui', label: 'Brugergrænsefladen er forvirrende' },
-      { value: 'integrations', label: 'Dårlige integrationer' },
-      { value: 'support', label: 'Support er svær at komme igennem til' },
-      { value: 'features', label: 'Mangler features jeg har brug for' },
-      { value: 'slow-payroll', label: 'Lønkørsel tager for lang tid' },
-      { value: 'no-app', label: 'Ingen god mobilapp' },
-      { value: 'satisfied', label: 'Faktisk ikke noget — jeg er tilfreds' },
+      { value: 'price', label: 'Prisen er for høj', iconName: 'tag' },
+      { value: 'slow', label: 'Det er langsomt og tungt', iconName: 'hourglass' },
+      { value: 'ui', label: 'Brugergrænsefladen er forvirrende', iconName: 'layout' },
+      { value: 'integrations', label: 'Dårlige integrationer', iconName: 'plug' },
+      { value: 'support', label: 'Support er svær at komme igennem til', iconName: 'chat' },
+      { value: 'features', label: 'Mangler features jeg har brug for', iconName: 'feature' },
+      { value: 'slow-payroll', label: 'Lønkørsel tager for lang tid', iconName: 'clock' },
+      { value: 'no-app', label: 'Ingen god mobilapp', iconName: 'smartphone' },
+      { value: 'satisfied', label: 'Faktisk ikke noget — jeg er tilfreds', iconName: 'smile' },
+      { value: 'other', label: 'Andet', iconName: 'pencil' },
     ],
   },
   {
@@ -124,17 +112,19 @@ export const TRACK_B_QUESTIONS: Question[] = [
   },
   {
     id: 'b4',
-    type: 'pill-select',
+    type: 'tile-select',
     question: 'Hvad holder dig tilbage fra at skifte lønsystem?',
     subText: 'Ærlighed hjælper os med at forstå markedet bedre — der er ingen forkerte svar.',
+    openTextPlaceholder: 'Hvad holder dig tilbage?',
     options: [
-      { value: 'transition', label: 'Overgangen virker for besværlig' },
-      { value: 'time', label: 'Vi har ikke tid til at implementere nyt' },
-      { value: 'faith', label: 'Jeg tror mit system bliver bedre' },
-      { value: 'cost', label: 'Skifteomkostningerne er for høje' },
-      { value: 'unknown', label: 'Jeg kender ikke alternativerne godt nok' },
-      { value: 'accountant', label: 'Det er min revisor/bogholder der beslutter' },
-      { value: 'happy', label: 'Jeg er faktisk tilfreds — skifter ikke' },
+      { value: 'transition', label: 'Overgangen virker for besværlig', iconName: 'repeat' },
+      { value: 'time', label: 'Vi har ikke tid til at implementere nyt', iconName: 'clock' },
+      { value: 'faith', label: 'Jeg tror mit system bliver bedre', iconName: 'trending-up' },
+      { value: 'cost', label: 'Skifteomkostningerne er for høje', iconName: 'banknote' },
+      { value: 'unknown', label: 'Jeg kender ikke alternativerne godt nok', iconName: 'search' },
+      { value: 'accountant', label: 'Det er min revisor/bogholder der beslutter', iconName: 'calculator' },
+      { value: 'happy', label: 'Jeg er faktisk tilfreds — skifter ikke', iconName: 'smile' },
+      { value: 'other', label: 'Andet', iconName: 'pencil' },
     ],
   },
 ]
@@ -155,9 +145,12 @@ export const TRACK_A_QUESTIONS: Question[] = [
   {
     id: 'a2',
     type: 'emoji-rating',
-    question: 'Hvor tilfreds er du med Zenegy overordnet?',
-    subText: 'Tænk på din daglige oplevelse — ikke kun onboarding.',
-    autoAdvance: true,
+    question: 'Hvor tilfreds er du med Zenegy i hverdagen?',
+    subText: 'Tænk på din daglige oplevelse med produktet — ikke kun onboarding.',
+    hasOpenText: true,
+    openTextLabel: 'Vil du uddybe? (valgfrit)',
+    openTextPlaceholder: 'Hvad ligger bag dit svar?',
+    openTextMaxLength: 300,
     options: [
       { value: 'very-unhappy', label: 'Meget utilfreds' },
       { value: 'unhappy', label: 'Ikke tilfreds' },
@@ -176,18 +169,18 @@ export const TRACK_A_QUESTIONS: Question[] = [
     openTextPlaceholder: 'Fortæl os gerne med egne ord, hvad der gør Zenegy værdifuldt for dig...',
     openTextMaxLength: 200,
     options: [
-      { value: 'speed', label: 'Det er hurtigt og nemt at køre løn' },
-      { value: 'price', label: 'Prisen er rigtig' },
-      { value: 'integrations', label: 'Integrationer med mine andre systemer' },
-      { value: 'support', label: 'Support der rent faktisk hjælper' },
-      { value: 'all-in-one', label: 'Alt samlet ét sted (løn + Numbers)' },
+      { value: 'speed', label: 'Det er hurtigt og nemt at køre løn', iconName: 'zap' },
+      { value: 'price', label: 'Prisen er rigtig', iconName: 'tag' },
+      { value: 'integrations', label: 'Integrationer med mine andre systemer', iconName: 'plug' },
+      { value: 'support', label: 'Support der rent faktisk hjælper', iconName: 'chat' },
+      { value: 'all-in-one', label: 'Alt samlet ét sted (løn + Numbers)', iconName: 'layers' },
     ],
   },
   {
     id: 'a4',
     type: 'nps-scale',
     question: 'Ville du anbefale Zenegy til en kollega eller forretningsforbindelse?',
-    subText: 'NPS er en standard vi måler os på — og din kommentar gør den meningsfuld.',
+    subText: 'Det her måler noget andet end tilfredshed — om du ville sætte dit navn på en anbefaling til andre.',
     hasOpenText: true,
     openTextLabel: 'Hvad er det ene du ville ønske Zenegy gjorde bedre? (valgfrit)',
     openTextPlaceholder: 'Din feedback går direkte til vores produktteam...',
@@ -251,10 +244,10 @@ const AI_QUESTION: Question = {
   subText: 'AI er på alles læber — vi er nysgerrige på jeres holdning.',
   autoAdvance: true,
   options: [
-    { value: 'using', label: 'Ja, vi bruger det allerede' },
-    { value: 'interested', label: 'Ja, vi er interesserede' },
-    { value: 'exploring', label: 'Måske — vi undersøger det' },
-    { value: 'no', label: 'Nej, ikke foreløbigt' },
+    { value: 'using', label: 'Ja, vi bruger det allerede', tone: 'positive' },
+    { value: 'interested', label: 'Ja, vi er interesserede', tone: 'positive' },
+    { value: 'exploring', label: 'Måske — vi undersøger det', tone: 'caution' },
+    { value: 'no', label: 'Nej, ikke foreløbigt', tone: 'negative' },
   ],
 }
 
@@ -277,7 +270,7 @@ export function getQuestionSequence(
   }
 
   if (answers.track === 'non-zenegy') {
-    return [GATE_QUESTION, OPENING_QUESTION, ROLE_QUESTION, ...TRACK_B_QUESTIONS, AI_QUESTION, NUMBERS_AWARENESS]
+    return [GATE_QUESTION, OPENING_QUESTION, ...TRACK_B_QUESTIONS, AI_QUESTION, NUMBERS_AWARENESS]
   }
 
   // zenegy track
@@ -285,7 +278,6 @@ export function getQuestionSequence(
   return [
     GATE_QUESTION,
     OPENING_QUESTION,
-    ROLE_QUESTION,
     ...TRACK_A_QUESTIONS,
     AI_QUESTION,
     ...(usesNumbers ? [] : [NUMBERS_AWARENESS]),

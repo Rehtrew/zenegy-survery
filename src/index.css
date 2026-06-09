@@ -13,6 +13,10 @@
 @media (max-width: 880px) { .logo-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 480px) { .logo-grid { grid-template-columns: repeat(2, 1fr); } }
 
+/* Two-column option tiles (frustrations / barriers) → single column on narrow screens */
+.tile-grid { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 420px) { .tile-grid { grid-template-columns: 1fr; } }
+
 @keyframes slide-in-right {
   from { transform: translateX(56px); opacity: 0; }
   to   { transform: translateX(0);    opacity: 1; }

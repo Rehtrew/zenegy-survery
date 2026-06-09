@@ -30,14 +30,38 @@ describe('QuestionRenderer', () => {
     expect(screen.getByText('Option A')).toBeInTheDocument()
   })
 
-  it('renders pill-select as PillSelect', () => {
+  it('renders tile-select as TileSelect', () => {
     const q: Question = {
-      id: 'b2', type: 'pill-select',
+      id: 'b2', type: 'tile-select',
       question: 'Frustrations?',
-      options: [{ value: 'price', label: '💸 Price' }],
+      options: [{ value: 'price', label: 'Price', iconName: 'tag' }],
     }
     render(<QuestionRenderer question={q} {...baseProps} />)
-    expect(screen.getByText('💸 Price')).toBeInTheDocument()
+    expect(screen.getByText('Price')).toBeInTheDocument()
+  })
+
+  it('renders choice-tiles as ChoiceTiles', () => {
+    const q: Question = {
+      id: 'q0', type: 'choice-tiles',
+      question: 'Use Zenegy?',
+      options: [{ value: 'zenegy', label: 'Ja', iconName: 'zenegy' }],
+    }
+    render(<QuestionRenderer question={q} {...baseProps} />)
+    expect(screen.getByText('Ja')).toBeInTheDocument()
+  })
+
+  it('reveals the satisfaction comment only after a face is picked', () => {
+    const q: Question = {
+      id: 'a2', type: 'emoji-rating',
+      question: 'Satisfaction?',
+      hasOpenText: true,
+      openTextLabel: 'Vil du uddybe? (valgfrit)',
+      options: [{ value: 'happy', label: 'Tilfreds' }],
+    }
+    const { rerender } = render(<QuestionRenderer question={q} {...baseProps} />)
+    expect(screen.queryByText('Vil du uddybe? (valgfrit)')).not.toBeInTheDocument()
+    rerender(<QuestionRenderer question={q} {...baseProps} answers={{ a_satisfaction: 'happy' }} />)
+    expect(screen.getByText('Vil du uddybe? (valgfrit)')).toBeInTheDocument()
   })
 
   it('renders emoji-rating as EmojiRating', () => {

@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
 import { LogoGrid } from './LogoGrid'
-import { PillSelect } from './PillSelect'
+import { TileSelect } from './TileSelect'
 import { EmojiRating } from './EmojiRating'
 
 const logoOptions = [
@@ -44,29 +44,57 @@ describe('LogoGrid', () => {
   })
 })
 
-const pillOptions = [
-  { value: 'price', label: '💸 Prisen er for høj' },
-  { value: 'slow', label: '🐢 Langsomt' },
+const tileOptions = [
+  { value: 'price', label: 'Prisen er for høj', iconName: 'tag' },
+  { value: 'slow', label: 'Langsomt', iconName: 'hourglass' },
+  { value: 'other', label: 'Andet', iconName: 'pencil' },
 ]
 
-describe('PillSelect', () => {
-  it('renders all pills', () => {
-    render(<PillSelect options={pillOptions} value={[]} onChange={vi.fn()} />)
-    expect(screen.getByText('💸 Prisen er for høj')).toBeInTheDocument()
+describe('TileSelect', () => {
+  it('renders all tiles', () => {
+    render(<TileSelect options={tileOptions} value={[]} onChange={vi.fn()} />)
+    expect(screen.getByText('Prisen er for høj')).toBeInTheDocument()
+    expect(screen.getByText('Andet')).toBeInTheDocument()
   })
 
-  it('toggles pill on click (select)', async () => {
+  it('toggles a tile on click (select)', async () => {
     const onChange = vi.fn()
-    render(<PillSelect options={pillOptions} value={[]} onChange={onChange} />)
-    await userEvent.click(screen.getByText('💸 Prisen er for høj'))
+    render(<TileSelect options={tileOptions} value={[]} onChange={onChange} />)
+    await userEvent.click(screen.getByText('Prisen er for høj'))
     expect(onChange).toHaveBeenCalledWith(['price'])
   })
 
-  it('toggles pill on click (deselect)', async () => {
+  it('toggles a tile on click (deselect)', async () => {
     const onChange = vi.fn()
-    render(<PillSelect options={pillOptions} value={['price']} onChange={onChange} />)
-    await userEvent.click(screen.getByText('💸 Prisen er for høj'))
+    render(<TileSelect options={tileOptions} value={['price']} onChange={onChange} />)
+    await userEvent.click(screen.getByText('Prisen er for høj'))
     expect(onChange).toHaveBeenCalledWith([])
+  })
+
+  it('reveals the free-text input when the "other" trigger is selected', () => {
+    render(
+      <TileSelect options={tileOptions} value={['other']} onChange={vi.fn()}
+        otherTrigger="other" otherPlaceholder="Hvad frustrerer dig?" />
+    )
+    expect(screen.getByPlaceholderText('Hvad frustrerer dig?')).toBeInTheDocument()
+  })
+
+  it('hides the free-text input when the "other" trigger is not selected', () => {
+    render(
+      <TileSelect options={tileOptions} value={['price']} onChange={vi.fn()}
+        otherTrigger="other" otherPlaceholder="Hvad frustrerer dig?" />
+    )
+    expect(screen.queryByPlaceholderText('Hvad frustrerer dig?')).not.toBeInTheDocument()
+  })
+
+  it('calls onOtherChange when the free-text input changes', async () => {
+    const onOtherChange = vi.fn()
+    render(
+      <TileSelect options={tileOptions} value={['other']} onChange={vi.fn()}
+        otherTrigger="other" otherPlaceholder="Hvad frustrerer dig?" onOtherChange={onOtherChange} />
+    )
+    await userEvent.type(screen.getByPlaceholderText('Hvad frustrerer dig?'), 'noget')
+    expect(onOtherChange).toHaveBeenCalled()
   })
 })
 

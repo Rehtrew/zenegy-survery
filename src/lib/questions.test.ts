@@ -19,26 +19,26 @@ describe('getQuestionSequence', () => {
     expect(seq.map(q => q.id)).toEqual(['gate', 'e1', 'e2', 'e3', 'e4'])
   })
 
-  it('returns 9 questions for non-zenegy track (includes gate, role, ai, numbers)', () => {
+  it('returns 8 questions for non-zenegy track (gate, q0, b1-b4, ai, numbers — no role)', () => {
     const seq = getQuestionSequence({ is_employee: false, track: 'non-zenegy' })
-    expect(seq).toHaveLength(9)
-    expect(seq.map(q => q.id)).toEqual(['gate', 'q0', 'role', 'b1', 'b2', 'b3', 'b4', 'ai', 'numbers'])
+    expect(seq).toHaveLength(8)
+    expect(seq.map(q => q.id)).toEqual(['gate', 'q0', 'b1', 'b2', 'b3', 'b4', 'ai', 'numbers'])
   })
 
   it('includes numbers awareness for zenegy track without Numbers product', () => {
     const seq = getQuestionSequence({ is_employee: false, track: 'zenegy', a_products: ['payroll'] })
-    expect(seq.map(q => q.id)).toEqual(['gate', 'q0', 'role', 'a1', 'a2', 'a3', 'a4', 'ai', 'numbers'])
+    expect(seq.map(q => q.id)).toEqual(['gate', 'q0', 'a1', 'a2', 'a3', 'a4', 'ai', 'numbers'])
   })
 
   it('includes numbers awareness for zenegy track when a_products is undefined', () => {
     const seq = getQuestionSequence({ is_employee: false, track: 'zenegy' })
-    expect(seq.map(q => q.id)).toEqual(['gate', 'q0', 'role', 'a1', 'a2', 'a3', 'a4', 'ai', 'numbers'])
+    expect(seq.map(q => q.id)).toEqual(['gate', 'q0', 'a1', 'a2', 'a3', 'a4', 'ai', 'numbers'])
   })
 
   it('skips numbers awareness for zenegy track when Numbers product is used', () => {
     const seq = getQuestionSequence({ is_employee: false, track: 'zenegy', a_products: ['payroll', 'numbers'] })
-    expect(seq).toHaveLength(8)
-    expect(seq.map(q => q.id)).toEqual(['gate', 'q0', 'role', 'a1', 'a2', 'a3', 'a4', 'ai'])
+    expect(seq).toHaveLength(7)
+    expect(seq.map(q => q.id)).toEqual(['gate', 'q0', 'a1', 'a2', 'a3', 'a4', 'ai'])
   })
 
   it('gate question has autoAdvance true', () => {

@@ -2,8 +2,9 @@ import { useRef, useEffect } from 'react'
 import type { Question, SurveyAnswers, RankEntry } from '../types'
 import { BRAND_SCENE, type Scene } from '../lib/scenes'
 import { ChoiceList } from './inputs/ChoiceList'
+import { ChoiceTiles } from './inputs/ChoiceTiles'
 import { LogoGrid } from './inputs/LogoGrid'
-import { PillSelect } from './inputs/PillSelect'
+import { TileSelect } from './inputs/TileSelect'
 import { EmojiRating } from './inputs/EmojiRating'
 import { PriorityRank } from './inputs/PriorityRank'
 import { NPSScale } from './inputs/NPSScale'
@@ -34,6 +35,16 @@ function getAnswer(answers: SurveyAnswers, id: string): unknown {
   return map[id] ?? (id.endsWith('_text') ? '' : '')
 }
 
+/** Free-text companion field for a question: its current value and the answer key it writes to. */
+function openTextFor(id: string, answers: SurveyAnswers): { value: string; key: string } | null {
+  switch (id) {
+    case 'a2': return { value: answers.a_satisfaction_text ?? '', key: 'a2_text' }
+    case 'a3': return { value: answers.a_best_thing_text ?? '', key: 'a3_text' }
+    case 'a4': return { value: answers.a_improve_text ?? '', key: 'a4_text' }
+    default: return null
+  }
+}
+
 export function QuestionRenderer({
   question,
   answers,
@@ -60,12 +71,16 @@ export function QuestionRenderer({
     }
   }
 
+  const otherText = openTextFor(question.id, answers)
+
   const renderInput = () => {
     switch (question.type) {
       case 'choice-single':
         return <ChoiceList options={question.options ?? []} value={answer as string} onChange={handleSingleSelect} scene={scene} />
       case 'choice-multi':
         return <ChoiceList options={question.options ?? []} value={answer as string[]} onChange={v => onAnswer(question.id, v)} multi scene={scene} />
+      case 'choice-tiles':
+        return <ChoiceTiles options={question.options ?? []} value={answer as string} onChange={handleSingleSelect} scene={scene} />
       case 'logo-grid':
         return (
           <LogoGrid
@@ -77,8 +92,19 @@ export function QuestionRenderer({
             onOtherChange={v => onAnswer(question.id === 'b1' ? 'b_payroll_other' : 'accounting_other', v)}
           />
         )
-      case 'pill-select':
-        return <PillSelect options={question.options ?? []} value={answer as string[]} onChange={v => onAnswer(question.id, v)} scene={scene} />
+      case 'tile-select':
+        return (
+          <TileSelect
+            options={question.options ?? []}
+            value={answer as string[]}
+            onChange={v => onAnswer(question.id, v)}
+            otherTrigger="other"
+            otherValue={question.id === 'b2' ? (answers.b_frustration_other ?? '') : (answers.b_barrier_other ?? '')}
+            onOtherChange={v => onAnswer(question.id === 'b2' ? 'b2_other' : 'b4_other', v)}
+            otherPlaceholder={question.openTextPlaceholder}
+            scene={scene}
+          />
+        )
       case 'emoji-rating':
         return <EmojiRating options={question.options ?? []} value={answer as string} onChange={handleSingleSelect} scene={scene} />
       case 'priority-rank':
@@ -87,10 +113,10 @@ export function QuestionRenderer({
         return (
           <div>
             <NPSScale value={answers.a_nps ?? null} onChange={v => onAnswer(question.id, v)} scene={scene} />
-            {question.hasOpenText && (
+            {question.hasOpenText && otherText && (
               <OpenText
-                value={question.id === 'a4' ? (answers.a_improve_text ?? '') : ''}
-                onChange={v => onAnswer(`${question.id}_text`, v)}
+                value={otherText.value}
+                onChange={v => onAnswer(otherText.key, v)}
                 label={question.openTextLabel}
                 placeholder={question.openTextPlaceholder}
                 maxLength={question.openTextMaxLength}
@@ -120,10 +146,23 @@ export function QuestionRenderer({
 
       {renderInput()}
 
-      {question.type === 'choice-single' && question.hasOpenText && (
+      {/* Always-visible comment for choice-single (a3). */}
+      {question.type === 'choice-single' && question.hasOpenText && otherText && (
         <OpenText
-          value={answers.a_best_thing_text ?? ''}
-          onChange={v => onAnswer('a3_text', v)}
+          value={otherText.value}
+          onChange={v => onAnswer(otherText.key, v)}
+          label={question.openTextLabel}
+          placeholder={question.openTextPlaceholder}
+          maxLength={question.openTextMaxLength}
+          scene={scene}
+        />
+      )}
+
+      {/* Comment that reveals once a satisfaction face is picked (a2). */}
+      {question.type === 'emoji-rating' && question.hasOpenText && otherText && Boolean(answer) && (
+        <OpenText
+          value={otherText.value}
+          onChange={v => onAnswer(otherText.key, v)}
           label={question.openTextLabel}
           placeholder={question.openTextPlaceholder}
           maxLength={question.openTextMaxLength}

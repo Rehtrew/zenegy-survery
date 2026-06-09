@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import type { Option } from '../../types'
+import type { Option, Tone } from '../../types'
 import { BRAND_SCENE, type Scene } from '../../lib/scenes'
+import { Glyph } from '../icons/glyphs'
 
 interface Props {
   options: Option[]
@@ -8,6 +9,13 @@ interface Props {
   onChange: (value: string | string[]) => void
   multi?: boolean
   scene?: Scene
+}
+
+/** Semantic tone colours — the AI question's only sanctioned use of non-purple. */
+const TONE: Record<Tone, { accent: string; fill: string }> = {
+  positive: { accent: '#1f9d63', fill: '#e7f6ee' },
+  caution: { accent: '#d6890a', fill: '#fbf1de' },
+  negative: { accent: '#e0354f', fill: '#fdeaed' },
 }
 
 export function ChoiceList({ options, value, onChange, multi = false, scene = BRAND_SCENE }: Props) {
@@ -33,13 +41,16 @@ export function ChoiceList({ options, value, onChange, multi = false, scene = BR
         const isSelected = selected.includes(opt.value)
         const isHover = hovered === opt.value
         const hasLogo = !!opt.logoSrc
+        const tone = opt.tone ? TONE[opt.tone] : null
+        const accent = tone ? tone.accent : scene.accent
+        const selectedFill = tone ? tone.fill : hasLogo ? '#ffffff' : '#efeafe'
 
         const indicator = (
           <span style={{
             width: 22, height: 22, flexShrink: 0,
             borderRadius: multi ? 7 : '50%',
-            border: `1.5px solid ${isSelected ? scene.accent : 'rgba(0,0,0,0.18)'}`,
-            background: isSelected ? scene.accent : 'transparent',
+            border: `1.5px solid ${isSelected ? accent : 'rgba(0,0,0,0.18)'}`,
+            background: isSelected ? accent : 'transparent',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             transition: 'background 0.14s ease, border-color 0.14s ease',
           }}>
@@ -49,6 +60,24 @@ export function ChoiceList({ options, value, onChange, multi = false, scene = BR
               </svg>
             )}
           </span>
+        )
+
+        const iconTile = opt.iconName && !hasLogo && (
+          <span style={{
+            width: 40, height: 40, borderRadius: 11, flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: isSelected ? '#ffffff' : '#ececef',
+            transition: 'background 0.14s ease',
+          }}>
+            <Glyph name={opt.iconName} size={21} color={isSelected ? accent : '#7c7c86'} />
+          </span>
+        )
+
+        const toneDot = tone && !opt.iconName && (
+          <span style={{
+            width: 11, height: 11, borderRadius: '50%', flexShrink: 0,
+            background: tone.accent,
+          }} />
         )
 
         const text = (
@@ -71,10 +100,10 @@ export function ChoiceList({ options, value, onChange, multi = false, scene = BR
               display: 'flex',
               alignItems: 'center',
               gap: 14,
-              padding: hasLogo ? '12px 16px' : '16px 18px',
+              padding: hasLogo || opt.iconName ? '12px 16px' : '16px 18px',
               borderRadius: 14,
-              border: `1.5px solid ${isSelected ? scene.accent : isHover ? '#dcdce2' : '#ededf0'}`,
-              background: isSelected ? (hasLogo ? '#ffffff' : '#efeafe') : isHover ? '#f1f1f4' : '#f6f6f7',
+              border: `1.5px solid ${isSelected ? accent : isHover ? '#dcdce2' : '#ededf0'}`,
+              background: isSelected ? selectedFill : isHover ? '#f1f1f4' : '#f6f6f7',
               cursor: 'pointer',
               textAlign: 'left',
               width: '100%',
@@ -93,8 +122,10 @@ export function ChoiceList({ options, value, onChange, multi = false, scene = BR
               </>
             ) : (
               <>
-                {indicator}
+                {/* Leading: icon tile or tone dot when present, otherwise the indicator. */}
+                {iconTile || toneDot || indicator}
                 {text}
+                {(iconTile || toneDot) && indicator}
               </>
             )}
           </button>

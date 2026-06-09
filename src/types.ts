@@ -5,11 +5,15 @@ export type Track = 'zenegy' | 'non-zenegy'
 export type QuestionType =
   | 'choice-single'
   | 'choice-multi'
+  | 'choice-tiles'
   | 'logo-grid'
-  | 'pill-select'
+  | 'tile-select'
   | 'emoji-rating'
   | 'priority-rank'
   | 'nps-scale'
+
+/** Semantic colour for an option (used by the AI question). Default = brand purple. */
+export type Tone = 'positive' | 'caution' | 'negative'
 
 export interface Option {
   value: string
@@ -19,6 +23,10 @@ export interface Option {
   logoInitials?: string
   logoStyle?: CSSProperties
   logoSrc?: string
+  /** Named glyph from components/icons/glyphs.tsx (e.g. 'speed', 'price', 'zenegy'). */
+  iconName?: string
+  /** Semantic colour; only the AI question uses this. */
+  tone?: Tone
 }
 
 export interface Question {
@@ -42,16 +50,18 @@ export interface RankEntry {
 
 export interface SurveyAnswers {
   track?: Track
-  role?: string
   // Track B
   b_payroll_system?: string
   b_payroll_other?: string
   b_frustrations?: string[]
+  b_frustration_other?: string
   b_priorities?: RankEntry[]
   b_barriers?: string[]
+  b_barrier_other?: string
   // Track A
   a_products?: string[]
   a_satisfaction?: string
+  a_satisfaction_text?: string
   a_best_thing?: string
   a_best_thing_text?: string
   a_nps?: number | null
