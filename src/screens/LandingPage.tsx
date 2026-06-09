@@ -1,11 +1,14 @@
 /**
- * Landing / welcome — rendered inside the SurveyShell card. The "Start undersøgelsen"
- * CTA lives in the shell's bottom bar, so this is purely the welcome content.
+ * Landing / welcome — a two-column hero rendered inside the (wide, padding-less)
+ * SurveyShell card on the landing phase. Left = welcome copy + value props; right =
+ * the LandingReport visual. The "Start undersøgelsen" CTA lives in the shell's
+ * bottom bar. On narrow screens the grid collapses to a single column.
  *
- * Content is framed around what a respondent actually cares about: what it's about,
- * how little effort it takes, that it's safe to be honest, and that they get something
- * back (the results). No internal-feature talk, no incentive.
+ * Copy is framed around what a respondent cares about: what it's about, how little
+ * effort it takes, that it's safe to be honest, and that they get the results back.
  */
+import { LandingReport } from './LandingReport'
+
 const ACCENT = '#6e30fd'
 
 function ValueRow({ icon, title, sub }: { icon: React.ReactNode; title: string; sub: string }) {
@@ -27,7 +30,8 @@ function ValueRow({ icon, title, sub }: { icon: React.ReactNode; title: string; 
 
 export function LandingPage() {
   return (
-    <div>
+    <div className="hero-grid">
+      <div className="hero-copy">
       {/* Eyebrow chip */}
       <div style={{
         display: 'inline-flex', alignItems: 'center', gap: 8,
@@ -78,6 +82,9 @@ export function LandingPage() {
           }
         />
       </div>
+      </div>
+
+      <LandingReport />
     </div>
   )
 }

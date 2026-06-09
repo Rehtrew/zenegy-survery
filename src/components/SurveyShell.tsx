@@ -177,10 +177,10 @@ function ProgressCard({ phase, percent }: { phase: Phase; percent: number }) {
  *  settling flat with a spring bounce — while the previous card sinks underneath
  *  it (it does NOT slide off, so it reads as stacking, not a gallery swipe). */
 function CardStack({
-  animKey, direction, stacked, radius, padding, shadow, children,
+  animKey, direction, stacked, radius, padding, shadow, clip = false, children,
 }: {
   animKey: number; direction: Direction; stacked: boolean
-  radius: number; padding: string; shadow: string; children: React.ReactNode
+  radius: number; padding: string; shadow: string; clip?: boolean; children: React.ReactNode
 }) {
   const dir = direction === 'forward' ? 1 : -1
   const liftedShadow = '0 34px 70px rgba(20,12,43,0.22)'
@@ -219,7 +219,7 @@ function CardStack({
             type: 'spring', stiffness: 460, damping: 25, mass: 1,
             opacity: { duration: 0.15 }, boxShadow: { duration: 0.32 },
           }}
-          style={{ position: 'relative', background: '#fff', borderRadius: radius, padding, transformOrigin: 'center' }}
+          style={{ position: 'relative', background: '#fff', borderRadius: radius, padding, transformOrigin: 'center', overflow: clip ? 'hidden' : undefined }}
         >
           {children}
         </motion.div>
@@ -327,9 +327,15 @@ export function SurveyShell({
 
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <div style={{ flex: 1, padding: '20px 16px 24px', overflowX: 'hidden' }}>
-            <CardStack animKey={animKey} direction={direction} stacked={phase === 'questions'} radius={20} padding="28px 22px 32px" shadow="0 8px 30px rgba(20,12,43,0.06)">
-              {children}
-            </CardStack>
+            {phase === 'landing' ? (
+              <CardStack animKey={animKey} direction={direction} stacked={false} radius={20} padding="0" clip shadow="0 8px 30px rgba(20,12,43,0.06)">
+                {children}
+              </CardStack>
+            ) : (
+              <CardStack animKey={animKey} direction={direction} stacked={phase === 'questions'} radius={20} padding="28px 22px 32px" shadow="0 8px 30px rgba(20,12,43,0.06)">
+                {children}
+              </CardStack>
+            )}
             {canExit && <div style={{ textAlign: 'center', marginTop: 18 }}><ExitLink onExit={onExit!} /></div>}
           </div>
           {(showBack || showNext) && (
@@ -400,10 +406,16 @@ export function SurveyShell({
 
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 48px 16px', overflowX: 'hidden' }}>
-          <div style={{ width: '100%', maxWidth: 580 }}>
-            <CardStack animKey={animKey} direction={direction} stacked={phase === 'questions'} radius={24} padding="42px 46px 46px" shadow="0 10px 40px rgba(20,12,43,0.06)">
-              {children}
-            </CardStack>
+          <div style={{ width: '100%', maxWidth: phase === 'landing' ? 1080 : 580 }}>
+            {phase === 'landing' ? (
+              <CardStack animKey={animKey} direction={direction} stacked={false} radius={24} padding="0" clip shadow="0 10px 40px rgba(20,12,43,0.06)">
+                {children}
+              </CardStack>
+            ) : (
+              <CardStack animKey={animKey} direction={direction} stacked={phase === 'questions'} radius={24} padding="42px 46px 46px" shadow="0 10px 40px rgba(20,12,43,0.06)">
+                {children}
+              </CardStack>
+            )}
           </div>
         </div>
         {(showBack || showNext) && (
