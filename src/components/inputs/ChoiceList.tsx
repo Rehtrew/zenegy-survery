@@ -66,10 +66,10 @@ export function ChoiceList({ options, value, onChange, multi = false, scene = BR
           <span style={{
             width: 40, height: 40, borderRadius: 11, flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: isSelected ? '#ffffff' : '#ebe6ff',
+            background: isSelected ? accent : '#ebe6ff',
             transition: 'background 0.14s ease',
           }}>
-            <Glyph name={opt.iconName} size={21} color={accent} animate={popped === opt.value && isSelected} />
+            <Glyph name={opt.iconName} size={21} color={isSelected ? '#ffffff' : accent} animate={popped === opt.value && isSelected} />
           </span>
         )
 
