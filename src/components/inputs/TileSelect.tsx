@@ -88,10 +88,10 @@ export function TileSelect({
                 <span style={{
                   width: 42, height: 42, borderRadius: 12, flexShrink: 0,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: isSelected ? '#ffffff' : '#ececef',
+                  background: isSelected ? '#ffffff' : '#ebe6ff',
                   transition: 'background 0.16s ease',
                 }}>
-                  <Glyph name={opt.iconName} size={22} color={isSelected ? scene.accent : '#7c7c86'} />
+                  <Glyph name={opt.iconName} size={22} color={scene.accent} animate={popped === opt.value && isSelected} />
                 </span>
               )}
               <span style={{ fontSize: 13.5, fontWeight: 500, color: scene.ink, lineHeight: 1.32 }}>{opt.label}</span>

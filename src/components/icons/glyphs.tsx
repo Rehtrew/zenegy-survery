@@ -11,6 +11,8 @@ interface GlyphProps {
   size?: number
   color?: string
   strokeWidth?: number
+  /** Play a one-shot "pop" — pass true on the frame the option becomes selected. */
+  animate?: boolean
   style?: CSSProperties
 }
 
@@ -118,11 +120,14 @@ const LINE_PATHS: Record<string, ReactElement> = {
   ),
 }
 
-export function Glyph({ name, size = 24, color = 'currentColor', strokeWidth = 2, style }: GlyphProps) {
+export function Glyph({ name, size = 24, color = 'currentColor', strokeWidth = 2, animate, style }: GlyphProps) {
+  const animClass = animate ? 'glyph-pop' : undefined
+  const animStyle: CSSProperties = animate ? { transformOrigin: 'center' } : {}
+
   // Zenegy brand mark — lavender square + purple symbol.
   if (name === 'zenegy') {
     return (
-      <svg width={size} height={size} viewBox="0 0 40 40" fill="none" style={{ display: 'block', ...style }}>
+      <svg width={size} height={size} viewBox="0 0 40 40" fill="none" className={animClass} style={{ display: 'block', ...animStyle, ...style }}>
         <rect width="40" height="40" rx="9" fill="#EBE6FF" />
         <path d="M20.8139 16.679H12.3237C11.3902 16.679 10.6123 17.4287 10.6123 18.3769V26.2927C10.6123 28.189 13.1016 28.9387 14.1684 27.3511L21.0362 17.098C21.1473 16.9216 21.0362 16.679 20.8139 16.679Z" fill="#6E30FD" />
         <path d="M19.1471 24.419H27.6373C28.5708 24.419 29.3487 23.6693 29.3487 22.7212V14.8053C29.3487 12.909 26.8594 12.1593 25.7926 13.7469L18.9248 24.0001C18.8137 24.1765 18.9248 24.419 19.1471 24.419Z" fill="#6E30FD" />
@@ -133,7 +138,7 @@ export function Glyph({ name, size = 24, color = 'currentColor', strokeWidth = 2
   // Neutral "another system" mark — a grey apps grid.
   if (name === 'other-system') {
     return (
-      <svg width={size} height={size} viewBox="0 0 40 40" fill="none" style={{ display: 'block', ...style }}>
+      <svg width={size} height={size} viewBox="0 0 40 40" fill="none" className={animClass} style={{ display: 'block', ...animStyle, ...style }}>
         <rect width="40" height="40" rx="9" fill="#ECECEF" />
         <rect x="10" y="10" width="8" height="8" rx="2.2" fill="#9A9AA3" />
         <rect x="22" y="10" width="8" height="8" rx="2.2" fill="#B9B9C0" />
@@ -155,7 +160,8 @@ export function Glyph({ name, size = 24, color = 'currentColor', strokeWidth = 2
       strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
-      style={{ display: 'block', overflow: 'visible', ...style }}
+      className={animClass}
+      style={{ display: 'block', overflow: 'visible', ...animStyle, ...style }}
     >
       {inner}
     </svg>

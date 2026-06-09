@@ -53,15 +53,15 @@ export function ChoiceTiles({ options, value, onChange, scene = BRAND_SCENE }: P
           >
             {opt.iconName && (
               isMark ? (
-                <Glyph name={opt.iconName} size={56} />
+                <Glyph name={opt.iconName} size={56} animate={popped === opt.value && isSelected} />
               ) : (
                 <span style={{
                   width: 56, height: 56, borderRadius: 15, flexShrink: 0,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: isSelected ? '#ffffff' : '#ececef',
+                  background: isSelected ? '#ffffff' : '#ebe6ff',
                   transition: 'background 0.16s ease',
                 }}>
-                  <Glyph name={opt.iconName} size={28} color={isSelected ? scene.accent : '#7c7c86'} />
+                  <Glyph name={opt.iconName} size={28} color={scene.accent} animate={popped === opt.value && isSelected} />
                 </span>
               )
             )}
