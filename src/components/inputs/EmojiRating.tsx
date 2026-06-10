@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Option } from '../../types'
-import { SCENES, type Scene } from '../../lib/scenes'
+import type { Scene } from '../../lib/scenes'
 
 interface Props {
   options: Option[]
@@ -18,7 +18,7 @@ const MOOD_COLORS: Array<{ bg: string; fg: string; selectedBg: string }> = [
   { bg: '#e2f7e5', fg: '#2a9437', selectedBg: '#a8e6ae' },
 ]
 
-function moodColor(mood: number, n: number, i: number) {
+function moodColor(n: number, i: number) {
   const idx = n <= 1 ? 2 : Math.round((i / (n - 1)) * (MOOD_COLORS.length - 1))
   return MOOD_COLORS[Math.min(idx, MOOD_COLORS.length - 1)]
 }
@@ -28,7 +28,7 @@ function moodColor(mood: number, n: number, i: number) {
  * position (left = unhappy → right = happy), drawn as an SVG so it can
  * animate and recolor on selection.
  */
-export function EmojiRating({ options, value, onChange, scene = SCENES[0] }: Props) {
+export function EmojiRating({ options, value, onChange }: Props) {
   const [justPicked, setJustPicked] = useState<string | null>(null)
   const [hovered, setHovered] = useState<string | null>(null)
   const n = options.length
@@ -42,7 +42,7 @@ export function EmojiRating({ options, value, onChange, scene = SCENES[0] }: Pro
         const active = isSelected || isHovered
         // mood: 0 = saddest, 1 = happiest
         const mood = n > 1 ? i / (n - 1) : 0.5
-        const mc = moodColor(mood, n, i)
+        const mc = moodColor(n, i)
         return (
           <button
             type="button"

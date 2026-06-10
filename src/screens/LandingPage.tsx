@@ -11,7 +11,6 @@ import { LandingReport } from './LandingReport'
 import { Glyph } from '../components/icons/glyphs'
 import wordmark from '../assets/zenegy-wordmark.svg'
 
-const ACCENT = '#6e30fd'
 const ICON_COLOR = '#636374'
 
 function ValueRow({ icon, title, sub }: { icon: React.ReactNode; title: string; sub: string }) {
