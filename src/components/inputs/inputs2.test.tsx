@@ -63,28 +63,25 @@ describe('PriorityRank', () => {
 })
 
 describe('NPSScale', () => {
-  it('renders 11 stops (0–10) and the boundary labels', () => {
+  it('renders boundary labels', () => {
     render(<NPSScale value={null} onChange={vi.fn()} />)
-    expect(screen.getAllByRole('button')).toHaveLength(11)
-    expect(screen.getByText('0')).toBeInTheDocument()
-    expect(screen.getByText('10')).toBeInTheDocument()
+    expect(screen.getByText(/Slet ikke/)).toBeInTheDocument()
+    expect(screen.getByText(/Helt sikkert/)).toBeInTheDocument()
   })
 
-  it('shows a placeholder readout when no value is selected', () => {
+  it('shows placeholder text when no value is selected', () => {
     render(<NPSScale value={null} onChange={vi.fn()} />)
-    expect(screen.getByTestId('nps-readout')).toHaveTextContent('–')
+    expect(screen.getByText(/Træk skyderen/)).toBeInTheDocument()
   })
 
-  it('calls onChange with numeric value when a stop is clicked', async () => {
-    const onChange = vi.fn()
-    render(<NPSScale value={null} onChange={onChange} />)
-    await userEvent.click(screen.getByRole('button', { name: '7' }))
-    expect(onChange).toHaveBeenCalledWith(7)
-  })
-
-  it('surfaces the selected value in the giant readout', () => {
+  it('shows the selected value in the big readout', () => {
     render(<NPSScale value={7} onChange={vi.fn()} />)
     expect(screen.getByTestId('nps-readout')).toHaveTextContent('7')
+  })
+
+  it('hides placeholder once a value is given', () => {
+    render(<NPSScale value={7} onChange={vi.fn()} />)
+    expect(screen.queryByText(/Træk skyderen/)).not.toBeInTheDocument()
   })
 })
 

@@ -33,6 +33,7 @@ export interface Question {
   id: string
   type: QuestionType
   question: string
+  shortLabel?: string
   subText?: string
   options?: Option[]
   autoAdvance?: boolean
@@ -50,6 +51,7 @@ export interface RankEntry {
 
 export interface SurveyAnswers {
   track?: Track
+  size?: string
   // Track B
   b_payroll_system?: string
   b_payroll_other?: string
@@ -58,8 +60,10 @@ export interface SurveyAnswers {
   b_priorities?: RankEntry[]
   b_barriers?: string[]
   b_barrier_other?: string
+  b_switch_intent?: string
   // Track A
   a_products?: string[]
+  a_migration_from?: string
   a_satisfaction?: string
   a_satisfaction_text?: string
   a_best_thing?: string
@@ -72,7 +76,7 @@ export interface SurveyAnswers {
   // Employee track
   is_employee?: boolean
   e_payslip?: string
-  e_payroll_satisfaction?: string
+  e_pain_points?: string[]
   e_expenses?: string
   e_ai_trust?: string
   // AI question (decision-maker track)
@@ -88,5 +92,13 @@ export interface Submission extends Omit<SurveyAnswers, 'track'> {
   newsletter_opt_in: boolean
 }
 
-export type Phase = 'landing' | 'questions' | 'lead-gen' | 'thank-you'
+export type Phase = 'landing' | 'questions' | 'thank-you'
 export type Direction = 'forward' | 'backward'
+
+/** Soft anti-spam signals gathered during a run, evaluated before saving. */
+export interface SubmissionMeta {
+  /** Epoch ms when the respondent started (clicked "Start"); null if unknown. */
+  startedAt: number | null
+  /** Hidden honeypot field — non-empty implies a form-filling bot. */
+  honeypot: string
+}

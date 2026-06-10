@@ -8,10 +8,10 @@ describe('getQuestionSequence', () => {
     expect(seq[0].id).toBe('gate')
   })
 
-  it('returns gate + opening question when is_employee is false (decision-maker, no track yet)', () => {
+  it('returns gate + opening + size when is_employee is false (decision-maker, no track yet)', () => {
     const seq = getQuestionSequence({ is_employee: false })
-    expect(seq).toHaveLength(2)
-    expect(seq.map(q => q.id)).toEqual(['gate', 'q0'])
+    expect(seq).toHaveLength(3)
+    expect(seq.map(q => q.id)).toEqual(['gate', 'q0', 'size'])
   })
 
   it('returns employee track when is_employee is true', () => {
@@ -19,26 +19,26 @@ describe('getQuestionSequence', () => {
     expect(seq.map(q => q.id)).toEqual(['gate', 'e1', 'e2', 'e3', 'e4'])
   })
 
-  it('returns 8 questions for non-zenegy track (gate, q0, b1-b4, ai, numbers — no role)', () => {
+  it('returns 10 questions for non-zenegy track (gate, q0, size, b1-b5, ai, numbers)', () => {
     const seq = getQuestionSequence({ is_employee: false, track: 'non-zenegy' })
-    expect(seq).toHaveLength(8)
-    expect(seq.map(q => q.id)).toEqual(['gate', 'q0', 'b1', 'b2', 'b3', 'b4', 'ai', 'numbers'])
+    expect(seq).toHaveLength(10)
+    expect(seq.map(q => q.id)).toEqual(['gate', 'q0', 'size', 'b1', 'b2', 'b3', 'b4', 'b5', 'ai', 'numbers'])
   })
 
   it('includes numbers awareness for zenegy track without Numbers product', () => {
     const seq = getQuestionSequence({ is_employee: false, track: 'zenegy', a_products: ['payroll'] })
-    expect(seq.map(q => q.id)).toEqual(['gate', 'q0', 'a1', 'a2', 'a3', 'a4', 'ai', 'numbers'])
+    expect(seq.map(q => q.id)).toEqual(['gate', 'q0', 'size', 'a1', 'a1_migration', 'a2', 'a3', 'a4', 'ai', 'numbers'])
   })
 
   it('includes numbers awareness for zenegy track when a_products is undefined', () => {
     const seq = getQuestionSequence({ is_employee: false, track: 'zenegy' })
-    expect(seq.map(q => q.id)).toEqual(['gate', 'q0', 'a1', 'a2', 'a3', 'a4', 'ai', 'numbers'])
+    expect(seq.map(q => q.id)).toEqual(['gate', 'q0', 'size', 'a1', 'a1_migration', 'a2', 'a3', 'a4', 'ai', 'numbers'])
   })
 
   it('skips numbers awareness for zenegy track when Numbers product is used', () => {
     const seq = getQuestionSequence({ is_employee: false, track: 'zenegy', a_products: ['payroll', 'numbers'] })
-    expect(seq).toHaveLength(7)
-    expect(seq.map(q => q.id)).toEqual(['gate', 'q0', 'a1', 'a2', 'a3', 'a4', 'ai'])
+    expect(seq).toHaveLength(9)
+    expect(seq.map(q => q.id)).toEqual(['gate', 'q0', 'size', 'a1', 'a1_migration', 'a2', 'a3', 'a4', 'ai'])
   })
 
   it('gate question has autoAdvance true', () => {

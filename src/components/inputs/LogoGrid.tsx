@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Option } from '../../types'
 import { SCENES, type Scene } from '../../lib/scenes'
 
@@ -11,16 +12,20 @@ interface Props {
 }
 
 export function LogoGrid({ options, value, onChange, otherValue = '', onOtherChange, scene = SCENES[0] }: Props) {
+  const [hovered, setHovered] = useState<string | null>(null)
   return (
     <div>
       <div className="logo-grid" style={{ display: 'grid', gap: 10 }}>
         {options.map((opt, i) => {
           const isSelected = value === opt.value
+          const isHover = hovered === opt.value
           return (
             <button
               type="button"
               key={opt.value}
               onClick={() => onChange(opt.value)}
+              onMouseEnter={() => setHovered(opt.value)}
+              onMouseLeave={() => setHovered(null)}
               className="anim-rise-in"
               style={{
                 display: 'flex',
@@ -30,8 +35,8 @@ export function LogoGrid({ options, value, onChange, otherValue = '', onOtherCha
                 gap: 10,
                 padding: '16px 12px',
                 borderRadius: 16,
-                border: `1.5px solid ${isSelected ? scene.accent : '#e4e4ea'}`,
-                background: isSelected ? '#efeafe' : '#ffffff',
+                border: `1.5px solid ${isSelected ? scene.accent : isHover ? '#d4d4dc' : '#e4e4ea'}`,
+                background: isSelected ? '#efeafe' : isHover ? '#f8f7ff' : '#ffffff',
                 boxShadow: 'none',
                 cursor: 'pointer',
                 textAlign: 'center',

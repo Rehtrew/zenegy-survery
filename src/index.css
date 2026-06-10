@@ -89,28 +89,39 @@
 
 .lp-hero { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.06fr); align-items: stretch; }
 .lp-copy {
-  display: flex; flex-direction: column; justify-content: center;
-  padding: 8px clamp(36px, 4vw, 64px) 48px clamp(24px, 5vw, 64px); max-width: 720px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  padding: 8px clamp(20px, 3vw, 48px) 48px;
 }
 .lp-cta {
   display: inline-flex; align-items: center; gap: 8px; align-self: flex-start;
   border: none; cursor: pointer; font-family: var(--font-sans); font-size: 16px; font-weight: 500;
   color: #fff; background: #6e30fd; border-radius: 13px; padding: 15px 26px;
-  box-shadow: 0 10px 26px rgba(110,48,253,0.30); transition: box-shadow 0.15s ease, transform 0.15s ease;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
-.lp-cta:hover { transform: translateY(-1px); box-shadow: 0 14px 30px rgba(110,48,253,0.36); }
+.lp-cta:hover {
+  transform: translateY(-2px);
+  background: #5a26d4;
+  box-shadow: 0 14px 32px rgba(110,48,253,0.36);
+}
 
-.landing-report { position: relative; overflow: hidden; height: 100%; min-height: 600px; border-radius: 36px 0 0 0; }
+/* landing-report: all content is absolutely positioned, so no flex needed */
+.landing-report { position: relative; height: 100%; min-height: 600px; }
+
+/* Gradient bg box: equal breathing room top + bottom */
+.landing-report-bg {
+  position: absolute;
+  top: 44px; bottom: 44px;
+  left: 48px; right: 0;
+  border-radius: 24px 0 0 24px;
+  overflow: hidden;
+}
 
 @media (max-width: 900px) {
   .lp-hero { grid-template-columns: 1fr; }
   .lp-copy { padding: 4px 24px 36px; }
-  .landing-report { min-height: 600px; border-radius: 28px 28px 0 0; }
+  .landing-report { min-height: 600px; }
+  .landing-report-bg { top: 20px; bottom: 0; left: 20px; border-radius: 20px 20px 0 0; }
 }
-
-/* Pulsating dotted grid (Zenegy Flow reference) */
-@keyframes dot-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.85; } }
-.dot-grid-pulse { animation: dot-pulse 4.5s ease-in-out infinite; }
 
 /* Report chart entrances */
 .chart-bar { transform-box: fill-box; transform-origin: bottom; animation: bar-grow 600ms cubic-bezier(0.22,1,0.36,1) both; }

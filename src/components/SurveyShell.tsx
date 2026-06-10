@@ -5,6 +5,7 @@ import { useIsMobile } from '../lib/useIsMobile'
 export interface StepGroup {
   label: string
   questionIds: string[]
+  subItems?: string[]
 }
 
 interface Props {
@@ -30,9 +31,7 @@ interface Props {
 }
 
 const ACCENT = '#6e30fd'
-const PILL = '#efeafe'
 
-/** The Zenegy app symbol — lavender square + purple mark. */
 function AppSymbol({ size = 36 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" fill="none" style={{ display: 'block' }}>
@@ -45,92 +44,85 @@ function AppSymbol({ size = 36 }: { size?: number }) {
 
 type StepState = 'done' | 'active' | 'upcoming'
 
-function StatusDot({ state }: { state: StepState }) {
-  const base: React.CSSProperties = { width: 11, height: 11, borderRadius: '50%', flexShrink: 0, transition: 'all 0.25s ease' }
-  if (state === 'done') return <span style={{ ...base, background: ACCENT }} />
-  if (state === 'active') return <span style={{ ...base, border: `2px solid ${ACCENT}`, boxShadow: `0 0 0 4px ${ACCENT}24` }} />
-  return <span style={{ ...base, border: '2px solid #d6d6de' }} />
-}
-
-function MilestoneIcon({ state, kind }: { state: StepState; kind: 'home' | 'flag' }) {
-  const on = state === 'active' || state === 'done'
-  return (
-    <span style={{
-      width: 22, height: 22, borderRadius: 7, flexShrink: 0,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: on ? PILL : '#f1f1f4', color: on ? ACCENT : '#b1b1bb', transition: 'all 0.25s ease',
-    }}>
-      {kind === 'home' ? (
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V20h14V9.5" />
-        </svg>
-      ) : (
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M5 21V5a2 2 0 0 1 2-2h7l-1 4h6v8h-7l1-4H7" />
-        </svg>
-      )}
-    </span>
-  )
-}
-
-/** A ring that fills to show how far through the active category the user is. */
-function ProgressRing({ step, total }: { step: number; total: number }) {
-  const r = 7, c = 2 * Math.PI * r
-  const frac = Math.min(1, Math.max(0, step / total))
-  return (
-    <span style={{ width: 16, height: 16, flexShrink: 0, display: 'flex' }}>
-      <svg width="16" height="16" viewBox="0 0 18 18">
-        <circle cx="9" cy="9" r={r} fill="none" stroke="#e2e2e8" strokeWidth="2.4" />
-        <circle
-          cx="9" cy="9" r={r} fill="none" stroke={ACCENT} strokeWidth="2.4" strokeLinecap="round"
-          strokeDasharray={c} strokeDashoffset={c * (1 - frac)} transform="rotate(-90 9 9)"
-          style={{ transition: 'stroke-dashoffset 0.4s ease' }}
-        />
-      </svg>
-    </span>
-  )
-}
-
-/** Expanded under the active category: one pip per question, filled up to the
- *  current one, with a small "x/y" so it's clear how many remain. */
-function SectionDots({ step, total }: { step: number; total: number }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 0 8px 39px' }}>
-      {Array.from({ length: total }).map((_, i) => (
-        <span key={i} style={{
-          width: i < step ? 15 : 7, height: 7, borderRadius: 99,
-          background: i < step ? ACCENT : '#dcdce2', transition: 'all 0.3s ease',
-        }} />
-      ))}
-      <span style={{ fontSize: 11.5, fontWeight: 500, color: '#9a9aa3', marginLeft: 4 }}>{step}/{total}</span>
-    </div>
-  )
-}
-
-function StepRow({ label, state, icon, onClick, ring }: { label: string; state: StepState; icon?: React.ReactNode; onClick?: () => void; ring?: { step: number; total: number } }) {
-  const color = state === 'active' ? '#4a1fb0' : state === 'done' ? '#86868b' : '#b1b1bb'
+/** A single row in the sidebar timeline. Renders its dot + the connector line below it. */
+function TimelineStep({ label, state, isLast, onClick, subItems, activeSubIndex }: {
+  label: string; state: StepState; isLast: boolean; onClick?: () => void
+  subItems?: string[]; activeSubIndex?: number
+}) {
+  const isDone = state === 'done'
   const isActive = state === 'active'
-  const style: React.CSSProperties = {
-    display: 'flex', alignItems: 'center', gap: 12, padding: '9px 12px', borderRadius: 10, fontSize: 14,
-    background: isActive ? PILL : 'transparent', color, transition: 'background 0.18s ease, color 0.25s ease',
-    width: '100%', textAlign: 'left', border: 'none', fontFamily: 'var(--font-sans)',
-    cursor: onClick ? 'pointer' : 'default',
-  }
-  const inner = (
-    <>
-      {ring ? <ProgressRing step={ring.step} total={ring.total} /> : (icon ?? <StatusDot state={state} />)}
-      <span style={{ flex: 1, fontWeight: 500 }}>{label}</span>
-    </>
-  )
-  if (!onClick) return <div style={style}>{inner}</div>
+  const showSubs = isActive && subItems && subItems.length > 1
+
   return (
-    <button
-      type="button" style={style} onClick={onClick}
-      onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = '#f4f4f6' }}
-      onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
+    <div
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onClick={onClick}
+      onKeyDown={onClick ? e => { if (e.key === 'Enter' || e.key === ' ') onClick() } : undefined}
+      style={{ display: 'flex', gap: 12, cursor: onClick ? 'pointer' : 'default' }}
     >
-      {inner}
-    </button>
+      {/* Dot + connector column */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 18, flexShrink: 0, paddingTop: 2 }}>
+        <div style={{
+          width: 16, height: 16, borderRadius: '50%', flexShrink: 0,
+          background: isDone ? ACCENT : 'transparent',
+          border: isDone ? 'none' : isActive ? `2px solid ${ACCENT}` : '1.5px solid #d6d6de',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxSizing: 'border-box', transition: 'background 0.25s ease, border-color 0.25s ease',
+        }}>
+          {isDone && (
+            <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
+              <path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          )}
+          {isActive && <div style={{ width: 5, height: 5, borderRadius: '50%', background: ACCENT }} />}
+        </div>
+        {!isLast && (
+          <div style={{
+            flex: 1, width: 1.5, minHeight: 20, margin: '3px 0', borderRadius: 2,
+            background: isDone ? `${ACCENT}45` : '#e4e4ea',
+            transition: 'background 0.3s ease',
+          }} />
+        )}
+      </div>
+
+      {/* Label + optional expanded sub-items */}
+      <div style={{ paddingBottom: isLast ? 8 : 22, flex: 1 }}>
+        <span style={{
+          fontSize: 13.5, lineHeight: 1.4, transition: 'color 0.2s ease',
+          fontWeight: isActive ? 500 : 400,
+          color: isActive ? '#14132b' : isDone ? '#9a9aa3' : '#c4c4cc',
+        }}>
+          {label}
+        </span>
+
+        {showSubs && (
+          <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {subItems!.map((sub, i) => {
+              const subDone = i < (activeSubIndex ?? 0)
+              const subActive = i === (activeSubIndex ?? 0)
+              return (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                  <div style={{
+                    width: 5, height: 5, borderRadius: '50%', flexShrink: 0, marginTop: 5,
+                    background: subDone ? ACCENT : subActive ? `${ACCENT}80` : '#dcdce4',
+                    transition: 'background 0.2s',
+                  }} />
+                  <span style={{
+                    fontSize: 11.5, lineHeight: 1.4,
+                    color: subActive ? '#3d1d7a' : subDone ? '#9a9aa3' : '#c0c0c8',
+                    fontWeight: subActive ? 500 : 400,
+                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                  }}>
+                    {sub}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -141,7 +133,6 @@ function progressCopy(phase: Phase, percent: number): { title: string; desc: str
   return { title: 'Godt i gang', desc: 'Tag den tid du har brug for.' }
 }
 
-/** Segmented tick bar (light→deep purple gradient on the filled ticks). */
 function TickBar({ percent, total = 28 }: { percent: number; total?: number }) {
   const filled = Math.round((percent / 100) * total)
   return (
@@ -172,10 +163,6 @@ function ProgressCard({ phase, percent }: { phase: Phase; percent: number }) {
   )
 }
 
-/** The question card on a short deck of ghost cards. On advance the new card
- *  drops onto the pile from above — lifted (slightly larger, bigger shadow) →
- *  settling flat with a spring bounce — while the previous card sinks underneath
- *  it (it does NOT slide off, so it reads as stacking, not a gallery swipe). */
 function CardStack({
   animKey, direction, stacked, radius, padding, shadow, children,
 }: {
@@ -185,11 +172,8 @@ function CardStack({
   const dir = direction === 'forward' ? 1 : -1
   const liftedShadow = '0 34px 70px rgba(20,12,43,0.22)'
   const variants = {
-    // Held above the pile: lifted, a touch larger, tilted, with a big drop-shadow.
     enter: { y: -64, scale: 1.06, rotate: dir * -3, opacity: 0, zIndex: 2, boxShadow: liftedShadow },
-    // Landed flat on top.
     center: { y: 0, scale: 1, rotate: 0, opacity: 1, zIndex: 2, boxShadow: shadow },
-    // Pressed down and shrinking into the pile underneath the new card.
     exit: { y: 22, scale: 0.88, rotate: 0, opacity: 0, zIndex: 1, boxShadow: shadow },
   }
   const ghost = (ty: number, scale: number, opacity: number): React.CSSProperties => ({
@@ -296,7 +280,7 @@ export function SurveyShell({
   stepGroups, currentStepIndex, percent, phase, direction, animKey,
   showBack = false, backLabel = 'Tilbage', onBack,
   showNext = false, nextLabel = 'Næste', nextDisabled = false, onNext,
-  onExit, onNavigateWelcome, onNavigateStep, sectionStep, sectionTotal, children,
+  onExit, onNavigateStep, sectionStep, children,
 }: Props) {
   const isMobile = useIsMobile()
   const canExit = onExit && phase !== 'landing' && phase !== 'thank-you'
@@ -305,7 +289,7 @@ export function SurveyShell({
     : phase === 'thank-you' ? 'Tak'
       : (stepGroups[currentStepIndex]?.label ?? '')
 
-  // ── MOBILE: compact top bar + stacked card + sticky bottom nav ──
+  // ── MOBILE: sticky top bar + bottom nav ──
   if (isMobile) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#f4f4f6' }}>
@@ -340,7 +324,7 @@ export function SurveyShell({
     )
   }
 
-  // ── DESKTOP: persistent sidebar + main ──
+  // ── DESKTOP: persistent sidebar + card with inline footer ──
   const groupState = (i: number): StepState => {
     if (phase === 'landing') return 'upcoming'
     if (phase === 'thank-you') return 'done'
@@ -348,67 +332,118 @@ export function SurveyShell({
     if (i === currentStepIndex) return 'active'
     return 'upcoming'
   }
-  const velkommenState: StepState = phase === 'landing' ? 'active' : 'done'
   const takState: StepState = phase === 'thank-you' ? 'active' : 'upcoming'
-  // Let respondents jump back to steps they've reached (not while on landing/thank-you).
-  const navEnabled = phase === 'questions' || phase === 'lead-gen'
+  const navEnabled = phase === 'questions'
+
+  const hasCardNav = showBack || showNext
+  // Remove bottom padding from card when we render our own footer inside it
+  const cardPadding = hasCardNav ? '42px 46px 0' : '42px 46px 46px'
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#f4f4f6' }}>
+      {/* ── Sidebar ── */}
       <aside style={{
-        width: 280, flexShrink: 0, background: '#fff', borderRight: '1px solid #ededf0',
-        display: 'flex', flexDirection: 'column', padding: '24px 18px 20px',
+        width: 272, flexShrink: 0, background: '#fff', borderRight: '1px solid #ededf0',
+        display: 'flex', flexDirection: 'column', padding: '24px 20px 20px',
         position: 'sticky', top: 0, height: '100vh', overflowY: 'auto',
       }}>
+        {/* Logo — click goes to landing */}
         <button
           type="button" onClick={onExit} aria-label="Til forsiden"
-          style={{ border: 'none', background: 'none', padding: 0, marginBottom: 28, marginLeft: 6, cursor: onExit ? 'pointer' : 'default', alignSelf: 'flex-start', transition: 'opacity 0.12s ease', borderRadius: 8 }}
+          style={{ border: 'none', background: 'none', padding: 0, marginBottom: 32, marginLeft: 2, cursor: onExit ? 'pointer' : 'default', alignSelf: 'flex-start', transition: 'opacity 0.12s ease', borderRadius: 8 }}
           onMouseEnter={e => { if (onExit) (e.currentTarget as HTMLButtonElement).style.opacity = '0.7' }}
           onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '1' }}
         >
           <AppSymbol />
         </button>
 
-        <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <StepRow
-            label="Velkommen" state={velkommenState} icon={<MilestoneIcon state={velkommenState} kind="home" />}
-            onClick={navEnabled && onNavigateWelcome ? onNavigateWelcome : undefined}
-          />
-          <div style={{ height: 1, background: '#f0f0f3', margin: '7px 6px' }} />
+        {/* Timeline nav — vertically centered */}
+        <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingLeft: 4 }}>
           {stepGroups.map((g, i) => {
             const st = groupState(i)
             const clickable = navEnabled && onNavigateStep && st !== 'upcoming'
-            const showProgress = st === 'active' && phase === 'questions' && sectionTotal != null && sectionStep != null
+            const activeSubIndex = st === 'active' && sectionStep != null ? sectionStep - 1 : undefined
             return (
-              <div key={g.label}>
-                <StepRow
-                  label={g.label} state={st}
-                  ring={showProgress ? { step: sectionStep, total: sectionTotal } : undefined}
-                  onClick={clickable ? () => onNavigateStep!(i) : undefined}
-                />
-                {showProgress && sectionTotal > 1 && <SectionDots step={sectionStep} total={sectionTotal} />}
-              </div>
+              <TimelineStep
+                key={g.label}
+                label={g.label}
+                state={st}
+                isLast={false}
+                subItems={g.subItems}
+                activeSubIndex={activeSubIndex}
+                onClick={clickable ? () => onNavigateStep!(i) : undefined}
+              />
             )
           })}
-          <div style={{ height: 1, background: '#f0f0f3', margin: '7px 6px' }} />
-          <StepRow label="Tak" state={takState} icon={<MilestoneIcon state={takState} kind="flag" />} />
+          <TimelineStep label="Tak" state={takState} isLast />
         </nav>
 
         <ProgressCard phase={phase} percent={percent} />
-        {canExit && <ExitLink onExit={onExit!} style={{ marginTop: 14, paddingLeft: 6, alignSelf: 'flex-start' }} />}
       </aside>
 
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 48px 16px', overflowX: 'hidden' }}>
+      {/* ── Main ── */}
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
+        {/* Forlad — top right, discrete */}
+        {canExit && (
+          <div style={{ position: 'absolute', top: 20, right: 28, zIndex: 6 }}>
+            <ExitLink onExit={onExit!} />
+          </div>
+        )}
+
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '56px 48px 48px', overflowX: 'hidden' }}>
           <div style={{ width: '100%', maxWidth: 580 }}>
-            <CardStack animKey={animKey} direction={direction} stacked={phase === 'questions'} radius={24} padding="42px 46px 46px" shadow="0 10px 40px rgba(20,12,43,0.06)">
-              {children}
+            <CardStack
+              animKey={animKey} direction={direction} stacked={phase === 'questions'}
+              radius={24} padding={cardPadding} shadow="0 10px 40px rgba(20,12,43,0.06)"
+            >
+              <>
+                {children}
+                {/* Card footer — back + next inside the card */}
+                {hasCardNav && (
+                  <div style={{
+                    borderTop: '1px solid #f0f0f4',
+                    margin: '28px -46px 0',
+                    padding: '18px 46px 28px',
+                    display: 'flex',
+                    justifyContent: showBack && showNext ? 'space-between' : showNext ? 'flex-end' : 'flex-start',
+                    alignItems: 'center',
+                  }}>
+                    {showBack && (
+                      <button
+                        type="button" onClick={onBack}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 6, border: 'none', background: 'none', cursor: 'pointer', fontSize: 13.5, fontWeight: 500, color: '#9a9aa3', fontFamily: 'var(--font-sans)', transition: 'color 0.12s ease' }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5b5b66' }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#9a9aa3' }}
+                      >
+                        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                          <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        {backLabel}
+                      </button>
+                    )}
+                    {showNext && (
+                      <button
+                        type="button" onClick={onNext} disabled={nextDisabled}
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', borderRadius: 13, border: 'none',
+                          background: ACCENT, color: '#fff', fontSize: 15, fontWeight: 500, fontFamily: 'var(--font-sans)',
+                          cursor: nextDisabled ? 'not-allowed' : 'pointer', opacity: nextDisabled ? 0.4 : 1,
+                          boxShadow: nextDisabled ? 'none' : '0 8px 22px rgba(110,48,253,0.28)',
+                          transition: 'opacity 0.15s ease, box-shadow 0.15s ease',
+                        }}
+                      >
+                        {nextLabel}
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </>
             </CardStack>
           </div>
         </div>
-        {(showBack || showNext) && (
-          <NavBar showBack={showBack} backLabel={backLabel} onBack={onBack} showNext={showNext} nextLabel={nextLabel} nextDisabled={nextDisabled} onNext={onNext} padInline={48} />
-        )}
       </main>
     </div>
   )

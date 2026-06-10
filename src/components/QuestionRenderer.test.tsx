@@ -91,7 +91,7 @@ describe('QuestionRenderer', () => {
       question: 'NPS?',
     }
     render(<QuestionRenderer question={q} {...baseProps} />)
-    expect(screen.getByText('10')).toBeInTheDocument()
+    expect(screen.getByText(/Helt sikkert/)).toBeInTheDocument()
   })
 
   // Tilbage/Næste navigation moved out of QuestionRenderer into SurveyShell's

@@ -43,7 +43,9 @@ export function ChoiceList({ options, value, onChange, multi = false, scene = BR
         const hasLogo = !!opt.logoSrc
         const tone = opt.tone ? TONE[opt.tone] : null
         const accent = tone ? tone.accent : scene.accent
-        const selectedFill = tone ? tone.fill : hasLogo ? '#ffffff' : '#efeafe'
+        const background = tone
+          ? tone.fill
+          : isSelected ? (hasLogo ? '#ffffff' : '#efeafe') : isHover ? '#f8f7ff' : '#ffffff'
 
         const indicator = (
           <span style={{
@@ -73,16 +75,9 @@ export function ChoiceList({ options, value, onChange, multi = false, scene = BR
           </span>
         )
 
-        const toneDot = tone && !opt.iconName && (
-          <span style={{
-            width: 11, height: 11, borderRadius: '50%', flexShrink: 0,
-            background: tone.accent,
-          }} />
-        )
-
         const text = (
           <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
-            <span style={{ fontSize: 15.5, fontWeight: 500, color: scene.ink }}>{opt.label}</span>
+            <span style={{ fontSize: 15.5, fontWeight: 500, color: tone ? tone.accent : scene.ink }}>{opt.label}</span>
             {opt.subLabel && <span style={{ fontSize: 13, color: scene.inkMuted, marginTop: 2 }}>{opt.subLabel}</span>}
           </span>
         )
@@ -102,8 +97,8 @@ export function ChoiceList({ options, value, onChange, multi = false, scene = BR
               gap: 14,
               padding: hasLogo || opt.iconName ? '12px 16px' : '16px 18px',
               borderRadius: 14,
-              border: `1.5px solid ${isSelected ? accent : isHover ? '#d4d4dc' : '#e4e4ea'}`,
-              background: isSelected ? selectedFill : '#ffffff',
+              border: `1.5px solid ${isSelected ? accent : (tone ? 'transparent' : (isHover ? '#d4d4dc' : '#e4e4ea'))}`,
+              background,
               cursor: 'pointer',
               textAlign: 'left',
               width: '100%',
@@ -122,10 +117,10 @@ export function ChoiceList({ options, value, onChange, multi = false, scene = BR
               </>
             ) : (
               <>
-                {/* Leading: icon tile or tone dot when present, otherwise the indicator. */}
-                {iconTile || toneDot || indicator}
+                {/* Leading: icon tile when present; for tone-only rows, indicator goes trailing. */}
+                {iconTile || (tone ? null : indicator)}
                 {text}
-                {(iconTile || toneDot) && indicator}
+                {(iconTile || tone) && indicator}
               </>
             )}
           </button>

@@ -1,16 +1,17 @@
 import type { Question, SurveyAnswers } from '../types'
 import datalonenLogo from '../assets/logos/dataloen.svg'
-import bluegardenLogo from '../assets/logos/bluegarden.svg'
 import lessorLogo from '../assets/logos/lessor.svg'
 import intectLogo from '../assets/logos/intect.png'
 import sdloenLogo from '../assets/logos/sdloen.svg'
 import danloenLogo from '../assets/logos/danloen.svg'
+import bluegardenLogo from '../assets/logos/bluegarden.svg'
 import economicLogo from '../assets/logos/economic.png'
 import dineroLogo from '../assets/logos/dinero.png'
 import billyLogo from '../assets/logos/billy.png'
 import unicontaLogo from '../assets/logos/uniconta.png'
 import vismaLogo from '../assets/logos/visma.png'
 import zenegyLogo from '../assets/logos/zenegy.svg'
+import excelLogo from '../assets/logos/excel.svg'
 import payrollIcon from '../assets/products/payroll.png'
 import numbersIcon from '../assets/products/numbers.png'
 import expenseIcon from '../assets/products/expense.png'
@@ -19,31 +20,49 @@ import timeIcon from '../assets/products/time.png'
 export const GATE_QUESTION: Question = {
   id: 'gate',
   type: 'choice-single',
-  question: 'Spiller du en rolle i valg af løn- eller regnskabssoftware?',
-  subText: 'Dit svar afgør hvilke spørgsmål du ser.',
+  question: 'Hvilken rolle spiller du i håndteringen af løn eller regnskab?',
+  shortLabel: 'Din rolle',
+  subText: 'Dit svar sikrer, at du kun ser de spørgsmål, der er relevante for dig.',
   autoAdvance: true,
   options: [
-    { value: 'decision-maker', label: 'Ja, jeg er med til at beslutte', subLabel: 'Direktør, bogholder, HR eller lignende' },
-    { value: 'employee', label: 'Nej, jeg bruger systemerne som medarbejder', subLabel: 'Lønmodtager uden systemansvar' },
+    { value: 'decision-maker', label: 'Jeg har (med)ansvar for systemerne', subLabel: 'Direktør, HR, bogholder, ekstern revisor eller administrator' },
+    { value: 'employee', label: 'Jeg er primært lønmodtager', subLabel: 'Jeg modtager lønseddel, men har ikke systemansvar' },
   ],
 }
 
 export const OPENING_QUESTION: Question = {
   id: 'q0',
   type: 'choice-tiles',
-  question: 'Bruger du Zenegy som dit lønsystem i dag?',
-  subText: 'Dit svar afgør hvilke spørgsmål du ser — vi giver dig den mest relevante oplevelse.',
+  question: 'Er Zenegy en del af jeres systemlandskab i dag?',
+  shortLabel: 'Dit system',
+  subText: 'Uanset om I er kunde, ekstern partner eller bruger noget helt andet, vil vi gerne høre din mening.',
   autoAdvance: true,
   options: [
-    { value: 'zenegy', label: 'Ja, jeg bruger Zenegy', subLabel: 'Jeg er eksisterende kunde', iconName: 'zenegy' },
-    { value: 'non-zenegy', label: 'Nej, jeg bruger et andet system', subLabel: 'Dataløn, Bluegarden, Lessor, eller andet', iconName: 'other-system' },
+    { value: 'zenegy', label: 'Ja, vi bruger Zenegy', subLabel: 'Som primært løn- eller regnskabssystem', iconName: 'zenegy' },
+    { value: 'non-zenegy', label: 'Nej, vi bruger et andet system', subLabel: 'Dataløn, Danløn, Lessor, Intect, Visma eller lignende', iconName: 'other-system' },
+  ],
+}
+
+export const SIZE_QUESTION: Question = {
+  id: 'size',
+  type: 'choice-single',
+  question: 'Hvor mange medarbejdere kører I løn for?',
+  shortLabel: 'Antal medarbejdere',
+  subText: 'Det hjælper os sammenligne svar på tværs af virksomheder af forskellig størrelse.',
+  autoAdvance: true,
+  options: [
+    { value: '1-9', label: '1–9' },
+    { value: '10-49', label: '10–49' },
+    { value: '50-199', label: '50–199' },
+    { value: '200+', label: '200+' },
   ],
 }
 
 const NUMBERS_AWARENESS: Question = {
   id: 'numbers',
   type: 'logo-grid',
-  question: 'Hvilket regnskabssystem bruger du i dag?',
+  question: 'Hvilket regnskabs- eller ERP-system bruger I i dag?',
+  shortLabel: 'Regnskabssystem',
   subText: 'Vi er nysgerrige — ikke på jagt efter salg.',
   autoAdvance: true,
   options: [
@@ -51,7 +70,8 @@ const NUMBERS_AWARENESS: Question = {
     { value: 'dinero', label: 'Dinero', logoSrc: dineroLogo },
     { value: 'billy', label: 'Billy', logoSrc: billyLogo },
     { value: 'uniconta', label: 'Uniconta', logoSrc: unicontaLogo },
-    { value: 'visma', label: 'Visma', logoSrc: vismaLogo },
+    { value: 'visma-bc', label: 'Visma Business', logoSrc: vismaLogo },
+    { value: 'microsoft-bc', label: 'Business Central', logoInitials: 'BC', logoStyle: { background: 'linear-gradient(135deg,#00a4ef,#0072c6)' } },
     { value: 'zenegy-numbers', label: 'Zenegy Numbers', logoSrc: zenegyLogo },
     { value: 'andet', label: 'Andet', logoInitials: '?', logoStyle: { background: 'linear-gradient(135deg,#616161,#323232)' } },
   ],
@@ -61,17 +81,18 @@ export const TRACK_B_QUESTIONS: Question[] = [
   {
     id: 'b1',
     type: 'logo-grid',
-    question: 'Hvilket lønsystem bruger din virksomhed i dag?',
+    question: 'Hvilket lønsystem bruger din virksomhed primært i dag?',
+    shortLabel: 'Lønsystem',
     subText: 'Vælg det primære system din virksomhed bruger til lønkørsel.',
     autoAdvance: true,
     options: [
       { value: 'dataloen', label: 'Dataløn', subLabel: 'by Visma', logoSrc: datalonenLogo },
-      { value: 'bluegarden', label: 'Bluegarden', logoSrc: bluegardenLogo },
+      { value: 'danloen', label: 'Danløn', logoSrc: danloenLogo },
       { value: 'lessor', label: 'Lessor', logoSrc: lessorLogo },
       { value: 'intect', label: 'Intect', logoSrc: intectLogo },
       { value: 'sd-loen', label: 'SD Løn', logoSrc: sdloenLogo },
-      { value: 'danloen', label: 'Danløn', logoSrc: danloenLogo },
-      { value: 'zenegy', label: 'Zenegy', logoInitials: 'Ze', logoStyle: { background: 'linear-gradient(135deg,#6e30fd,#331070)' } },
+      { value: 'visma-loen', label: 'Visma Løn', logoSrc: vismaLogo },
+      { value: 'excel', label: 'Excel / manuelt', logoSrc: excelLogo },
       { value: 'andet', label: 'Andet', logoInitials: '?', logoStyle: { background: 'linear-gradient(135deg,#616161,#323232)' } },
     ],
   },
@@ -79,52 +100,66 @@ export const TRACK_B_QUESTIONS: Question[] = [
     id: 'b2',
     type: 'tile-select',
     question: 'Hvad frustrerer dig mest ved dit nuværende lønsystem?',
-    subText: 'Vær ærlig — det er præcis den slags input vi har brug for. Vælg alle der passer.',
-    openTextPlaceholder: 'Hvad frustrerer dig?',
+    shortLabel: 'Frustrationer',
+    subText: 'Vælg alle der passer.',
+    openTextPlaceholder: 'Er der andet, der irriterer dig i hverdagen?',
     options: [
-      { value: 'price', label: 'Prisen er for høj', iconName: 'tag' },
-      { value: 'slow', label: 'Det er langsomt og tungt', iconName: 'hourglass' },
-      { value: 'ui', label: 'Brugergrænsefladen er forvirrende', iconName: 'layout' },
-      { value: 'integrations', label: 'Dårlige integrationer', iconName: 'plug' },
-      { value: 'support', label: 'Support er svær at komme igennem til', iconName: 'chat' },
-      { value: 'features', label: 'Mangler features jeg har brug for', iconName: 'feature' },
-      { value: 'slow-payroll', label: 'Lønkørsel tager for lang tid', iconName: 'clock' },
-      { value: 'no-app', label: 'Ingen god mobilapp', iconName: 'smartphone' },
-      { value: 'satisfied', label: 'Faktisk ikke noget — jeg er tilfreds', iconName: 'smile' },
+      { value: 'slow-payroll', label: 'Lønkørslen tager lang tid og kræver mange manuelle tjek', iconName: 'clock' },
+      { value: 'ui-old', label: 'Brugerfladen føles gammeldags eller uoverskuelig', iconName: 'layout' },
+      { value: 'integrations-broken', label: 'Mangelfulde integrationer til bank og regnskab', iconName: 'plug' },
+      { value: 'support-slow', label: 'Support er svær at komme igennem til', iconName: 'chat' },
+      { value: 'price-value', label: 'Prisen står ikke mål med, hvad produktet kan', iconName: 'tag' },
+      { value: 'missing-features', label: 'Mangler moderne features (f.eks. app eller HR-værktøjer)', iconName: 'feature' },
+      { value: 'manual-errors', label: 'Mange manuelle trin, hvor fejl kan opstå', iconName: 'hourglass' },
+      { value: 'satisfied', label: 'Faktisk ingenting — jeg er tilfreds', iconName: 'smile' },
       { value: 'other', label: 'Andet', iconName: 'pencil' },
     ],
   },
   {
     id: 'b3',
     type: 'priority-rank',
-    question: 'Hvad er vigtigst for dig i et lønsystem?',
-    subText: 'Klik for at markere dine top 3 — i prioriteret rækkefølge. Hvad ville du betale mest for?',
+    question: 'Hvilke faktorer vejer du højest i et lønsystem?',
+    shortLabel: 'Prioriteter',
+    subText: 'Markér de 3 vigtigste i prioriteret rækkefølge.',
     maxRank: 3,
     options: [
-      { value: 'price', label: 'Pris og value for money' },
-      { value: 'ux', label: 'Enkel og intuitiv brugerflade' },
-      { value: 'integrations', label: 'Integrationer (bank, HR, regnskab)' },
-      { value: 'compliance', label: 'Compliance og automatisk SKAT-indberetning' },
-      { value: 'support', label: 'God og hurtig kundesupport' },
-      { value: 'mobile', label: 'Mobilapp til medarbejdere' },
-      { value: 'features', label: 'Features og automatisering' },
+      { value: 'ux-simplicity', label: 'Enkel og intuitiv brugerflade' },
+      { value: 'heavy-automation', label: 'Automatisering (SKAT, feriepenge, bogføring)' },
+      { value: 'rock-solid-support', label: 'Dansk support, der svarer hurtigt' },
+      { value: 'open-integrations', label: 'Integrationer, der synkroniserer data automatisk' },
+      { value: 'employee-experience', label: 'Mobilapp, så medarbejderne selv kan klare udlæg/tid' },
+      { value: 'price', label: 'Pris og gennemskuelig abonnementsstruktur' },
     ],
   },
   {
     id: 'b4',
     type: 'tile-select',
-    question: 'Hvad holder dig tilbage fra at skifte lønsystem?',
-    subText: 'Ærlighed hjælper os med at forstå markedet bedre — der er ingen forkerte svar.',
-    openTextPlaceholder: 'Hvad holder dig tilbage?',
+    question: 'Hvad er den primære årsag til, at I ikke skifter lønsystem?',
+    shortLabel: 'Skiftehindringer',
+    subText: 'Vælg alle der passer.',
+    openTextPlaceholder: 'Er der en anden barriere?',
     options: [
-      { value: 'transition', label: 'Overgangen virker for besværlig', iconName: 'repeat' },
-      { value: 'time', label: 'Vi har ikke tid til at implementere nyt', iconName: 'clock' },
-      { value: 'faith', label: 'Jeg tror mit system bliver bedre', iconName: 'trending-up' },
-      { value: 'cost', label: 'Skifteomkostningerne er for høje', iconName: 'banknote' },
-      { value: 'unknown', label: 'Jeg kender ikke alternativerne godt nok', iconName: 'search' },
-      { value: 'accountant', label: 'Det er min revisor/bogholder der beslutter', iconName: 'calculator' },
-      { value: 'happy', label: 'Jeg er faktisk tilfreds — skifter ikke', iconName: 'smile' },
+      { value: 'fear-of-transition', label: 'Datamigreringen og overgangen virker uoverskuelig', iconName: 'repeat' },
+      { value: 'no-time', label: 'Vi har ikke interne ressourcer eller tid til at implementere nyt', iconName: 'clock' },
+      { value: 'risk-of-errors', label: 'Bekymring for fejl eller manglende compliance under et skifte', iconName: 'hourglass' },
+      { value: 'advisor-decision', label: 'Det er vores eksterne revisor/bogholder, der beslutter', iconName: 'calculator' },
+      { value: 'contract-lock', label: 'Vi er bundet af en kontrakt eller et større ERP-system', iconName: 'banknote' },
+      { value: 'unknown-market', label: 'Vi kender ikke alternativerne godt nok', iconName: 'search' },
+      { value: 'happy-staying', label: 'Vi er tilfredse — et skifte er ikke aktuelt', iconName: 'smile' },
       { value: 'other', label: 'Andet', iconName: 'pencil' },
+    ],
+  },
+  {
+    id: 'b5',
+    type: 'choice-single',
+    question: 'Overvejer I at skifte lønsystem inden for det næste år?',
+    shortLabel: 'Skifteplaner',
+    subText: 'Helt uforpligtende — vi er bare nysgerrige.',
+    autoAdvance: true,
+    options: [
+      { value: 'actively', label: 'Ja, vi kigger aktivt på alternativer' },
+      { value: 'maybe', label: 'Måske — det er ikke udelukket' },
+      { value: 'no', label: 'Nej, ikke lige nu' },
     ],
   },
 ]
@@ -133,23 +168,43 @@ export const TRACK_A_QUESTIONS: Question[] = [
   {
     id: 'a1',
     type: 'choice-multi',
-    question: 'Hvilke Zenegy-produkter bruger du?',
-    subText: 'Markér alle du bruger aktivt — det hjælper os forstå din brug.',
+    question: 'Hvilke Zenegy-produkter bruger du aktivt i dag?',
+    shortLabel: 'Zenegy-produkter',
+    subText: 'Vælg alle de moduler, du eller din virksomhed bruger.',
     options: [
-      { value: 'payroll', label: 'Løn', subLabel: 'Lønkørsel og lønsedler', logoSrc: payrollIcon },
-      { value: 'numbers', label: 'Numbers', subLabel: 'Bogføring og regnskab', logoSrc: numbersIcon },
-      { value: 'expense', label: 'Expense', subLabel: 'Udlæg og kvitteringer', logoSrc: expenseIcon },
-      { value: 'time', label: 'Time', subLabel: 'Tidsregistrering og fravær', logoSrc: timeIcon },
+      { value: 'payroll', label: 'Løn', subLabel: 'Lønkørsel, SH-dage og automatiske indberetninger', logoSrc: payrollIcon },
+      { value: 'numbers', label: 'Numbers', subLabel: 'Finans, bogføring og digitalt regnskab', logoSrc: numbersIcon },
+      { value: 'expense', label: 'Expense', subLabel: 'Udlæg, kørsel og kvitteringer', logoSrc: expenseIcon },
+      { value: 'time', label: 'Time', subLabel: 'Tidsregistrering, ferie og fravær', logoSrc: timeIcon },
+    ],
+  },
+  {
+    id: 'a1_migration',
+    type: 'logo-grid',
+    question: 'Hvilket system kom du fra, da du valgte Zenegy?',
+    shortLabel: 'Tidligere system',
+    subText: 'Det hjælper os forstå, hvor i markedet behovet for fornyelse er størst.',
+    autoAdvance: true,
+    options: [
+      { value: 'dataloen', label: 'Dataløn', subLabel: 'by Visma', logoSrc: datalonenLogo },
+      { value: 'danloen', label: 'Danløn', logoSrc: danloenLogo },
+      { value: 'lessor', label: 'Lessor', logoSrc: lessorLogo },
+      { value: 'intect', label: 'Intect', logoSrc: intectLogo },
+      { value: 'bluegarden', label: 'Bluegarden', logoSrc: bluegardenLogo },
+      { value: 'excel', label: 'Excel / manuelt', logoSrc: excelLogo },
+      { value: 'startup', label: 'Direkte til Zenegy', logoSrc: zenegyLogo },
+      { value: 'andet', label: 'Andet', logoInitials: '?', logoStyle: { background: 'linear-gradient(135deg,#616161,#323232)' } },
     ],
   },
   {
     id: 'a2',
     type: 'emoji-rating',
     question: 'Hvor tilfreds er du med Zenegy i hverdagen?',
-    subText: 'Tænk på din daglige oplevelse med produktet — ikke kun onboarding.',
+    shortLabel: 'Tilfredshed',
+    subText: 'Tænk på den generelle oplevelse — ikke kun onboarding.',
     hasOpenText: true,
-    openTextLabel: 'Vil du uddybe? (valgfrit)',
-    openTextPlaceholder: 'Hvad ligger bag dit svar?',
+    openTextLabel: 'Vil du sætte et par ord på? (valgfrit)',
+    openTextPlaceholder: 'Hvad er den primære årsag til din rating?',
     openTextMaxLength: 300,
     options: [
       { value: 'very-unhappy', label: 'Meget utilfreds' },
@@ -162,27 +217,30 @@ export const TRACK_A_QUESTIONS: Question[] = [
   {
     id: 'a3',
     type: 'choice-single',
-    question: 'Hvad er det ene du sætter allermest pris på ved Zenegy?',
-    subText: 'Dit svar hjælper os fortælle historien om Zenegy til andre — med dine ord.',
+    question: 'Hvor mærker du den største værdi ved at bruge Zenegy?',
+    shortLabel: 'Største værdi',
+    subText: 'Hvis du kun må vælge én ting, der gør en mærkbar forskel i din arbejdsuge.',
     hasOpenText: true,
-    openTextLabel: 'Vil du uddybe? (valgfrit)',
-    openTextPlaceholder: 'Fortæl os gerne med egne ord, hvad der gør Zenegy værdifuldt for dig...',
+    openTextLabel: 'Uddyb gerne med egne ord (valgfrit)',
+    openTextPlaceholder: 'Hvad gør Zenegy værdifuldt for dig?',
     openTextMaxLength: 200,
     options: [
-      { value: 'speed', label: 'Det er hurtigt og nemt at køre løn', iconName: 'zap' },
-      { value: 'price', label: 'Prisen er rigtig', iconName: 'tag' },
-      { value: 'integrations', label: 'Integrationer med mine andre systemer', iconName: 'plug' },
-      { value: 'support', label: 'Support der rent faktisk hjælper', iconName: 'chat' },
-      { value: 'all-in-one', label: 'Alt samlet ét sted (løn + Numbers)', iconName: 'layers' },
+      { value: 'time-saving', label: 'Jeg sparer markant tid på lønkørslen', iconName: 'zap' },
+      { value: 'automation', label: 'Automatisk indberetning (SKAT, feriepenge m.m.)', iconName: 'feature' },
+      { value: 'integrations', label: 'Det spiller sammen med mine andre systemer og min bank', iconName: 'plug' },
+      { value: 'ui-ux', label: 'Platformen er moderne og nem at arbejde i', iconName: 'layout' },
+      { value: 'support', label: 'Jeg får hurtig og kompetent hjælp, når jeg har brug for det', iconName: 'chat' },
+      { value: 'all-in-one', label: 'Alt er samlet ét sted (løn + Numbers + HR)', iconName: 'layers' },
     ],
   },
   {
     id: 'a4',
     type: 'nps-scale',
-    question: 'Ville du anbefale Zenegy til en kollega eller forretningsforbindelse?',
-    subText: 'Det her måler noget andet end tilfredshed — om du ville sætte dit navn på en anbefaling til andre.',
+    question: 'Ville du anbefale Zenegy til en kollega eller en i dit professionelle netværk?',
+    shortLabel: 'Anbefaling',
+    subText: 'Det her måler noget andet end tilfredshed — om du ville sætte dit navn på en anbefaling.',
     hasOpenText: true,
-    openTextLabel: 'Hvad er det ene du ville ønske Zenegy gjorde bedre? (valgfrit)',
+    openTextLabel: 'Hvad er det vigtigste, vi kan forbedre? (valgfrit)',
     openTextPlaceholder: 'Din feedback går direkte til vores produktteam...',
   },
 ]
@@ -191,48 +249,55 @@ export const EMPLOYEE_QUESTIONS: Question[] = [
   {
     id: 'e1',
     type: 'choice-single',
-    question: 'Modtager du din lønseddel digitalt?',
+    question: 'Hvor modtager du typisk din lønseddel?',
+    shortLabel: 'Din lønseddel',
     subText: 'Fortæl os om din nuværende oplevelse.',
     autoAdvance: true,
     options: [
-      { value: 'app', label: 'Ja, via app eller selvbetjeningsportal' },
-      { value: 'email', label: 'Ja, som PDF på email' },
-      { value: 'paper', label: 'Nej, på papir eller print' },
+      { value: 'app', label: 'I en app eller medarbejderportal', iconName: 'smartphone' },
+      { value: 'email', label: 'Som PDF på email', iconName: 'mail' },
+      { value: 'eboks', label: 'I e-Boks / Mit.dk', iconName: 'shield' },
+      { value: 'paper', label: 'På print / papir', iconName: 'file-text' },
     ],
   },
   {
     id: 'e2',
-    type: 'emoji-rating',
-    question: 'Hvad synes du om lønprocessen i din virksomhed?',
-    subText: 'Tænk på din daglige oplevelse som medarbejder.',
-    autoAdvance: true,
+    type: 'tile-select',
+    question: 'Hvilke administrative opgaver oplever du som mest besværlige på din arbejdsplads?',
+    shortLabel: 'Besværlige opgaver',
+    subText: 'Vælg alle, der tager unødig tid fra dit egentlige arbejde.',
     options: [
-      { value: 'bad', label: 'Besværlig' },
-      { value: 'ok', label: 'Det fungerer' },
-      { value: 'good', label: 'Problemfri' },
+      { value: 'expense-pain', label: 'Gemme kvitteringer og afregne udlæg/kørsel manuelt', iconName: 'banknote' },
+      { value: 'time-pain', label: 'Tidsregistrering eller at logge ferie og fravær', iconName: 'clock' },
+      { value: 'payslip-confusing', label: 'Min lønseddel er svær at tyde', iconName: 'layout' },
+      { value: 'no-mobile-access', label: 'Mangel på en app — jeg skal klare alt fra en computer', iconName: 'smartphone' },
+      { value: 'none', label: 'Ingen — det fungerer fint', iconName: 'smile' },
     ],
   },
   {
     id: 'e3',
     type: 'choice-single',
-    question: 'Indberetter du udgifter eller udlæg til din virksomhed?',
+    question: 'Hvis du laver et udlæg, hvor lang tid bruger du i gennemsnit på at registrere det?',
+    shortLabel: 'Udlægsregistrering',
     autoAdvance: true,
     options: [
-      { value: 'yes-easy', label: 'Ja, regelmæssigt og det er nemt' },
-      { value: 'yes-hard', label: 'Ja, men processen er besværlig' },
-      { value: 'no', label: 'Nej, ikke relevant for mig' },
+      { value: 'seconds', label: 'Få sekunder — et billede i en app, så er det klaret' },
+      { value: 'minutes', label: 'Et par minutter — en formular online' },
+      { value: 'heavy-process', label: 'Længere — gemme kvittering, printe eller sende mail' },
+      { value: 'not-relevant', label: 'Ikke relevant — jeg har ikke udlæg' },
     ],
   },
   {
     id: 'e4',
     type: 'choice-single',
-    question: 'Ville du have tillid til en AI der håndterede din lønseddel?',
-    subText: 'Der er ingen forkerte svar.',
+    question: 'Hvor ville du være mest tryg ved, at en AI hjalp dig med dine løn- og arbejdsdata?',
+    shortLabel: 'AI i løn',
     autoAdvance: true,
     options: [
-      { value: 'yes', label: 'Ja, hvis systemet er nøjagtigt' },
-      { value: 'controlled', label: 'Kun med menneskelig kontrol undervejs' },
-      { value: 'no', label: 'Nej — løn er for vigtigt til AI' },
+      { value: 'checking', label: 'Til at tjekke min lønseddel for fejl (f.eks. manglende tillæg)' },
+      { value: 'input', label: 'Til at læse mine kvitteringer, så jeg slipper for at indtaste beløb' },
+      { value: 'assistant', label: 'Som assistent, der forklarer regler om ferie eller barsel' },
+      { value: 'none', label: 'Jeg vil ikke have AI i mine løn- eller fraværsdata' },
     ],
   },
 ]
@@ -240,14 +305,15 @@ export const EMPLOYEE_QUESTIONS: Question[] = [
 const AI_QUESTION: Question = {
   id: 'ai',
   type: 'choice-single',
-  question: 'Ville du overveje AI-automatisering i jeres lønproces?',
-  subText: 'AI er på alles læber — vi er nysgerrige på jeres holdning.',
+  question: 'Hvor ser du det største potentiale for AI i jeres administrative processer?',
+  shortLabel: 'AI-potentiale',
+  subText: 'Hvilken opgave ville du helst lade en pålidelig algoritme klare?',
   autoAdvance: true,
   options: [
-    { value: 'using', label: 'Ja, vi bruger det allerede', tone: 'positive' },
-    { value: 'interested', label: 'Ja, vi er interesserede', tone: 'positive' },
-    { value: 'exploring', label: 'Måske — vi undersøger det', tone: 'caution' },
-    { value: 'no', label: 'Nej, ikke foreløbigt', tone: 'negative' },
+    { value: 'anomaly-detection', label: 'Automatisk fejlsøgning og kontrol inden lønnen godkendes' },
+    { value: 'data-entry', label: 'Automatisk bogføring og matchning af udlæg/kvitteringer' },
+    { value: 'support-answers', label: 'Besvarelse af interne spørgsmål om ferie og regler' },
+    { value: 'not-ready', label: 'Vi er ikke klar til AI i lønprocessen endnu' },
   ],
 }
 
@@ -266,11 +332,11 @@ export function getQuestionSequence(
 
   // Decision-maker track: no track selected yet
   if (!answers.track) {
-    return [GATE_QUESTION, OPENING_QUESTION]
+    return [GATE_QUESTION, OPENING_QUESTION, SIZE_QUESTION]
   }
 
   if (answers.track === 'non-zenegy') {
-    return [GATE_QUESTION, OPENING_QUESTION, ...TRACK_B_QUESTIONS, AI_QUESTION, NUMBERS_AWARENESS]
+    return [GATE_QUESTION, OPENING_QUESTION, SIZE_QUESTION, ...TRACK_B_QUESTIONS, AI_QUESTION, NUMBERS_AWARENESS]
   }
 
   // zenegy track
@@ -278,6 +344,7 @@ export function getQuestionSequence(
   return [
     GATE_QUESTION,
     OPENING_QUESTION,
+    SIZE_QUESTION,
     ...TRACK_A_QUESTIONS,
     AI_QUESTION,
     ...(usesNumbers ? [] : [NUMBERS_AWARENESS]),

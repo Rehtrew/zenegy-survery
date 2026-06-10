@@ -21,16 +21,25 @@ interface Props {
 
 function getAnswer(answers: SurveyAnswers, id: string): unknown {
   const map: Record<string, unknown> = {
+    gate: answers.is_employee !== undefined ? (answers.is_employee ? 'employee' : 'decision-maker') : undefined,
     q0: answers.track,
+    size: answers.size,
     b1: answers.b_payroll_system,
     b2: answers.b_frustrations ?? [],
     b3: answers.b_priorities ?? [],
     b4: answers.b_barriers ?? [],
+    b5: answers.b_switch_intent,
     a1: answers.a_products ?? [],
+    a1_migration: answers.a_migration_from,
     a2: answers.a_satisfaction,
     a3: answers.a_best_thing,
     a4: answers.a_nps,
     numbers: answers.accounting_system,
+    e1: answers.e_payslip,
+    e2: answers.e_pain_points ?? [],
+    e3: answers.e_expenses,
+    e4: answers.e_ai_trust,
+    ai: answers.ai_interest,
   }
   return map[id] ?? (id.endsWith('_text') ? '' : '')
 }
@@ -66,6 +75,11 @@ export function QuestionRenderer({
     const single = Array.isArray(value) ? value[0] : value
     onAnswer(question.id, single)
     if (question.autoAdvance) {
+      // Don't auto-advance logo-grid when "andet" is chosen — user needs to type their answer first.
+      if (question.type === 'logo-grid' && single === 'andet') {
+        if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current)
+        return
+      }
       if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current)
       autoAdvanceTimer.current = setTimeout(() => onAdvanceRef.current(), 300)
     }
