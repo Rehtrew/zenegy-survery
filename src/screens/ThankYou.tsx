@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { SurveyAnswers, SubmissionMeta } from '../types'
+import type { SurveyAnswers, SubmissionMeta, SubmittedTrack } from '../types'
 import { submitSurvey, signupForReport } from '../lib/supabase'
+import { isBureau } from '../lib/questions'
 
 const ACCENT = '#6e30fd'
 
@@ -123,8 +124,13 @@ export function ThankYou({ answers, meta }: { answers: SurveyAnswers; meta: Subm
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
   const save = useCallback(async () => {
-    // Employees never choose a zenegy/non-zenegy payroll track.
-    const track = answers.is_employee ? 'employee' : answers.track
+    // Employees never choose a zenegy/non-zenegy payroll track, and bureaus answer
+    // for a portfolio of clients (their systems live in c_payroll_systems).
+    const track: SubmittedTrack | undefined = answers.is_employee
+      ? 'employee'
+      : isBureau(answers.payroll_context)
+        ? 'bureau'
+        : answers.track
     if (!track) { setSaveState('error'); return }
 
     // Soft anti-spam: honeypot filled, implausibly fast, or this browser already

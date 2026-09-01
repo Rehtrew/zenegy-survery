@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import type { Phase, Direction, SurveyAnswers, Question, SubmissionMeta } from '../types'
-import { getQuestionSequence } from '../lib/questions'
+import { getQuestionSequence, isBureau } from '../lib/questions'
 import { getScene } from '../lib/scenes'
 import { useKeyboard } from '../lib/useKeyboard'
 import { SurveyShell, type StepGroup } from '../components/SurveyShell'
@@ -20,8 +20,22 @@ function getStepGroups(answers: SurveyAnswers): StepGroup[] {
       { label: 'Udgifter & AI', questionIds: ['e3', 'e4'] },
     ]
   }
+  if (isBureau(answers.payroll_context)) {
+    const usesZenegy = answers.c_payroll_systems?.includes('zenegy') ?? false
+    return [
+      { label: 'Om dig', questionIds: ['gate', 'context'] },
+      { label: 'Din kundeportefølje', questionIds: ['c1', 'c2', 'c3'] },
+      { label: 'Din hverdag', questionIds: ['c4', 'c5'] },
+      {
+        label: usesZenegy ? 'Din oplevelse' : 'Dine prioriteter',
+        questionIds: usesZenegy ? ['c6', 'a2', 'a4'] : ['c6', 'c7'],
+      },
+      { label: 'AI & fremtid', questionIds: ['ai'] },
+      { label: 'Regnskab', questionIds: ['numbers'] },
+    ]
+  }
   const base: StepGroup[] = [
-    { label: 'Om dig', questionIds: ['gate', 'q0', 'size'] },
+    { label: 'Om dig', questionIds: ['gate', 'context', 'q0', 'size'] },
   ]
   if (answers.track === 'zenegy') {
     return [
@@ -45,6 +59,7 @@ function getStepGroups(answers: SurveyAnswers): StepGroup[] {
 function isAnswered(question: Question, answers: SurveyAnswers): boolean {
   const lookup: Record<string, unknown> = {
     gate: answers.is_employee !== undefined ? 'answered' : undefined,
+    context: answers.payroll_context,
     q0: answers.track,
     size: answers.size,
     b1: answers.b_payroll_system,
@@ -62,6 +77,13 @@ function isAnswered(question: Question, answers: SurveyAnswers): boolean {
     e2: answers.e_pain_points,
     e3: answers.e_expenses,
     e4: answers.e_ai_trust,
+    c1: answers.c_client_count,
+    c2: answers.c_payroll_systems,
+    c3: answers.c_setup,
+    c4: answers.c_data_collection,
+    c5: answers.c_frustrations,
+    c6: answers.c_priorities,
+    c7: answers.c_switch_intent,
     ai: answers.ai_interest,
   }
   const ans = lookup[question.id]
@@ -100,6 +122,8 @@ export function SurveyFlow({ renderLanding, renderThankYou }: SurveyFlowProps) {
     track: answers.track,
     a_products: answers.a_products,
     is_employee: answers.is_employee,
+    payroll_context: answers.payroll_context,
+    c_payroll_systems: answers.c_payroll_systems,
   })
 
   const currentQuestion = questions[questionIndex]
@@ -111,6 +135,7 @@ export function SurveyFlow({ renderLanding, renderThankYou }: SurveyFlowProps) {
     }
     setAnswers(prev => {
       const keyMap: Record<string, keyof SurveyAnswers> = {
+        context: 'payroll_context',
         q0: 'track',
         size: 'size',
         b1: 'b_payroll_system',
@@ -136,6 +161,16 @@ export function SurveyFlow({ renderLanding, renderThankYou }: SurveyFlowProps) {
         e3: 'e_expenses',
         e4: 'e_ai_trust',
         ai: 'ai_interest',
+        c1: 'c_client_count',
+        c2: 'c_payroll_systems',
+        c2_other: 'c_payroll_system_other',
+        c3: 'c_setup',
+        c4: 'c_data_collection',
+        c4_other: 'c_data_collection_other',
+        c5: 'c_frustrations',
+        c5_other: 'c_frustration_other',
+        c6: 'c_priorities',
+        c7: 'c_switch_intent',
       }
       const key = keyMap[id]
       if (!key) return prev

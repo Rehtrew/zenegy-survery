@@ -4,26 +4,36 @@ import { SCENES, type Scene } from '../../lib/scenes'
 
 interface Props {
   options: Option[]
-  value: string
-  onChange: (value: string) => void
+  /** Single-select: the chosen value. Multi-select (`multi`): the chosen values. */
+  value: string | string[]
+  onChange: (value: string | string[]) => void
+  /** Let the respondent pick several systems (used by the bureau track). */
+  multi?: boolean
   otherValue?: string
   onOtherChange?: (text: string) => void
   scene?: Scene
 }
 
-export function LogoGrid({ options, value, onChange, otherValue = '', onOtherChange, scene = SCENES[0] }: Props) {
+export function LogoGrid({ options, value, onChange, multi = false, otherValue = '', onOtherChange, scene = SCENES[0] }: Props) {
   const [hovered, setHovered] = useState<string | null>(null)
+  const selected = multi ? (Array.isArray(value) ? value : []) : []
+  const isChosen = (v: string) => (multi ? selected.includes(v) : value === v)
+  const toggle = (v: string) => {
+    if (!multi) { onChange(v); return }
+    onChange(selected.includes(v) ? selected.filter(x => x !== v) : [...selected, v])
+  }
   return (
     <div>
       <div className="logo-grid" style={{ display: 'grid', gap: 10 }}>
         {options.map((opt, i) => {
-          const isSelected = value === opt.value
+          const isSelected = isChosen(opt.value)
           const isHover = hovered === opt.value
           return (
             <button
               type="button"
               key={opt.value}
-              onClick={() => onChange(opt.value)}
+              onClick={() => toggle(opt.value)}
+              aria-pressed={isSelected}
               onMouseEnter={() => setHovered(opt.value)}
               onMouseLeave={() => setHovered(null)}
               className="anim-rise-in"
@@ -44,8 +54,22 @@ export function LogoGrid({ options, value, onChange, otherValue = '', onOtherCha
                 fontFamily: 'var(--font-sans)',
                 minHeight: 112,
                 animationDelay: `${i * 30}ms`,
+                position: 'relative',
               }}
             >
+              {multi && isSelected && (
+                <span
+                  aria-hidden
+                  style={{
+                    position: 'absolute', top: 8, right: 8, width: 18, height: 18, borderRadius: '50%',
+                    background: scene.accent, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >
+                  <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+                    <path d="M2.5 7.5L5.5 10.5L11.5 4" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+              )}
               {opt.logoSrc ? (
                 <div style={{ width: 56, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                   <img src={opt.logoSrc} alt={opt.label} style={{ maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto', objectFit: 'contain' }} />
@@ -71,7 +95,7 @@ export function LogoGrid({ options, value, onChange, otherValue = '', onOtherCha
         })}
       </div>
 
-      {value === 'andet' && (
+      {isChosen('andet') && (
         <input
           autoFocus
           type="text"

@@ -54,12 +54,13 @@ export function LandingPage({ onStart }: { onStart: () => void }) {
             </div>
 
             <h1 style={{ fontSize: 'clamp(30px, 4vw, 46px)', fontWeight: 500, lineHeight: 1.08, letterSpacing: '-0.03em', color: '#14132b', marginBottom: 18 }}>
-              Hvordan klarer din virksomhed sig på løn og administration?
+              Hvordan ser lønmarkedet ud i Danmark i 2026?
             </h1>
             <p style={{ fontSize: 17, fontWeight: 500, color: '#5b5b66', lineHeight: 1.6, marginBottom: 30 }}>
-              Hvor meget tid bruger danske virksomheder på lønkørsel — og hvor trygge er vi ved
-              AI i processen? Del dine erfaringer på 2–3 min og få Lønmarkedsrapporten 2026
-              tilsendt, så du kan benchmarke dine egne processer mod resten af markedet.
+              Vi spørger dem, der arbejder med løn hver måned — virksomheder, revisorer og
+              lønbureauer, og dem der bare modtager lønsedlen. Brug 2–3 minutter på dine
+              erfaringer med lønsystemerne og arbejdsgangene omkring dem, og få
+              Lønmarkedsrapporten 2026 tilsendt, når undersøgelsen lukker.
             </p>
 
             <button type="button" onClick={onStart} className="lp-cta">

@@ -30,6 +30,26 @@ export const GATE_QUESTION: Question = {
   ],
 }
 
+/**
+ * Splits decision-makers into "runs payroll for my own company" and "runs payroll
+ * for other companies" (accountants, bookkeepers, payroll bureaus). The latter buy,
+ * evaluate and switch payroll systems on behalf of many companies at once, so they
+ * get their own track — see TRACK_C_QUESTIONS.
+ */
+export const CONTEXT_QUESTION: Question = {
+  id: 'context',
+  type: 'choice-single',
+  question: 'Kører du løn for din egen virksomhed — eller for andres?',
+  shortLabel: 'Din hverdag',
+  subText: 'Vi spørger, fordi hverdagen ser helt forskellig ud, alt efter om du sidder internt eller håndterer løn for kunder.',
+  autoAdvance: true,
+  options: [
+    { value: 'internal', label: 'Kun for min egen virksomhed', subLabel: 'Jeg sidder internt — direktør, HR, bogholder eller økonomiansvarlig' },
+    { value: 'bureau', label: 'For andre virksomheder', subLabel: 'Revisor, bogholder eller lønbureau, der kører løn for kunder' },
+    { value: 'both', label: 'Begge dele', subLabel: 'Både min egen virksomhed og et antal kunder' },
+  ],
+}
+
 export const OPENING_QUESTION: Question = {
   id: 'q0',
   type: 'choice-tiles',
@@ -317,8 +337,203 @@ const AI_QUESTION: Question = {
   ],
 }
 
+/** Bureau version of the accounting-system question — asked across their client base. */
+const NUMBERS_AWARENESS_BUREAU: Question = {
+  ...NUMBERS_AWARENESS,
+  question: 'Hvilket regnskabssystem arbejder du mest i for dine kunder?',
+  subText: 'Vælg det, du bruger på flest kunder. Vi er nysgerrige — ikke på jagt efter salg.',
+}
+
+/**
+ * Track C — accountants, bookkeepers and payroll bureaus who run payroll for
+ * client companies. Their buying situation is different from an internal payroll
+ * owner: they work across many companies (often across several payroll systems),
+ * they rarely own the data, they frequently pick the system on the client's behalf,
+ * and most of their time goes to collecting payroll data from clients rather than
+ * to the payroll run itself. The questions below are ordered to mirror that:
+ * portfolio → systems → commercial setup → workflow → priorities → switching.
+ */
+export const TRACK_C_QUESTIONS: Question[] = [
+  {
+    id: 'c1',
+    type: 'choice-single',
+    question: 'Hvor mange virksomheder kører du løn for i dag?',
+    shortLabel: 'Antal kunder',
+    subText: 'Tæl de kunder, du selv står for lønnen på — også de helt små.',
+    autoAdvance: true,
+    options: [
+      { value: '1-5', label: '1–5 kunder' },
+      { value: '6-20', label: '6–20 kunder' },
+      { value: '21-50', label: '21–50 kunder' },
+      { value: '51-100', label: '51–100 kunder' },
+      { value: '100+', label: 'Over 100 kunder' },
+    ],
+  },
+  {
+    id: 'c2',
+    type: 'logo-grid-multi',
+    question: 'Hvilke lønsystemer arbejder du i for dine kunder?',
+    shortLabel: 'Lønsystemer',
+    subText: 'Vælg alle, du bruger i dag — også dem, du kun har en enkelt kunde i.',
+    options: [
+      { value: 'dataloen', label: 'Dataløn', subLabel: 'by Visma', logoSrc: datalonenLogo },
+      { value: 'danloen', label: 'Danløn', logoSrc: danloenLogo },
+      { value: 'lessor', label: 'Lessor', logoSrc: lessorLogo },
+      { value: 'intect', label: 'Intect', logoSrc: intectLogo },
+      { value: 'sd-loen', label: 'SD Løn', logoSrc: sdloenLogo },
+      { value: 'visma-loen', label: 'Visma Løn', logoSrc: vismaLogo },
+      { value: 'zenegy', label: 'Zenegy', logoSrc: zenegyLogo },
+      { value: 'excel', label: 'Excel / manuelt', logoSrc: excelLogo },
+      { value: 'andet', label: 'Andet', logoInitials: '?', logoStyle: { background: 'linear-gradient(135deg,#616161,#323232)' } },
+    ],
+  },
+  {
+    id: 'c3',
+    type: 'choice-single',
+    question: 'Hvem bestemmer lønsystemet — og hvem betaler for det?',
+    shortLabel: 'Aftalen med kunden',
+    subText: 'Vælg det, der passer på flest af dine kunder.',
+    autoAdvance: true,
+    options: [
+      { value: 'we-choose-we-pay', label: 'Vi vælger systemet og har abonnementet', subLabel: 'Vi fakturerer kunden for lønnen — kunden ser sjældent systemet' },
+      { value: 'we-choose-client-pays', label: 'Vi vælger systemet, kunden har abonnementet', subLabel: 'Kunden betaler selv, men følger vores anbefaling' },
+      { value: 'client-chose', label: 'Kunden har valgt systemet', subLabel: 'Vi arbejder i det, kunden allerede har' },
+      { value: 'mixed', label: 'Det er helt forskelligt fra kunde til kunde', subLabel: 'Ingen fast model' },
+    ],
+  },
+  {
+    id: 'c4',
+    type: 'tile-select',
+    question: 'Hvordan får du løndata fra dine kunder?',
+    shortLabel: 'Løndata fra kunder',
+    subText: 'Timer, tillæg, fravær og ændringer — vælg alle de måder, det sker på i dag.',
+    openTextPlaceholder: 'Hvordan kommer data ellers ind?',
+    options: [
+      { value: 'email-excel', label: 'På mail — typisk et Excel-ark eller en besked', iconName: 'mail' },
+      { value: 'client-portal', label: 'Kunden taster selv ind i lønsystemet eller en portal', iconName: 'layout' },
+      { value: 'time-system', label: 'Automatisk fra et tidsregistreringssystem', iconName: 'clock' },
+      { value: 'messages', label: 'Telefon, SMS eller løse beskeder', iconName: 'chat' },
+      { value: 'paper', label: 'Papir, scannede sedler eller PDF\'er', iconName: 'file-text' },
+      { value: 'i-collect', label: 'Jeg finder og taster det selv ud fra bilag og systemer', iconName: 'pencil' },
+      { value: 'other', label: 'Andet', iconName: 'search' },
+    ],
+  },
+  {
+    id: 'c5',
+    type: 'tile-select',
+    question: 'Hvad tager mest tid — eller giver flest frustrationer — i lønarbejdet for dine kunder?',
+    shortLabel: 'Tidsrøvere',
+    subText: 'Vælg alle der passer. Det er præcis den slags input, vi har brug for.',
+    openTextPlaceholder: 'Er der andet, der stjæler tid i hverdagen?',
+    options: [
+      { value: 'chasing-data', label: 'At jage løndata og svar hos kunderne inden deadline', iconName: 'clock' },
+      { value: 'many-systems', label: 'At skulle arbejde i flere forskellige lønsystemer', iconName: 'layers' },
+      { value: 'switching-clients', label: 'Skift mellem kunder, logins og faner', iconName: 'repeat' },
+      { value: 'client-onboarding', label: 'At sætte nye kunder op — lønarter, overenskomst og pension', iconName: 'feature' },
+      { value: 'no-bulk-actions', label: 'Manglende massehandlinger — jeg gentager det samme kunde for kunde', iconName: 'hourglass' },
+      { value: 'approval-trail', label: 'Godkendelse og dokumentation af, hvad kunden har godkendt', iconName: 'shield' },
+      { value: 'reconciliation', label: 'Afstemning og bogføring af lønnen i regnskabssystemet', iconName: 'calculator' },
+      { value: 'employee-questions', label: 'Spørgsmål fra kundernes medarbejdere', iconName: 'chat' },
+      { value: 'price-margin', label: 'Prisen pr. lønseddel presser min indtjening', iconName: 'tag' },
+      { value: 'other', label: 'Andet', iconName: 'pencil' },
+    ],
+  },
+  {
+    id: 'c6',
+    type: 'priority-rank',
+    question: 'Hvad vejer tungest, når du vælger lønsystem til dine kunder?',
+    shortLabel: 'Prioriteter',
+    subText: 'Markér de 3 vigtigste i prioriteret rækkefølge.',
+    maxRank: 3,
+    options: [
+      { value: 'one-login', label: 'Ét login og overblik på tværs af alle kunder' },
+      { value: 'bulk-actions', label: 'Massehandlinger — flere kunder klaret i ét flow' },
+      { value: 'client-self-service', label: 'At kunden selv leverer og godkender løndata' },
+      { value: 'integrations', label: 'Automatisk bogføring og integration til regnskabssystemet' },
+      { value: 'expert-support', label: 'Support med lønfaglig viden, når reglerne er svære' },
+      { value: 'partner-economics', label: 'Pris og marginer på partneraftalen' },
+      { value: 'easy-onboarding', label: 'Nem opsætning og migrering af en ny kunde' },
+      { value: 'compliance', label: 'Sikkerhed, GDPR og revisionsspor' },
+    ],
+  },
+]
+
+/** Asked when the bureau doesn't work in Zenegy today — mirrors b5 for a portfolio. */
+const C_SWITCH_INTENT: Question = {
+  id: 'c7',
+  type: 'choice-single',
+  question: 'Overvejer du at flytte kunder til et andet lønsystem inden for det næste år?',
+  shortLabel: 'Skifteplaner',
+  subText: 'Helt uforpligtende — vi er bare nysgerrige.',
+  autoAdvance: true,
+  options: [
+    { value: 'actively-consolidating', label: 'Ja — jeg leder efter ét system til så mange kunder som muligt' },
+    { value: 'actively-some', label: 'Ja — for enkelte kunder' },
+    { value: 'maybe', label: 'Måske — det er ikke udelukket' },
+    { value: 'no', label: 'Nej, ikke lige nu' },
+  ],
+}
+
+/**
+ * Asked when Zenegy is one of the systems the bureau works in (c2). Reuses the
+ * a2/a4 ids on purpose so satisfaction and NPS stay comparable with track A —
+ * only the wording is tuned to someone working across a client portfolio.
+ */
+const C_ZENEGY_QUESTIONS: Question[] = [
+  {
+    id: 'a2',
+    type: 'emoji-rating',
+    question: 'Hvor tilfreds er du med Zenegy i dit daglige arbejde med kunder?',
+    shortLabel: 'Tilfredshed',
+    subText: 'Tænk på oplevelsen på tværs af dine kunder — ikke kun en enkelt lønkørsel.',
+    hasOpenText: true,
+    openTextLabel: 'Vil du sætte et par ord på? (valgfrit)',
+    openTextPlaceholder: 'Hvad er den primære årsag til din rating?',
+    openTextMaxLength: 300,
+    options: [
+      { value: 'very-unhappy', label: 'Meget utilfreds' },
+      { value: 'unhappy', label: 'Ikke tilfreds' },
+      { value: 'meh', label: 'Det går' },
+      { value: 'happy', label: 'Tilfreds' },
+      { value: 'very-happy', label: 'Meget tilfreds' },
+    ],
+  },
+  {
+    id: 'a4',
+    type: 'nps-scale',
+    question: 'Ville du anbefale Zenegy til en kollega i branchen?',
+    shortLabel: 'Anbefaling',
+    subText: 'Det her måler noget andet end tilfredshed — om du ville sætte dit navn på en anbefaling.',
+    hasOpenText: true,
+    openTextLabel: 'Hvad skal der til, før du flytter flere kunder over på Zenegy? (valgfrit)',
+    openTextPlaceholder: 'Din feedback går direkte til vores produktteam...',
+  },
+]
+
+/** Bureau version of the AI question — framed around client work, not one company. */
+const AI_QUESTION_BUREAU: Question = {
+  id: 'ai',
+  type: 'choice-single',
+  question: 'Hvor ser du det største potentiale for AI i lønarbejdet for dine kunder?',
+  shortLabel: 'AI-potentiale',
+  subText: 'Hvilken opgave ville du helst lade en pålidelig algoritme klare?',
+  autoAdvance: true,
+  options: [
+    { value: 'bureau-anomaly-detection', label: 'Automatisk kontrol af lønkørslen, før den sendes til godkendelse' },
+    { value: 'bureau-data-entry', label: 'Indlæsning af timer og bilag, jeg i dag taster manuelt' },
+    { value: 'bureau-client-questions', label: 'Svar på kundernes spørgsmål om løn, ferie og regler' },
+    { value: 'bureau-client-onboarding', label: 'Opsætning af nye kunder — lønarter og overenskomster' },
+    { value: 'bureau-not-ready', label: 'Jeg er ikke tryg ved AI i mine kunders løndata' },
+  ],
+}
+
+/** True when the respondent runs payroll for client companies (track C). */
+export function isBureau(context?: SurveyAnswers['payroll_context']): boolean {
+  return context === 'bureau' || context === 'both'
+}
+
 export function getQuestionSequence(
-  answers: Pick<SurveyAnswers, 'track' | 'a_products' | 'is_employee'>
+  answers: Pick<SurveyAnswers, 'track' | 'a_products' | 'is_employee' | 'payroll_context' | 'c_payroll_systems'>
 ): Question[] {
   // Employee track
   if (answers.is_employee) {
@@ -330,19 +545,39 @@ export function getQuestionSequence(
     return [GATE_QUESTION]
   }
 
-  // Decision-maker track: no track selected yet
+  // Gate answered as decision-maker — ask whether they run payroll for their own
+  // company or for clients before branching any further.
+  if (!answers.payroll_context) {
+    return [GATE_QUESTION, CONTEXT_QUESTION]
+  }
+
+  // Track C — bureaus (accountants, bookkeepers, payroll bureaus)
+  if (isBureau(answers.payroll_context)) {
+    const usesZenegy = answers.c_payroll_systems?.includes('zenegy') ?? false
+    return [
+      GATE_QUESTION,
+      CONTEXT_QUESTION,
+      ...TRACK_C_QUESTIONS,
+      ...(usesZenegy ? C_ZENEGY_QUESTIONS : [C_SWITCH_INTENT]),
+      AI_QUESTION_BUREAU,
+      NUMBERS_AWARENESS_BUREAU,
+    ]
+  }
+
+  // Internal decision-maker: no payroll-system track selected yet
   if (!answers.track) {
-    return [GATE_QUESTION, OPENING_QUESTION, SIZE_QUESTION]
+    return [GATE_QUESTION, CONTEXT_QUESTION, OPENING_QUESTION, SIZE_QUESTION]
   }
 
   if (answers.track === 'non-zenegy') {
-    return [GATE_QUESTION, OPENING_QUESTION, SIZE_QUESTION, ...TRACK_B_QUESTIONS, AI_QUESTION, NUMBERS_AWARENESS]
+    return [GATE_QUESTION, CONTEXT_QUESTION, OPENING_QUESTION, SIZE_QUESTION, ...TRACK_B_QUESTIONS, AI_QUESTION, NUMBERS_AWARENESS]
   }
 
   // zenegy track
   const usesNumbers = answers.a_products?.includes('numbers') ?? false
   return [
     GATE_QUESTION,
+    CONTEXT_QUESTION,
     OPENING_QUESTION,
     SIZE_QUESTION,
     ...TRACK_A_QUESTIONS,

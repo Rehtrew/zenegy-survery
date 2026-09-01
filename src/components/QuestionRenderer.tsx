@@ -22,6 +22,7 @@ interface Props {
 function getAnswer(answers: SurveyAnswers, id: string): unknown {
   const map: Record<string, unknown> = {
     gate: answers.is_employee !== undefined ? (answers.is_employee ? 'employee' : 'decision-maker') : undefined,
+    context: answers.payroll_context,
     q0: answers.track,
     size: answers.size,
     b1: answers.b_payroll_system,
@@ -40,8 +41,31 @@ function getAnswer(answers: SurveyAnswers, id: string): unknown {
     e3: answers.e_expenses,
     e4: answers.e_ai_trust,
     ai: answers.ai_interest,
+    c1: answers.c_client_count,
+    c2: answers.c_payroll_systems ?? [],
+    c3: answers.c_setup,
+    c4: answers.c_data_collection ?? [],
+    c5: answers.c_frustrations ?? [],
+    c6: answers.c_priorities ?? [],
+    c7: answers.c_switch_intent,
   }
   return map[id] ?? (id.endsWith('_text') ? '' : '')
+}
+
+/**
+ * The "Andet" free-text that sits under a logo grid or tile select: its current
+ * value and the answer key it writes back to, per question id.
+ */
+function otherFieldFor(id: string, answers: SurveyAnswers): { value: string; key: string } {
+  switch (id) {
+    case 'b1': return { value: answers.b_payroll_other ?? '', key: 'b_payroll_other' }
+    case 'c2': return { value: answers.c_payroll_system_other ?? '', key: 'c2_other' }
+    case 'b2': return { value: answers.b_frustration_other ?? '', key: 'b2_other' }
+    case 'b4': return { value: answers.b_barrier_other ?? '', key: 'b4_other' }
+    case 'c4': return { value: answers.c_data_collection_other ?? '', key: 'c4_other' }
+    case 'c5': return { value: answers.c_frustration_other ?? '', key: 'c5_other' }
+    default: return { value: answers.accounting_other ?? '', key: 'accounting_other' }
+  }
 }
 
 /** Free-text companion field for a question: its current value and the answer key it writes to. */
@@ -102,8 +126,20 @@ export function QuestionRenderer({
             value={answer as string}
             onChange={handleSingleSelect}
             scene={scene}
-            otherValue={question.id === 'b1' ? (answers.b_payroll_other ?? '') : (answers.accounting_other ?? '')}
-            onOtherChange={v => onAnswer(question.id === 'b1' ? 'b_payroll_other' : 'accounting_other', v)}
+            otherValue={otherFieldFor(question.id, answers).value}
+            onOtherChange={v => onAnswer(otherFieldFor(question.id, answers).key, v)}
+          />
+        )
+      case 'logo-grid-multi':
+        return (
+          <LogoGrid
+            options={question.options ?? []}
+            value={(answer as string[]) ?? []}
+            onChange={v => onAnswer(question.id, v)}
+            multi
+            scene={scene}
+            otherValue={otherFieldFor(question.id, answers).value}
+            onOtherChange={v => onAnswer(otherFieldFor(question.id, answers).key, v)}
           />
         )
       case 'tile-select':
@@ -113,8 +149,8 @@ export function QuestionRenderer({
             value={answer as string[]}
             onChange={v => onAnswer(question.id, v)}
             otherTrigger="other"
-            otherValue={question.id === 'b2' ? (answers.b_frustration_other ?? '') : (answers.b_barrier_other ?? '')}
-            onOtherChange={v => onAnswer(question.id === 'b2' ? 'b2_other' : 'b4_other', v)}
+            otherValue={otherFieldFor(question.id, answers).value}
+            onOtherChange={v => onAnswer(otherFieldFor(question.id, answers).key, v)}
             otherPlaceholder={question.openTextPlaceholder}
             scene={scene}
           />
