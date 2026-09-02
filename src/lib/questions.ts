@@ -1,10 +1,9 @@
-import type { Question, SurveyAnswers } from '../types'
+import type { CSSProperties } from 'react'
+import type { Option, Question, SurveyAnswers } from '../types'
 import datalonenLogo from '../assets/logos/dataloen.svg'
 import lessorLogo from '../assets/logos/lessor.svg'
 import intectLogo from '../assets/logos/intect.png'
-import sdloenLogo from '../assets/logos/sdloen.svg'
 import danloenLogo from '../assets/logos/danloen.svg'
-import bluegardenLogo from '../assets/logos/bluegarden.svg'
 import economicLogo from '../assets/logos/economic.png'
 import dineroLogo from '../assets/logos/dinero.png'
 import billyLogo from '../assets/logos/billy.png'
@@ -16,6 +15,39 @@ import payrollIcon from '../assets/products/payroll.png'
 import numbersIcon from '../assets/products/numbers.png'
 import expenseIcon from '../assets/products/expense.png'
 import timeIcon from '../assets/products/time.png'
+
+/**
+ * The Danish payroll systems respondents can pick from — one list, reused by the
+ * "which system do you use" (b1), "which systems do you work in" (c2) and "which
+ * system did you come from" (a1_migration) questions so the options can never
+ * drift apart between tracks.
+ *
+ * Names follow what the systems are called in the market today (sales review,
+ * 2026-09): Bluegarden is Visma Dataløn, ProLøn is Dataløn Branche, Visma Løn is
+ * Intega Løn, and Lessor is a Paychex brand. Values are stable ids — renaming a
+ * label never changes the data we've already collected.
+ */
+const NO_LOGO: CSSProperties = { background: 'linear-gradient(135deg,#5b6270,#343a45)' }
+
+const PAYROLL_SYSTEMS: Option[] = [
+  { value: 'dataloen', label: 'Visma Dataløn', subLabel: 'tidl. Bluegarden', logoSrc: datalonenLogo },
+  { value: 'danloen', label: 'Danløn', logoSrc: danloenLogo },
+  { value: 'lessor', label: 'Lessor', subLabel: 'by Paychex', logoSrc: lessorLogo },
+  { value: 'intect', label: 'Intect', logoSrc: intectLogo },
+  { value: 'salary', label: 'Salary', logoInitials: 'S', logoStyle: NO_LOGO },
+  { value: 'dataloen-branche', label: 'Dataløn Branche', subLabel: 'tidl. ProLøn', logoInitials: 'DB', logoStyle: NO_LOGO },
+  { value: 'letloen', label: 'LetLøn', logoInitials: 'LL', logoStyle: NO_LOGO },
+  { value: 'eg-loen', label: 'EG Løn', subLabel: 'EG Lønservice', logoInitials: 'EG', logoStyle: NO_LOGO },
+  { value: 'intega', label: 'Intega Løn', subLabel: 'tidl. Visma Løn', logoInitials: 'IN', logoStyle: NO_LOGO },
+  { value: 'kmd', label: 'KMD Løn', logoInitials: 'KMD', logoStyle: NO_LOGO },
+  { value: 'epos', label: 'Epos', subLabel: 'Azets', logoInitials: 'E', logoStyle: NO_LOGO },
+]
+
+const EXCEL_OPTION: Option = { value: 'excel', label: 'Excel / manuelt', logoSrc: excelLogo }
+const OTHER_OPTION: Option = {
+  value: 'andet', label: 'Andet',
+  logoInitials: '?', logoStyle: { background: 'linear-gradient(135deg,#616161,#323232)' },
+}
 
 export const GATE_QUESTION: Question = {
   id: 'gate',
@@ -45,7 +77,7 @@ export const CONTEXT_QUESTION: Question = {
   autoAdvance: true,
   options: [
     { value: 'internal', label: 'Kun for min egen virksomhed', subLabel: 'Jeg sidder internt — direktør, HR, bogholder eller økonomiansvarlig' },
-    { value: 'bureau', label: 'For andre virksomheder', subLabel: 'Revisor, bogholder eller lønbureau, der kører løn for kunder' },
+    { value: 'bureau', label: 'For andre virksomheder (lønadministrator)', subLabel: 'Revisor, bogholder eller lønbureau, der kører løn for kunder' },
     { value: 'both', label: 'Begge dele', subLabel: 'Både min egen virksomhed og et antal kunder' },
   ],
 }
@@ -59,7 +91,7 @@ export const OPENING_QUESTION: Question = {
   autoAdvance: true,
   options: [
     { value: 'zenegy', label: 'Ja, vi bruger Zenegy', subLabel: 'Som primært løn- eller regnskabssystem', iconName: 'zenegy' },
-    { value: 'non-zenegy', label: 'Nej, vi bruger et andet system', subLabel: 'Dataløn, Danløn, Lessor, Intect, Visma eller lignende', iconName: 'other-system' },
+    { value: 'non-zenegy', label: 'Nej, vi bruger et andet system', subLabel: 'Visma Dataløn, Danløn, Lessor, Intect, Salary eller lignende', iconName: 'other-system' },
   ],
 }
 
@@ -105,16 +137,7 @@ export const TRACK_B_QUESTIONS: Question[] = [
     shortLabel: 'Lønsystem',
     subText: 'Vælg det primære system din virksomhed bruger til lønkørsel.',
     autoAdvance: true,
-    options: [
-      { value: 'dataloen', label: 'Dataløn', subLabel: 'by Visma', logoSrc: datalonenLogo },
-      { value: 'danloen', label: 'Danløn', logoSrc: danloenLogo },
-      { value: 'lessor', label: 'Lessor', logoSrc: lessorLogo },
-      { value: 'intect', label: 'Intect', logoSrc: intectLogo },
-      { value: 'sd-loen', label: 'SD Løn', logoSrc: sdloenLogo },
-      { value: 'visma-loen', label: 'Visma Løn', logoSrc: vismaLogo },
-      { value: 'excel', label: 'Excel / manuelt', logoSrc: excelLogo },
-      { value: 'andet', label: 'Andet', logoInitials: '?', logoStyle: { background: 'linear-gradient(135deg,#616161,#323232)' } },
-    ],
+    options: [...PAYROLL_SYSTEMS, EXCEL_OPTION, OTHER_OPTION],
   },
   {
     id: 'b2',
@@ -206,14 +229,10 @@ export const TRACK_A_QUESTIONS: Question[] = [
     subText: 'Det hjælper os forstå, hvor i markedet behovet for fornyelse er størst.',
     autoAdvance: true,
     options: [
-      { value: 'dataloen', label: 'Dataløn', subLabel: 'by Visma', logoSrc: datalonenLogo },
-      { value: 'danloen', label: 'Danløn', logoSrc: danloenLogo },
-      { value: 'lessor', label: 'Lessor', logoSrc: lessorLogo },
-      { value: 'intect', label: 'Intect', logoSrc: intectLogo },
-      { value: 'bluegarden', label: 'Bluegarden', logoSrc: bluegardenLogo },
-      { value: 'excel', label: 'Excel / manuelt', logoSrc: excelLogo },
+      ...PAYROLL_SYSTEMS,
+      EXCEL_OPTION,
       { value: 'startup', label: 'Direkte til Zenegy', logoSrc: zenegyLogo },
-      { value: 'andet', label: 'Andet', logoInitials: '?', logoStyle: { background: 'linear-gradient(135deg,#616161,#323232)' } },
+      OTHER_OPTION,
     ],
   },
   {
@@ -376,15 +395,10 @@ export const TRACK_C_QUESTIONS: Question[] = [
     shortLabel: 'Lønsystemer',
     subText: 'Vælg alle, du bruger i dag — også dem, du kun har en enkelt kunde i.',
     options: [
-      { value: 'dataloen', label: 'Dataløn', subLabel: 'by Visma', logoSrc: datalonenLogo },
-      { value: 'danloen', label: 'Danløn', logoSrc: danloenLogo },
-      { value: 'lessor', label: 'Lessor', logoSrc: lessorLogo },
-      { value: 'intect', label: 'Intect', logoSrc: intectLogo },
-      { value: 'sd-loen', label: 'SD Løn', logoSrc: sdloenLogo },
-      { value: 'visma-loen', label: 'Visma Løn', logoSrc: vismaLogo },
+      ...PAYROLL_SYSTEMS,
       { value: 'zenegy', label: 'Zenegy', logoSrc: zenegyLogo },
-      { value: 'excel', label: 'Excel / manuelt', logoSrc: excelLogo },
-      { value: 'andet', label: 'Andet', logoInitials: '?', logoStyle: { background: 'linear-gradient(135deg,#616161,#323232)' } },
+      EXCEL_OPTION,
+      OTHER_OPTION,
     ],
   },
   {

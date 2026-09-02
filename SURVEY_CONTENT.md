@@ -1,7 +1,7 @@
 # Survey Content — Lønmarkedet 2026
 
 Alt tekst, alle spørgsmål og alle svarmuligheder i undersøgelsen. Genereret ud fra
-`src/lib/questions.ts` (2026-09-01) — koden er kilden; opdater doc'et, når spørgsmålene ændres.
+`src/lib/questions.ts` (2026-09-02) — koden er kilden; opdater doc'et, når spørgsmålene ændres.
 
 Undersøgelsen har fire spor:
 
@@ -137,7 +137,7 @@ Undersøgelsen har fire spor:
 | Value | Label | Sublabel |
 |-------|-------|----------|
 | `internal` | Kun for min egen virksomhed | Jeg sidder internt — direktør, HR, bogholder eller økonomiansvarlig |
-| `bureau` | For andre virksomheder | Revisor, bogholder eller lønbureau, der kører løn for kunder |
+| `bureau` | For andre virksomheder (lønadministrator) | Revisor, bogholder eller lønbureau, der kører løn for kunder |
 | `both` | Begge dele | Både min egen virksomhed og et antal kunder |
 
 ---
@@ -154,7 +154,7 @@ Undersøgelsen har fire spor:
 | Value | Label | Sublabel |
 |-------|-------|----------|
 | `zenegy` | Ja, vi bruger Zenegy | Som primært løn- eller regnskabssystem |
-| `non-zenegy` | Nej, vi bruger et andet system | Dataløn, Danløn, Lessor, Intect, Visma eller lignende |
+| `non-zenegy` | Nej, vi bruger et andet system | Visma Dataløn, Danløn, Lessor, Intect, Salary eller lignende |
 
 ---
 
@@ -205,11 +205,17 @@ Undersøgelsen har fire spor:
 
 | Value | Label | Sublabel |
 |-------|-------|----------|
-| `dataloen` | Dataløn | by Visma |
+| `dataloen` | Visma Dataløn | tidl. Bluegarden |
 | `danloen` | Danløn |  |
-| `lessor` | Lessor |  |
+| `lessor` | Lessor | by Paychex |
 | `intect` | Intect |  |
-| `bluegarden` | Bluegarden |  |
+| `salary` | Salary |  |
+| `dataloen-branche` | Dataløn Branche | tidl. ProLøn |
+| `letloen` | LetLøn |  |
+| `eg-loen` | EG Løn | EG Lønservice |
+| `intega` | Intega Løn | tidl. Visma Løn |
+| `kmd` | KMD Løn |  |
+| `epos` | Epos | Azets |
 | `excel` | Excel / manuelt |  |
 | `startup` | Direkte til Zenegy |  |
 | `andet` | Andet |  |
@@ -328,12 +334,17 @@ Undersøgelsen har fire spor:
 
 | Value | Label | Sublabel |
 |-------|-------|----------|
-| `dataloen` | Dataløn | by Visma |
+| `dataloen` | Visma Dataløn | tidl. Bluegarden |
 | `danloen` | Danløn |  |
-| `lessor` | Lessor |  |
+| `lessor` | Lessor | by Paychex |
 | `intect` | Intect |  |
-| `sd-loen` | SD Løn |  |
-| `visma-loen` | Visma Løn |  |
+| `salary` | Salary |  |
+| `dataloen-branche` | Dataløn Branche | tidl. ProLøn |
+| `letloen` | LetLøn |  |
+| `eg-loen` | EG Løn | EG Lønservice |
+| `intega` | Intega Løn | tidl. Visma Løn |
+| `kmd` | KMD Løn |  |
+| `epos` | Epos | Azets |
 | `excel` | Excel / manuelt |  |
 | `andet` | Andet |  |
 
@@ -457,12 +468,17 @@ Undersøgelsen har fire spor:
 
 | Value | Label | Sublabel |
 |-------|-------|----------|
-| `dataloen` | Dataløn | by Visma |
+| `dataloen` | Visma Dataløn | tidl. Bluegarden |
 | `danloen` | Danløn |  |
-| `lessor` | Lessor |  |
+| `lessor` | Lessor | by Paychex |
 | `intect` | Intect |  |
-| `sd-loen` | SD Løn |  |
-| `visma-loen` | Visma Løn |  |
+| `salary` | Salary |  |
+| `dataloen-branche` | Dataløn Branche | tidl. ProLøn |
+| `letloen` | LetLøn |  |
+| `eg-loen` | EG Løn | EG Lønservice |
+| `intega` | Intega Løn | tidl. Visma Løn |
+| `kmd` | KMD Løn |  |
+| `epos` | Epos | Azets |
 | `zenegy` | Zenegy |  |
 | `excel` | Excel / manuelt |  |
 | `andet` | Andet |  |
