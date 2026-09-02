@@ -12,6 +12,86 @@ Undersøgelsen har fire spor:
 | **B — Andet system** | Intern løn-/systemansvarlig på et andet system | `context` = `internal` + `q0` = `non-zenegy` |
 | **C — Bureau** | Revisorer, bogholdere og lønbureauer, der kører løn for kunder | `context` = `bureau` eller `both` |
 
+## Alle spørgsmål, sti for sti
+
+Hver respondent ser én af stierne herunder — spørgsmålene i den rækkefølge, de kommer.
+Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgsmål**.
+
+### Medarbejder — 5 spørgsmål
+
+| # | ID | Spørgsmål | Type |
+|---|----|-----------|------|
+| 1 | `gate` | Hvilken rolle spiller du i håndteringen af løn eller regnskab? | choice-single |
+| 2 | `e1` | Hvor modtager du typisk din lønseddel? | choice-single |
+| 3 | `e2` | Hvilke administrative opgaver oplever du som mest besværlige på din arbejdsplads? | tile-select |
+| 4 | `e3` | Hvis du laver et udlæg, hvor lang tid bruger du i gennemsnit på at registrere det? | choice-single |
+| 5 | `e4` | Hvor ville du være mest tryg ved, at en AI hjalp dig med dine løn- og arbejdsdata? | choice-single |
+
+### A · Intern, bruger Zenegy — 11 spørgsmål
+
+| # | ID | Spørgsmål | Type |
+|---|----|-----------|------|
+| 1 | `gate` | Hvilken rolle spiller du i håndteringen af løn eller regnskab? | choice-single |
+| 2 | `context` | Kører du løn for din egen virksomhed — eller for andres? | choice-single |
+| 3 | `q0` | Er Zenegy en del af jeres systemlandskab i dag? | choice-tiles |
+| 4 | `size` | Hvor mange medarbejdere kører I løn for? | choice-single |
+| 5 | `a1` | Hvilke Zenegy-produkter bruger du aktivt i dag? | choice-multi |
+| 6 | `a1_migration` | Hvilket system kom du fra, da du valgte Zenegy? | logo-grid |
+| 7 | `a2` | Hvor tilfreds er du med Zenegy i hverdagen? | emoji-rating + fritekst |
+| 8 | `a3` | Hvor mærker du den største værdi ved at bruge Zenegy? | choice-single + fritekst |
+| 9 | `a4` | Ville du anbefale Zenegy til en kollega eller en i dit professionelle netværk? | nps-scale + fritekst |
+| 10 | `ai` | Hvor ser du det største potentiale for AI i jeres administrative processer? | choice-single |
+| 11 | `numbers` | Hvilket regnskabs- eller ERP-system bruger I i dag? | logo-grid |
+
+### B · Intern, andet system — 11 spørgsmål
+
+| # | ID | Spørgsmål | Type |
+|---|----|-----------|------|
+| 1 | `gate` | Hvilken rolle spiller du i håndteringen af løn eller regnskab? | choice-single |
+| 2 | `context` | Kører du løn for din egen virksomhed — eller for andres? | choice-single |
+| 3 | `q0` | Er Zenegy en del af jeres systemlandskab i dag? | choice-tiles |
+| 4 | `size` | Hvor mange medarbejdere kører I løn for? | choice-single |
+| 5 | `b1` | Hvilket lønsystem bruger din virksomhed primært i dag? | logo-grid |
+| 6 | `b2` | Hvad frustrerer dig mest ved dit nuværende lønsystem? | tile-select |
+| 7 | `b3` | Hvilke faktorer vejer du højest i et lønsystem? | priority-rank |
+| 8 | `b4` | Hvad er den primære årsag til, at I ikke skifter lønsystem? | tile-select |
+| 9 | `b5` | Overvejer I at skifte lønsystem inden for det næste år? | choice-single |
+| 10 | `ai` | Hvor ser du det største potentiale for AI i jeres administrative processer? | choice-single |
+| 11 | `numbers` | Hvilket regnskabs- eller ERP-system bruger I i dag? | logo-grid |
+
+### C · Bureau, arbejder i Zenegy — 12 spørgsmål
+
+| # | ID | Spørgsmål | Type |
+|---|----|-----------|------|
+| 1 | `gate` | Hvilken rolle spiller du i håndteringen af løn eller regnskab? | choice-single |
+| 2 | `context` | Kører du løn for din egen virksomhed — eller for andres? | choice-single |
+| 3 | `c1` | Hvor mange virksomheder kører du løn for i dag? | choice-single |
+| 4 | `c2` | Hvilke lønsystemer arbejder du i for dine kunder? | logo-grid-multi |
+| 5 | `c3` | Hvem bestemmer lønsystemet — og hvem betaler for det? | choice-single |
+| 6 | `c4` | Hvordan får du løndata fra dine kunder? | tile-select |
+| 7 | `c5` | Hvad tager mest tid — eller giver flest frustrationer — i lønarbejdet for dine kunder? | tile-select |
+| 8 | `c6` | Hvad vejer tungest, når du vælger lønsystem til dine kunder? | priority-rank |
+| 9 | `a2` | Hvor tilfreds er du med Zenegy i dit daglige arbejde med kunder? | emoji-rating + fritekst |
+| 10 | `a4` | Ville du anbefale Zenegy til en kollega i branchen? | nps-scale + fritekst |
+| 11 | `ai` | Hvor ser du det største potentiale for AI i lønarbejdet for dine kunder? | choice-single |
+| 12 | `numbers` | Hvilket regnskabssystem arbejder du mest i for dine kunder? | logo-grid |
+
+### C · Bureau, ikke Zenegy — 11 spørgsmål
+
+| # | ID | Spørgsmål | Type |
+|---|----|-----------|------|
+| 1 | `gate` | Hvilken rolle spiller du i håndteringen af løn eller regnskab? | choice-single |
+| 2 | `context` | Kører du løn for din egen virksomhed — eller for andres? | choice-single |
+| 3 | `c1` | Hvor mange virksomheder kører du løn for i dag? | choice-single |
+| 4 | `c2` | Hvilke lønsystemer arbejder du i for dine kunder? | logo-grid-multi |
+| 5 | `c3` | Hvem bestemmer lønsystemet — og hvem betaler for det? | choice-single |
+| 6 | `c4` | Hvordan får du løndata fra dine kunder? | tile-select |
+| 7 | `c5` | Hvad tager mest tid — eller giver flest frustrationer — i lønarbejdet for dine kunder? | tile-select |
+| 8 | `c6` | Hvad vejer tungest, når du vælger lønsystem til dine kunder? | priority-rank |
+| 9 | `c7` | Overvejer du at flytte kunder til et andet lønsystem inden for det næste år? | choice-single |
+| 10 | `ai` | Hvor ser du det største potentiale for AI i lønarbejdet for dine kunder? | choice-single |
+| 11 | `numbers` | Hvilket regnskabssystem arbejder du mest i for dine kunder? | logo-grid |
+
 ---
 
 ## Landingsside
