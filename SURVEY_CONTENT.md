@@ -17,7 +17,7 @@ Undersøgelsen har fire spor:
 Hver respondent ser én af stierne herunder — spørgsmålene i den rækkefølge, de kommer.
 Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgsmål**.
 
-### Medarbejder — 5 spørgsmål
+### employee — 5 spørgsmål
 
 | # | ID | Spørgsmål | Type |
 |---|----|-----------|------|
@@ -27,7 +27,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 | 4 | `e3` | Hvis du laver et udlæg, hvor lang tid bruger du i gennemsnit på at registrere det? | choice-single |
 | 5 | `e4` | Hvor ville du være mest tryg ved, at en AI hjalp dig med dine løn- og arbejdsdata? | choice-single |
 
-### A · Intern, bruger Zenegy — 11 spørgsmål
+### internal-zenegy — 11 spørgsmål
 
 | # | ID | Spørgsmål | Type |
 |---|----|-----------|------|
@@ -43,7 +43,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 | 10 | `ai` | Hvor ser du det største potentiale for AI i jeres administrative processer? | choice-single |
 | 11 | `numbers` | Hvilket regnskabs- eller ERP-system bruger I i dag? | logo-grid |
 
-### B · Intern, andet system — 11 spørgsmål
+### internal-non-zenegy — 11 spørgsmål
 
 | # | ID | Spørgsmål | Type |
 |---|----|-----------|------|
@@ -59,7 +59,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 | 10 | `ai` | Hvor ser du det største potentiale for AI i jeres administrative processer? | choice-single |
 | 11 | `numbers` | Hvilket regnskabs- eller ERP-system bruger I i dag? | logo-grid |
 
-### C · Bureau, arbejder i Zenegy — 12 spørgsmål
+### bureau-zenegy — 12 spørgsmål
 
 | # | ID | Spørgsmål | Type |
 |---|----|-----------|------|
@@ -76,7 +76,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 | 11 | `ai` | Hvor ser du det største potentiale for AI i lønarbejdet for dine kunder? | choice-single |
 | 12 | `numbers` | Hvilket regnskabssystem arbejder du mest i for dine kunder? | logo-grid |
 
-### C · Bureau, ikke Zenegy — 11 spørgsmål
+### bureau-other — 11 spørgsmål
 
 | # | ID | Spørgsmål | Type |
 |---|----|-----------|------|
@@ -289,7 +289,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 | `danloen` | Danløn |  |
 | `lessor` | Lessor | by Paychex |
 | `intect` | Intect |  |
-| `salary` | Salary |  |
+| `salary` | Salary | nu Shine Salary |
 | `dataloen-branche` | Dataløn Branche | tidl. ProLøn |
 | `letloen` | LetLøn |  |
 | `eg-loen` | EG Løn | EG Lønservice |
@@ -394,7 +394,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 |-------|-------|----------|
 | `e-conomic` | e-conomic |  |
 | `dinero` | Dinero |  |
-| `billy` | Billy |  |
+| `billy` | Billy | nu Shine |
 | `uniconta` | Uniconta |  |
 | `visma-bc` | Visma Business |  |
 | `microsoft-bc` | Business Central |  |
@@ -418,7 +418,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 | `danloen` | Danløn |  |
 | `lessor` | Lessor | by Paychex |
 | `intect` | Intect |  |
-| `salary` | Salary |  |
+| `salary` | Salary | nu Shine Salary |
 | `dataloen-branche` | Dataløn Branche | tidl. ProLøn |
 | `letloen` | LetLøn |  |
 | `eg-loen` | EG Løn | EG Lønservice |
@@ -552,7 +552,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 | `danloen` | Danløn |  |
 | `lessor` | Lessor | by Paychex |
 | `intect` | Intect |  |
-| `salary` | Salary |  |
+| `salary` | Salary | nu Shine Salary |
 | `dataloen-branche` | Dataløn Branche | tidl. ProLøn |
 | `letloen` | LetLøn |  |
 | `eg-loen` | EG Løn | EG Lønservice |
@@ -725,7 +725,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 |-------|-------|----------|
 | `e-conomic` | e-conomic |  |
 | `dinero` | Dinero |  |
-| `billy` | Billy |  |
+| `billy` | Billy | nu Shine |
 | `uniconta` | Uniconta |  |
 | `visma-bc` | Visma Business |  |
 | `microsoft-bc` | Business Central |  |

@@ -11,6 +11,11 @@ import unicontaLogo from '../assets/logos/uniconta.png'
 import vismaLogo from '../assets/logos/visma.png'
 import zenegyLogo from '../assets/logos/zenegy.svg'
 import excelLogo from '../assets/logos/excel.svg'
+import salaryLogo from '../assets/logos/salary.png'
+import dataloenBrancheLogo from '../assets/logos/dataloen-branche.svg'
+import egLogo from '../assets/logos/eg.svg'
+import integaLogo from '../assets/logos/intega.png'
+import kmdLogo from '../assets/logos/kmd.svg'
 import payrollIcon from '../assets/products/payroll.png'
 import numbersIcon from '../assets/products/numbers.png'
 import expenseIcon from '../assets/products/expense.png'
@@ -34,12 +39,12 @@ const PAYROLL_SYSTEMS: Option[] = [
   { value: 'danloen', label: 'Danløn', logoSrc: danloenLogo },
   { value: 'lessor', label: 'Lessor', subLabel: 'by Paychex', logoSrc: lessorLogo },
   { value: 'intect', label: 'Intect', logoSrc: intectLogo },
-  { value: 'salary', label: 'Salary', logoInitials: 'S', logoStyle: NO_LOGO },
-  { value: 'dataloen-branche', label: 'Dataløn Branche', subLabel: 'tidl. ProLøn', logoInitials: 'DB', logoStyle: NO_LOGO },
+  { value: 'salary', label: 'Salary', subLabel: 'nu Shine Salary', logoSrc: salaryLogo },
+  { value: 'dataloen-branche', label: 'Dataløn Branche', subLabel: 'tidl. ProLøn', logoSrc: dataloenBrancheLogo },
   { value: 'letloen', label: 'LetLøn', logoInitials: 'LL', logoStyle: NO_LOGO },
-  { value: 'eg-loen', label: 'EG Løn', subLabel: 'EG Lønservice', logoInitials: 'EG', logoStyle: NO_LOGO },
-  { value: 'intega', label: 'Intega Løn', subLabel: 'tidl. Visma Løn', logoInitials: 'IN', logoStyle: NO_LOGO },
-  { value: 'kmd', label: 'KMD Løn', logoInitials: 'KMD', logoStyle: NO_LOGO },
+  { value: 'eg-loen', label: 'EG Løn', subLabel: 'EG Lønservice', logoSrc: egLogo },
+  { value: 'intega', label: 'Intega Løn', subLabel: 'tidl. Visma Løn', logoSrc: integaLogo },
+  { value: 'kmd', label: 'KMD Løn', logoSrc: kmdLogo },
   { value: 'epos', label: 'Epos', subLabel: 'Azets', logoInitials: 'E', logoStyle: NO_LOGO },
 ]
 
@@ -120,7 +125,7 @@ const NUMBERS_AWARENESS: Question = {
   options: [
     { value: 'e-conomic', label: 'e-conomic', logoSrc: economicLogo },
     { value: 'dinero', label: 'Dinero', logoSrc: dineroLogo },
-    { value: 'billy', label: 'Billy', logoSrc: billyLogo },
+    { value: 'billy', label: 'Billy', subLabel: 'nu Shine', logoSrc: billyLogo },
     { value: 'uniconta', label: 'Uniconta', logoSrc: unicontaLogo },
     { value: 'visma-bc', label: 'Visma Business', logoSrc: vismaLogo },
     { value: 'microsoft-bc', label: 'Business Central', logoInitials: 'BC', logoStyle: { background: 'linear-gradient(135deg,#00a4ef,#0072c6)' } },
