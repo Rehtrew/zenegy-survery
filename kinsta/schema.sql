@@ -1,7 +1,10 @@
--- Survey tables for the Zenegy.com WordPress database (MySQL/MariaDB).
+-- Survey table for the Zenegy.com WordPress database (MySQL/MariaDB).
 --
--- Run once in MyKinsta → Database → SQL console. It only CREATEs two new tables,
--- both prefixed `survey_`; it never reads, alters or drops a wp_ table.
+-- Run once in MyKinsta → Database → SQL console. It only CREATEs one new table,
+-- prefixed `survey_`; it never reads, alters or drops a wp_ table.
+--
+-- Answers only. The optional "send me the report" email goes to HubSpot, so no
+-- email is ever stored here — which is what keeps the survey anonymous.
 --
 -- Safe to run twice (CREATE TABLE IF NOT EXISTS).
 
@@ -56,16 +59,4 @@ CREATE TABLE IF NOT EXISTS `survey_submissions` (
   KEY `survey_submissions_track` (`track`),
   KEY `survey_submissions_created_at` (`created_at`),
   KEY `survey_submissions_context` (`payroll_context`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- The optional report email. Deliberately a separate table with no link back to
--- an answer row — that is what makes the "anonymt" promise on the landing page
--- true. Do not add a foreign key to survey_submissions.
-CREATE TABLE IF NOT EXISTS `survey_report_signups` (
-  `id`                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `created_at`        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `email`             VARCHAR(320) NOT NULL,
-  `newsletter_opt_in` TINYINT(1) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
-  KEY `survey_report_signups_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

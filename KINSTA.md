@@ -12,16 +12,15 @@ browser.
     ├── assets/…
     └── api/
         ├── submit.php      POST one completed survey
-        ├── signup.php      POST the optional report email
         ├── health.php      GET  "are the credentials and tables right?"
         └── config.php, db.php, columns.php, respond.php
 ```
 
 ## What this does and does not touch
 
-- **It adds two tables**, `survey_submissions` and `survey_report_signups`. The
-  prefix is deliberate: nothing in this code reads, writes, alters or drops a
-  `wp_` table, and there is no foreign key between the survey and WordPress.
+- **It adds one table**, `survey_submissions`. The prefix is deliberate: nothing
+  in this code reads, writes, alters or drops a `wp_` table, and there is no
+  foreign key between the survey and WordPress.
 - **It adds one folder.** WordPress serves existing files and folders directly
   and only rewrites paths that don't exist, so a new folder can't shadow a page
   unless a page with that exact slug already exists. Pick a slug nothing uses.
@@ -30,9 +29,10 @@ browser.
   password. If you'd rather be explicit, set `SURVEY_DB_NAME`, `SURVEY_DB_USER`,
   `SURVEY_DB_PASSWORD` and `SURVEY_DB_HOST` as environment variables or in a
   `.env` next to the folder, and those win.
-- **It never stores an IP or an email next to an answer.** Emails live in their
-  own table with no link back, which is what makes "Anonymt" on the landing page
-  true. Keep it that way.
+- **No email and no IP is ever stored with an answer.** The optional "send me the
+  report" email goes straight to HubSpot from the browser and never reaches this
+  database — which is what makes "Anonymt" on the landing page true. Keep it that
+  way: don't add an email column to `survey_submissions`.
 
 ## 1. Create the tables
 
@@ -46,7 +46,7 @@ Confirm with:
 SHOW TABLES LIKE 'survey_%';
 ```
 
-Two rows back means you're done. (Take a backup first if you'd rather —
+One row back means you're done. (Take a backup first if you'd rather —
 MyKinsta → Backups → Create backup now. Creating tables can't affect the
 existing ones, but there's no harm in a restore point.)
 
@@ -76,7 +76,7 @@ new `index.html` is served.
 curl https://zenegy.com/undersogelse/api/health.php
 ```
 
-Expect `{"ok":true,"tables":{"survey_submissions":true,"survey_report_signups":true}}`.
+Expect `{"ok":true,"tables":{"survey_submissions":true}}`.
 
 - `503` with "Ingen forbindelse til databasen" → credentials didn't resolve; set
   the `SURVEY_DB_*` variables explicitly.
@@ -95,8 +95,10 @@ From the SQL console, or **Database → survey_submissions → Export** in MyKin
 
 ```sql
 SELECT * FROM survey_submissions ORDER BY id;
-SELECT * FROM survey_report_signups ORDER BY id;
 ```
+
+The report emails aren't here — they're contacts in HubSpot, on the form you
+configured below.
 
 The list-type answers (`c_payroll_systems`, `b_frustrations`, the priority
 rankings) are stored as JSON. In MySQL you can unpack them, e.g. how many
@@ -110,6 +112,36 @@ WHERE track = 'bureau'
 GROUP BY system
 ORDER BY bureauer DESC;
 ```
+
+## HubSpot — the report signup
+
+The email on the final screen is submitted straight to a HubSpot form from the
+browser, using HubSpot's public form endpoint. No token, no proxy, nothing stored
+on Kinsta.
+
+Set these at build time (a `.env` file next to `package.json`, see
+`.env.example`) **before** running `npm run build:kinsta` — Vite bakes them into
+the bundle:
+
+| Variable | Where to find it |
+|---|---|
+| `VITE_HUBSPOT_PORTAL_ID` | Marketing → Forms → your form → Share, or the number in any embed code |
+| `VITE_HUBSPOT_FORM_GUID` | same place — the form's id |
+| `VITE_HUBSPOT_NEWSLETTER_FIELD` | optional: the internal name of the newsletter property on that form |
+
+Neither the portal id nor the form guid is a secret; they're visible in every
+embedded HubSpot form on the web.
+
+Two things worth knowing:
+
+- **HubSpot rejects a submission containing a field the form doesn't have.** That
+  is why the newsletter checkbox is only sent when you name its field. If the
+  form has required fields beyond email, submissions will be rejected too — keep
+  the form to just email (plus the optional newsletter property).
+- **The `hubspotutk` cookie is passed along** when the visitor has one, so the
+  signup joins up with the rest of their activity in HubSpot. If your form uses
+  GDPR consent options, tell me and I'll add `legalConsentOptions` to the
+  payload — right now the consent text on the screen is ours, not HubSpot's.
 
 ## Updating the survey later
 

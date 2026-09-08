@@ -6,9 +6,12 @@ import type { SurveyAnswers, SubmissionMeta } from '../types'
 
 vi.mock('../lib/api', () => ({
   submitSurvey: vi.fn().mockResolvedValue(undefined),
+}))
+vi.mock('../lib/hubspot', () => ({
   signupForReport: vi.fn().mockResolvedValue(undefined),
 }))
-import { submitSurvey, signupForReport } from '../lib/api'
+import { submitSurvey } from '../lib/api'
+import { signupForReport } from '../lib/hubspot'
 
 // A meta that passes all soft guards: started a minute ago, honeypot empty.
 const cleanMeta = (over: Partial<SubmissionMeta> = {}): SubmissionMeta => ({

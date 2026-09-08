@@ -1,9 +1,11 @@
 import type { Submission } from '../types'
 
 /**
- * Talks to the PHP endpoints that ship next to the built site
- * (`kinsta/api/*.php` → `api/*.php` in the deployed folder). They own the
- * database connection, so nothing secret reaches the browser.
+ * Talks to the PHP endpoint that ships next to the built site
+ * (`kinsta/api/submit.php` → `api/submit.php` in the deployed folder). It owns
+ * the database connection, so nothing secret reaches the browser.
+ *
+ * Answers only — the optional report email goes to HubSpot instead (lib/hubspot.ts).
  *
  * Paths are relative on purpose: the survey is served from a folder on
  * zenegy.com, and the folder can be renamed without touching the code. Set
@@ -44,9 +46,4 @@ async function post(file: string, body: unknown): Promise<void> {
 /** Insert a completed survey. Answers are anonymous; no email is attached. */
 export async function submitSurvey(data: Submission): Promise<void> {
   await post('submit.php', data)
-}
-
-/** Optional report opt-in — stored separately so answers stay anonymous. */
-export async function signupForReport(email: string, newsletterOptIn: boolean): Promise<void> {
-  await post('signup.php', { email, newsletter_opt_in: newsletterOptIn })
 }

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { Submission } from '../types'
-import { submitSurvey, signupForReport } from './api'
+import { submitSurvey } from './api'
 
 const submission: Submission = {
   track: 'bureau',
@@ -45,8 +45,8 @@ describe('endpoint resolution', () => {
   it('works at the site root', async () => {
     servedFrom('/')
     fetchMock.mockResolvedValueOnce(ok())
-    await signupForReport('hej@zenegy.com', false)
-    expect(fetchMock.mock.calls[0][0]).toBe('/api/signup.php')
+    await submitSurvey(submission)
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/submit.php')
   })
 })
 
@@ -72,16 +72,5 @@ describe('submitSurvey', () => {
   it('reports a connection failure in plain Danish', async () => {
     fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'))
     await expect(submitSurvey(submission)).rejects.toThrow('Kunne ikke få forbindelse')
-  })
-})
-
-describe('signupForReport', () => {
-  it('posts the email and the newsletter flag', async () => {
-    fetchMock.mockResolvedValueOnce(ok())
-    await signupForReport('kollega@zenegy.com', true)
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({
-      email: 'kollega@zenegy.com',
-      newsletter_opt_in: true,
-    })
   })
 })

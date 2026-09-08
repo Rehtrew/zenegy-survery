@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { SurveyAnswers, SubmissionMeta, SubmittedTrack } from '../types'
-import { submitSurvey, signupForReport } from '../lib/api'
+import { submitSurvey } from '../lib/api'
+import { signupForReport } from '../lib/hubspot'
 import { isBureau } from '../lib/questions'
 
 const ACCENT = '#6e30fd'
@@ -326,8 +327,9 @@ export function ThankYou({ answers, meta }: { answers: SurveyAnswers; meta: Subm
       </div>
 
       <p style={{ fontSize: 11.5, fontWeight: 500, color: '#a8a8b0', textAlign: 'center', marginTop: 22, lineHeight: 1.6 }}>
-        Din email bruges kun til at sende dig resultaterne og evt. nyhedsbrev — den kobles ikke til dine svar.<br />
-        Vi deler ikke dine data med tredjepart.
+        Din email gemmes hos os i HubSpot og bruges kun til at sende dig resultaterne og evt.
+        nyhedsbrev.<br />
+        Den kobles aldrig til dine svar, og vi sælger ikke dine data videre.
       </p>
     </div>
   )

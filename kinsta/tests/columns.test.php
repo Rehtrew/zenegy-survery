@@ -121,24 +121,5 @@ check('keeps booleans typed and rejects string lookalikes', function () {
     return in_array(true, $values, true) && $columns === ['track'];
 });
 
-echo "survey_build_signup\n";
-
-check('accepts a valid address and the newsletter flag', function () {
-    $signup = survey_build_signup(['email' => ' hej@zenegy.com ', 'newsletter_opt_in' => true]);
-    return $signup === ['email' => 'hej@zenegy.com', 'newsletter' => true];
-});
-
-check('defaults the newsletter flag to false', fn () =>
-    survey_build_signup(['email' => 'hej@zenegy.com'])['newsletter'] === false);
-
-check('rejects malformed addresses', function () {
-    foreach (['nope', '', 'a b@c.dk', 'a@b'] as $email) {
-        if (!throws(fn () => survey_build_signup(['email' => $email]), 'Ugyldig email')) {
-            return false;
-        }
-    }
-    return true;
-});
-
 echo "\n{$checks} checks, {$failures} failed\n";
 exit($failures === 0 ? 0 : 1);

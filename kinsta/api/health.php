@@ -12,7 +12,7 @@ require_once __DIR__ . '/db.php';
 try {
     $pdo = survey_pdo();
     $tables = [];
-    foreach (['submissions', 'report_signups'] as $table) {
+    foreach (['submissions'] as $table) {
         $name = survey_table($table);
         $statement = $pdo->prepare('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?');
         $statement->execute([$name]);

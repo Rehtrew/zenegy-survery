@@ -163,19 +163,3 @@ function survey_build_submission(mixed $body): array
     }
     return [$columns, $values];
 }
-
-/**
- * @return array{email: string, newsletter: bool}
- * @throws InvalidArgumentException
- */
-function survey_build_signup(mixed $body): array
-{
-    if (!is_array($body)) {
-        throw new InvalidArgumentException('Body skal være et JSON-objekt');
-    }
-    $email = survey_clean_text($body['email'] ?? null);
-    if ($email === null || mb_strlen($email) > 320 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        throw new InvalidArgumentException('Ugyldig email');
-    }
-    return ['email' => $email, 'newsletter' => ($body['newsletter_opt_in'] ?? false) === true];
-}
