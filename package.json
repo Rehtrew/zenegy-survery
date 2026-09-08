@@ -8,11 +8,13 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "vitest run && npm run test:php",
+    "test:watch": "vitest",
+    "build:kinsta": "npm run build && node scripts/build-kinsta.mjs",
+    "api": "php -S localhost:8000 -t dist",
+    "test:php": "php kinsta/tests/columns.test.php"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.107.0",
     "motion": "^12.40.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"

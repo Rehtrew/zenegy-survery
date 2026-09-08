@@ -4,11 +4,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { ThankYou } from './ThankYou'
 import type { SurveyAnswers, SubmissionMeta } from '../types'
 
-vi.mock('../lib/supabase', () => ({
+vi.mock('../lib/api', () => ({
   submitSurvey: vi.fn().mockResolvedValue(undefined),
   signupForReport: vi.fn().mockResolvedValue(undefined),
 }))
-import { submitSurvey, signupForReport } from '../lib/supabase'
+import { submitSurvey, signupForReport } from '../lib/api'
 
 // A meta that passes all soft guards: started a minute ago, honeypot empty.
 const cleanMeta = (over: Partial<SubmissionMeta> = {}): SubmissionMeta => ({

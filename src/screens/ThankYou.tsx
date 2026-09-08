@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { SurveyAnswers, SubmissionMeta, SubmittedTrack } from '../types'
-import { submitSurvey, signupForReport } from '../lib/supabase'
+import { submitSurvey, signupForReport } from '../lib/api'
 import { isBureau } from '../lib/questions'
 
 const ACCENT = '#6e30fd'
