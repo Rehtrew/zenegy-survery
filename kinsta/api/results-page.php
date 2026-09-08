@@ -90,6 +90,52 @@ function survey_count(array $rows, string $column): array
     return $counts;
 }
 
+/** How many people answered this question at all — the honest denominator. */
+function survey_respondents(array $rows, string $column): int
+{
+    $answered = 0;
+    foreach ($rows as $row) {
+        $value = $row[$column] ?? null;
+        if ($value !== null && $value !== '' && $value !== '[]') {
+            $answered++;
+        }
+    }
+    return $answered;
+}
+
+/**
+ * Every option for a question in survey order, with its count — including the
+ * ones nobody picked, because "nobody picked this" is a finding. Values that
+ * aren't in the label map (an older option, say) are kept and listed last.
+ */
+function survey_option_rows(array $counts, string $column): array
+{
+    $rows = [];
+    foreach (array_keys(SURVEY_VALUE_LABELS[$column] ?? []) as $value) {
+        $rows[(string) $value] = $counts[$value] ?? 0;
+    }
+    foreach ($counts as $value => $count) {
+        $rows[(string) $value] = $count;
+    }
+    // Answered options first, biggest first; the untouched ones keep survey order.
+    uasort($rows, static fn ($a, $b) => $b <=> $a);
+    return $rows;
+}
+
+/** The winning option(s). Ties are called out rather than silently resolved. */
+function survey_top_answer(array $counts): ?array
+{
+    if ($counts === []) {
+        return null;
+    }
+    $max = max($counts);
+    if ($max === 0) {
+        return null;
+    }
+    $winners = array_keys($counts, $max, true);
+    return ['values' => $winners, 'count' => $max];
+}
+
 function survey_nps(array $rows): ?array
 {
     $scores = array_values(array_filter(
@@ -140,6 +186,11 @@ function survey_e(?string $value): string
 function survey_label(string $column, string $value): string
 {
     return SURVEY_VALUE_LABELS[$column][$value] ?? $value;
+}
+
+function survey_sublabel(string $column, string $value): ?string
+{
+    return SURVEY_VALUE_SUBLABELS[$column][$value] ?? null;
 }
 
 function survey_heading(string $column, string $key): string
@@ -195,8 +246,17 @@ function survey_results_main(): never
   .q h3 { font-size:17px; margin:0 0 2px; letter-spacing:-.01em }
   .q .asked { margin:0; color:var(--ink-2); font-size:14px }
   .q code { color:var(--ink-3); font-size:11.5px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace }
-  .q code.col { display:inline-block; margin-top:10px; background:#f5f3fb; border-radius:5px; padding:2px 7px }
+  .q code.col { display:inline-block; margin-top:12px; background:#f5f3fb; border-radius:5px; padding:2px 7px }
+  .answered { color:var(--ink-3); font-size:12.5px; margin-left:8px }
+  .top { margin:12px 0 0; background:var(--accent-soft); border-radius:10px; padding:9px 13px; font-size:14.5px; color:#3f1b9c }
+  .top span { text-transform:uppercase; letter-spacing:.08em; font-size:11px; color:#7a5bd6; margin-right:8px }
+  .top b { font-weight:600 }
+  .top em { font-style:normal; color:#7a5bd6 }
+  tr.zero td.v { color:var(--ink-3) }
+  tr.zero .bar span { background:var(--line) }
+  tr.win td.v { font-weight:600 }
   td.v code { display:block; margin-top:1px; opacity:.65 }
+  td.v i { display:block; font-style:normal; color:var(--ink-3); font-size:13px }
   .pct { display:inline-block; min-width:42px; text-align:right; color:var(--ink-3); font-size:13px }
   table { width:100%; border-collapse:collapse; margin-top:12px }
   td { padding:9px 0; border-top:1px solid #f2f0f8; vertical-align:middle }
@@ -250,23 +310,42 @@ function survey_results_main(): never
       if ($counts === []) {
           continue;
       }
-      $max = max($counts); ?>
+      $answered = survey_respondents($rows, $column);
+      $options = survey_option_rows($counts, $column);
+      $max = max($options);
+      $top = survey_top_answer($counts); ?>
     <div class="q">
       <h3><?= survey_e(survey_heading($column, 'short')) ?></h3>
       <p class="asked"><?= survey_e(survey_heading($column, 'question')) ?></p>
+
+      <?php if ($top) : ?>
+        <p class="top">
+          <span>Flest svar</span>
+          <?php foreach ($top['values'] as $i => $value) : ?>
+            <?= $i > 0 ? ' <em>og</em> ' : '' ?><b><?= survey_e(survey_label($column, (string) $value)) ?></b>
+          <?php endforeach; ?>
+          <?= count($top['values']) > 1 ? '<em>(delt førsteplads)</em>' : '' ?>
+          · <?= $top['count'] ?> af <?= $answered ?>
+        </p>
+      <?php endif; ?>
+
       <table>
-        <?php foreach ($counts as $value => $count) : ?>
-          <tr>
+        <?php foreach ($options as $value => $count) :
+            $share = $answered > 0 ? round(($count / $answered) * 100) : 0; ?>
+          <tr class="<?= $count === 0 ? 'zero' : '' ?><?= $top && in_array((string) $value, array_map('strval', $top['values']), true) ? ' win' : '' ?>">
             <td class="v">
               <?= survey_e(survey_label($column, (string) $value)) ?>
+              <?php $sub = survey_sublabel($column, (string) $value); ?>
+              <?php if ($sub) : ?><i><?= survey_e($sub) ?></i><?php endif; ?>
               <code><?= survey_e((string) $value) ?></code>
             </td>
-            <td class="bar"><span style="width:<?= (int) round(($count / $max) * 100) ?>%"></span></td>
-            <td class="n"><?= $count ?><span class="pct"><?= round(($count / $total) * 100) ?>%</span></td>
+            <td class="bar"><span style="width:<?= $max > 0 ? (int) round(($count / $max) * 100) : 0 ?>%"></span></td>
+            <td class="n"><?= $count ?><span class="pct"><?= $share ?>%</span></td>
           </tr>
         <?php endforeach; ?>
       </table>
       <code class="col"><?= survey_e($column) ?></code>
+      <span class="answered"><?= $answered ?> <?= $answered === 1 ? 'har svaret' : 'har svaret' ?> på dette spørgsmål</span>
     </div>
   <?php endforeach; ?>
 

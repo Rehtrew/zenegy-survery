@@ -98,6 +98,7 @@ try {
 
   const headings = { track: { short: 'Spor', question: 'Hvilken vej gik respondenten gennem undersøgelsen?' } }
   const values = { track: TRACK_LABELS }
+  const subLabels = {}
   for (const [column, questionId] of Object.entries(COLUMN_TO_QUESTION)) {
     const question = byId.get(questionId)
     if (!question) {
@@ -106,10 +107,13 @@ try {
     }
     headings[column] = { short: question.shortLabel ?? question.question, question: question.question }
     const map = {}
+    const subs = {}
     for (const option of question.options ?? []) {
-      map[option.value] = option.subLabel ? `${option.label} — ${option.subLabel}` : option.label
+      map[option.value] = option.label
+      if (option.subLabel) subs[option.value] = option.subLabel
     }
     if (Object.keys(map).length) values[column] = map
+    if (Object.keys(subs).length) subLabels[column] = subs
   }
 
   const php = (value, indent) => {
@@ -140,6 +144,11 @@ ${php(headings, 4)}
 /** Column => stored value => the label the respondent actually clicked. */
 const SURVEY_VALUE_LABELS = [
 ${php(values, 4)}
+];
+
+/** The smaller print under an option, where the survey showed one. */
+const SURVEY_VALUE_SUBLABELS = [
+${php(subLabels, 4)}
 ];
 `)
   console.log(`Generated kinsta/api/labels.php (${Object.keys(headings).length} questions)`)
