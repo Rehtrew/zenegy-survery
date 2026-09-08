@@ -11,7 +11,7 @@
  *   dist/index.html   the survey, assets and fonts inlined
  *   dist/api.php      config + validation + database + request handling
  *   dist/results.php  the internal results view (WordPress login required)
- *   dist/share.png    link-preview image, referenced absolutely by the meta tags
+ *   dist/share.jpg    link-preview image, referenced absolutely by the meta tags
  *
  * Nothing else is left in dist/, so "upload everything in dist/" is two files.
  */
@@ -63,9 +63,9 @@ const html = await readFile(indexPath, 'utf8')
 await writeFile(indexPath, html.replace(/href="[^"]*favicon\.svg"/, `href="${dataUri}"`))
 
 // Anything else Vite copied from public/ isn't referenced — drop it so what's
-// left in dist/ is exactly what belongs on the server. share.png stays: link
+// left in dist/ is exactly what belongs on the server. share.jpg stays: link
 // previews need a real file at a real URL, they can't read a data URI.
-const KEEP = new Set(['index.html', 'api.php', 'results.php', 'share.png'])
+const KEEP = new Set(['index.html', 'api.php', 'results.php', 'share.jpg'])
 for (const entry of await readdir(dist, { withFileTypes: true })) {
   if (KEEP.has(entry.name)) continue
   await rm(join(dist, entry.name), { recursive: true, force: true })
@@ -76,4 +76,4 @@ console.log(`dist/index.html  ${(size / 1024).toFixed(0)} kB (assets inlined)`)
 for (const name of Object.keys(BUNDLES)) {
   console.log(`dist/${name.padEnd(12)} ${((await readFile(join(dist, name))).byteLength / 1024).toFixed(0)} kB`)
 }
-console.log('dist/share.png   link-preview image')
+console.log('dist/share.jpg   link-preview image')
