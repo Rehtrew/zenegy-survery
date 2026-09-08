@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "test": "vitest run && npm run test:php",
     "test:watch": "vitest",
-    "build:kinsta": "npm run build && node scripts/build-kinsta.mjs",
+    "build:kinsta": "node scripts/gen-labels.mjs && npm run build && node scripts/build-kinsta.mjs",
     "api": "php -S localhost:8000 -t dist",
     "test:php": "php kinsta/tests/columns.test.php",
     "deploy": "bash scripts/deploy-kinsta.sh"

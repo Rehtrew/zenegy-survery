@@ -26,7 +26,7 @@ const dist = join(root, 'dist')
 // Dependency order: helpers first, dispatch last (it runs on include).
 const BUNDLES = {
   'api.php': ['config.php', 'columns.php', 'db.php', 'respond.php', 'main.php'],
-  'results.php': ['config.php', 'db.php', 'results-page.php'],
+  'results.php': ['config.php', 'db.php', 'labels.php', 'results-page.php'],
 }
 
 function stripModuleHeader(source) {

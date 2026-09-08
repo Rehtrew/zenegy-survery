@@ -34,33 +34,6 @@ function survey_require_login(): void
     exit('Kunne ikke finde WordPress til login-tjek.');
 }
 
-/** Short Danish headings, so the page reads as questions rather than column names. */
-const SURVEY_LABELS = [
-    'track'                   => 'Spor',
-    'payroll_context'         => 'Egen virksomhed eller kunder',
-    'size'                    => 'Antal medarbejdere',
-    'b_payroll_system'        => 'Lønsystem i dag',
-    'b_frustrations'          => 'Frustrationer ved systemet',
-    'b_barriers'              => 'Hvorfor skifter de ikke',
-    'b_switch_intent'         => 'Skifteplaner',
-    'a_products'              => 'Zenegy-produkter i brug',
-    'a_migration_from'        => 'Kom fra',
-    'a_satisfaction'          => 'Tilfredshed',
-    'a_best_thing'            => 'Største værdi',
-    'c_client_count'          => 'Antal kunder (bureau)',
-    'c_payroll_systems'       => 'Lønsystemer de arbejder i',
-    'c_setup'                 => 'Hvem vælger og betaler',
-    'c_data_collection'       => 'Sådan får de løndata',
-    'c_frustrations'          => 'Tidsrøvere',
-    'c_switch_intent'         => 'Flytter de kunder?',
-    'e_payslip'               => 'Modtager lønseddel',
-    'e_pain_points'           => 'Besværlige opgaver',
-    'e_expenses'              => 'Udlæg',
-    'e_ai_trust'              => 'AI og løndata',
-    'ai_interest'             => 'AI-potentiale',
-    'accounting_system'       => 'Regnskabssystem',
-];
-
 /** Columns worth counting, in the order they're shown. */
 const SURVEY_COUNTED = [
     'track', 'payroll_context', 'size',
@@ -163,6 +136,17 @@ function survey_e(?string $value): string
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
 
+/** The label the respondent actually clicked, falling back to the stored value. */
+function survey_label(string $column, string $value): string
+{
+    return SURVEY_VALUE_LABELS[$column][$value] ?? $value;
+}
+
+function survey_heading(string $column, string $key): string
+{
+    return SURVEY_QUESTION_LABELS[$column][$key] ?? $column;
+}
+
 function survey_results_main(): never
 {
     survey_require_login();
@@ -208,12 +192,16 @@ function survey_results_main(): never
   h2 { font-size:13px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-3);
        border-bottom:1px solid var(--line); padding-bottom:10px; margin:36px 0 16px }
   .q { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin-bottom:12px }
-  .q h3 { font-size:16px; margin:0 0 4px }
-  .q code { color:var(--ink-3); font-size:12px }
+  .q h3 { font-size:17px; margin:0 0 2px; letter-spacing:-.01em }
+  .q .asked { margin:0; color:var(--ink-2); font-size:14px }
+  .q code { color:var(--ink-3); font-size:11.5px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace }
+  .q code.col { display:inline-block; margin-top:10px; background:#f5f3fb; border-radius:5px; padding:2px 7px }
+  td.v code { display:block; margin-top:1px; opacity:.65 }
+  .pct { display:inline-block; min-width:42px; text-align:right; color:var(--ink-3); font-size:13px }
   table { width:100%; border-collapse:collapse; margin-top:12px }
-  td { padding:7px 0; border-top:1px solid #f2f0f8; vertical-align:middle }
+  td { padding:9px 0; border-top:1px solid #f2f0f8; vertical-align:middle }
   td.v { font-size:14.5px }
-  td.n { text-align:right; width:56px; font-variant-numeric:tabular-nums; color:var(--ink-2) }
+  td.n { text-align:right; width:104px; font-variant-numeric:tabular-nums; color:var(--ink-2); white-space:nowrap }
   td.bar { width:45% }
   .bar span { display:block; height:8px; border-radius:4px; background:var(--accent); opacity:.85 }
   .quote { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--accent);
@@ -249,7 +237,7 @@ function survey_results_main(): never
   <div class="cards">
     <div class="card"><b><?= $total ?></b><span>svar i alt</span></div>
     <?php foreach (survey_count($rows, 'track') as $track => $count) : ?>
-      <div class="card"><b><?= $count ?></b><span><?= survey_e($track) ?></span></div>
+      <div class="card"><b><?= $count ?></b><span><?= survey_e(survey_label('track', (string) $track)) ?></span></div>
     <?php endforeach; ?>
     <?php if ($nps) : ?>
       <div class="card"><b><?= $nps['score'] ?></b><span>NPS (<?= $nps['count'] ?> svar, snit <?= $nps['average'] ?>)</span></div>
@@ -264,17 +252,21 @@ function survey_results_main(): never
       }
       $max = max($counts); ?>
     <div class="q">
-      <h3><?= survey_e(SURVEY_LABELS[$column] ?? $column) ?></h3>
-      <code><?= survey_e($column) ?></code>
+      <h3><?= survey_e(survey_heading($column, 'short')) ?></h3>
+      <p class="asked"><?= survey_e(survey_heading($column, 'question')) ?></p>
       <table>
         <?php foreach ($counts as $value => $count) : ?>
           <tr>
-            <td class="v"><?= survey_e($value) ?></td>
+            <td class="v">
+              <?= survey_e(survey_label($column, (string) $value)) ?>
+              <code><?= survey_e((string) $value) ?></code>
+            </td>
             <td class="bar"><span style="width:<?= (int) round(($count / $max) * 100) ?>%"></span></td>
-            <td class="n"><?= $count ?></td>
+            <td class="n"><?= $count ?><span class="pct"><?= round(($count / $total) * 100) ?>%</span></td>
           </tr>
         <?php endforeach; ?>
       </table>
+      <code class="col"><?= survey_e($column) ?></code>
     </div>
   <?php endforeach; ?>
 
@@ -298,7 +290,7 @@ function survey_results_main(): never
       <?php foreach (array_slice($quotes, 0, 25) as $quote) : ?>
         <div class="quote" style="margin-top:10px">
           <p><?= survey_e($quote['text']) ?></p>
-          <span><?= survey_e($quote['track']) ?> · <?= survey_e($quote['when']) ?></span>
+          <span><?= survey_e(survey_label('track', (string) $quote['track'])) ?> · <?= survey_e($quote['when']) ?></span>
         </div>
       <?php endforeach; ?>
     </div>
