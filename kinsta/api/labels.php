@@ -15,6 +15,10 @@ const SURVEY_QUESTION_LABELS = [
         'short' => 'Spor',
         'question' => 'Hvilken vej gik respondenten gennem undersøgelsen?',
     ],
+    'is_employee' => [
+        'short' => 'Din rolle',
+        'question' => 'Hvilken rolle spiller du i håndteringen af løn eller regnskab?',
+    ],
     'payroll_context' => [
         'short' => 'Din hverdag',
         'question' => 'Kører du løn for din egen virksomhed — eller for andres?',
@@ -58,6 +62,10 @@ const SURVEY_QUESTION_LABELS = [
     'a_best_thing' => [
         'short' => 'Største værdi',
         'question' => 'Hvor mærker du den største værdi ved at bruge Zenegy?',
+    ],
+    'a_nps' => [
+        'short' => 'Anbefaling',
+        'question' => 'Ville du anbefale Zenegy til en kollega eller en i dit professionelle netværk?',
     ],
     'c_client_count' => [
         'short' => 'Antal kunder',
@@ -120,6 +128,23 @@ const SURVEY_VALUE_LABELS = [
         'non-zenegy' => 'Andet lønsystem',
         'employee' => 'Lønmodtager',
         'bureau' => 'Lønbureau / lønadministrator',
+    ],
+    'is_employee' => [
+        '0' => 'Jeg har (med)ansvar for systemerne',
+        '1' => 'Jeg er primært lønmodtager',
+    ],
+    'a_nps' => [
+        '0' => '0 — slet ikke',
+        '1' => '1',
+        '2' => '2',
+        '3' => '3',
+        '4' => '4',
+        '5' => '5',
+        '6' => '6',
+        '7' => '7',
+        '8' => '8',
+        '9' => '9',
+        '10' => '10 — helt sikkert',
     ],
     'payroll_context' => [
         'internal' => 'Kun for min egen virksomhed',
@@ -329,6 +354,10 @@ const SURVEY_VALUE_LABELS = [
 
 /** The smaller print under an option, where the survey showed one. */
 const SURVEY_VALUE_SUBLABELS = [
+    'is_employee' => [
+        '0' => 'Direktør, HR, bogholder, ekstern revisor eller administrator',
+        '1' => 'Jeg modtager lønseddel, men har ikke systemansvar',
+    ],
     'payroll_context' => [
         'internal' => 'Jeg sidder internt — direktør, HR, bogholder eller økonomiansvarlig',
         'bureau' => 'Revisor, bogholder eller lønbureau, der kører løn for kunder',
@@ -377,3 +406,18 @@ const SURVEY_VALUE_SUBLABELS = [
         'billy' => 'nu Shine',
     ],
 ];
+
+/** Every question the survey can ask, grouped by who sees it, in survey order. */
+const SURVEY_GROUPS = [
+    ['name' => 'Alle respondenter', 'columns' => ['track', 'is_employee']],
+    ['name' => 'Alle med systemansvar', 'columns' => ['payroll_context', 'ai_interest', 'accounting_system']],
+    ['name' => 'Virksomheder med eget lønsystem', 'columns' => ['size']],
+    ['name' => 'Zenegy-kunder', 'columns' => ['a_products', 'a_migration_from', 'a_best_thing']],
+    ['name' => 'Zenegy-brugere (virksomheder og bureauer)', 'columns' => ['a_satisfaction', 'a_nps']],
+    ['name' => 'Andet lønsystem', 'columns' => ['b_payroll_system', 'b_frustrations', 'b_priorities', 'b_barriers', 'b_switch_intent']],
+    ['name' => 'Lønbureauer', 'columns' => ['c_client_count', 'c_payroll_systems', 'c_setup', 'c_data_collection', 'c_frustrations', 'c_priorities', 'c_switch_intent']],
+    ['name' => 'Lønmodtagere', 'columns' => ['e_payslip', 'e_pain_points', 'e_expenses', 'e_ai_trust']],
+];
+
+/** Columns whose options read in their own order rather than by popularity. */
+const SURVEY_ORDERED_COLUMNS = ['a_nps'];

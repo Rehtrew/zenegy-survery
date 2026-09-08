@@ -34,16 +34,6 @@ function survey_require_login(): void
     exit('Kunne ikke finde WordPress til login-tjek.');
 }
 
-/** Columns worth counting, in the order they're shown. */
-const SURVEY_COUNTED = [
-    'track', 'payroll_context', 'size',
-    'c_client_count', 'c_payroll_systems', 'c_setup', 'c_data_collection', 'c_frustrations', 'c_switch_intent',
-    'b_payroll_system', 'b_frustrations', 'b_barriers', 'b_switch_intent',
-    'a_products', 'a_migration_from', 'a_satisfaction', 'a_best_thing',
-    'e_payslip', 'e_pain_points', 'e_expenses', 'e_ai_trust',
-    'ai_interest', 'accounting_system',
-];
-
 /** Free-text columns, newest first, so the actual wording gets read. */
 const SURVEY_FREE_TEXT = [
     'a_satisfaction_text'     => 'Uddybning af tilfredshed',
@@ -118,7 +108,10 @@ function survey_option_rows(array $counts, string $column): array
         $rows[(string) $value] = $count;
     }
     // Answered options first, biggest first; the untouched ones keep survey order.
-    uasort($rows, static fn ($a, $b) => $b <=> $a);
+    // A scale (NPS) reads in its own order — 0 to 10, not by popularity.
+    if (!in_array($column, SURVEY_ORDERED_COLUMNS, true)) {
+        uasort($rows, static fn ($a, $b) => $b <=> $a);
+    }
     return $rows;
 }
 
@@ -255,6 +248,12 @@ function survey_results_main(): never
   tr.zero td.v { color:var(--ink-3) }
   tr.zero .bar span { background:var(--line) }
   tr.win td.v { font-weight:600 }
+  .q-empty { background:#fcfbff; border-style:dashed }
+  .none { margin:12px 0 0; color:var(--ink-3); font-size:14px }
+  details { margin-top:10px }
+  summary { cursor:pointer; color:var(--accent); font-size:13.5px }
+  details ul { margin:10px 0 0; padding-left:20px; color:var(--ink-2); font-size:14px }
+  details li { margin-bottom:3px }
   td.v code { display:block; margin-top:1px; opacity:.65 }
   td.v i { display:block; font-style:normal; color:var(--ink-3); font-size:13px }
   .pct { display:inline-block; min-width:42px; text-align:right; color:var(--ink-3); font-size:13px }
@@ -304,49 +303,66 @@ function survey_results_main(): never
     <?php endif; ?>
   </div>
 
-  <h2>Svarfordeling</h2>
-  <?php foreach (SURVEY_COUNTED as $column) :
-      $counts = survey_count($rows, $column);
-      if ($counts === []) {
-          continue;
-      }
-      $answered = survey_respondents($rows, $column);
-      $options = survey_option_rows($counts, $column);
-      $max = max($options);
-      $top = survey_top_answer($counts); ?>
-    <div class="q">
-      <h3><?= survey_e(survey_heading($column, 'short')) ?></h3>
-      <p class="asked"><?= survey_e(survey_heading($column, 'question')) ?></p>
+  <?php foreach (SURVEY_GROUPS as $group) : ?>
+    <h2>
+      <?= survey_e($group['name']) ?>
+      <span class="count"><?= count($group['columns']) ?> spørgsmål</span>
+    </h2>
 
-      <?php if ($top) : ?>
-        <p class="top">
-          <span>Flest svar</span>
-          <?php foreach ($top['values'] as $i => $value) : ?>
-            <?= $i > 0 ? ' <em>og</em> ' : '' ?><b><?= survey_e(survey_label($column, (string) $value)) ?></b>
-          <?php endforeach; ?>
-          <?= count($top['values']) > 1 ? '<em>(delt førsteplads)</em>' : '' ?>
-          · <?= $top['count'] ?> af <?= $answered ?>
-        </p>
-      <?php endif; ?>
+    <?php foreach ($group['columns'] as $column) :
+        $counts = survey_count($rows, $column);
+        $answered = survey_respondents($rows, $column);
+        $options = survey_option_rows($counts, $column);
+        $max = $options === [] ? 0 : max($options);
+        $top = survey_top_answer($counts); ?>
+      <div class="q<?= $answered === 0 ? ' q-empty' : '' ?>">
+        <h3><?= survey_e(survey_heading($column, 'short')) ?></h3>
+        <p class="asked"><?= survey_e(survey_heading($column, 'question')) ?></p>
 
-      <table>
-        <?php foreach ($options as $value => $count) :
-            $share = $answered > 0 ? round(($count / $answered) * 100) : 0; ?>
-          <tr class="<?= $count === 0 ? 'zero' : '' ?><?= $top && in_array((string) $value, array_map('strval', $top['values']), true) ? ' win' : '' ?>">
-            <td class="v">
-              <?= survey_e(survey_label($column, (string) $value)) ?>
-              <?php $sub = survey_sublabel($column, (string) $value); ?>
-              <?php if ($sub) : ?><i><?= survey_e($sub) ?></i><?php endif; ?>
-              <code><?= survey_e((string) $value) ?></code>
-            </td>
-            <td class="bar"><span style="width:<?= $max > 0 ? (int) round(($count / $max) * 100) : 0 ?>%"></span></td>
-            <td class="n"><?= $count ?><span class="pct"><?= $share ?>%</span></td>
-          </tr>
-        <?php endforeach; ?>
-      </table>
-      <code class="col"><?= survey_e($column) ?></code>
-      <span class="answered"><?= $answered ?> <?= $answered === 1 ? 'har svaret' : 'har svaret' ?> på dette spørgsmål</span>
-    </div>
+        <?php if ($answered === 0) : ?>
+          <p class="none">Ingen svar endnu</p>
+          <?php if ($options !== []) : ?>
+            <details>
+              <summary><?= count($options) ?> svarmuligheder</summary>
+              <ul>
+                <?php foreach (array_keys($options) as $value) : ?>
+                  <li><?= survey_e(survey_label($column, (string) $value)) ?></li>
+                <?php endforeach; ?>
+              </ul>
+            </details>
+          <?php endif; ?>
+        <?php else : ?>
+          <?php if ($top) : ?>
+            <p class="top">
+              <span>Flest svar</span>
+              <?php foreach ($top['values'] as $i => $value) : ?>
+                <?= $i > 0 ? ' <em>og</em> ' : '' ?><b><?= survey_e(survey_label($column, (string) $value)) ?></b>
+              <?php endforeach; ?>
+              <?= count($top['values']) > 1 ? '<em>(delt førsteplads)</em>' : '' ?>
+              · <?= $top['count'] ?> af <?= $answered ?>
+            </p>
+          <?php endif; ?>
+
+          <table>
+            <?php foreach ($options as $value => $count) :
+                $share = $answered > 0 ? round(($count / $answered) * 100) : 0; ?>
+              <tr class="<?= $count === 0 ? 'zero' : '' ?><?= $top && in_array((string) $value, array_map('strval', $top['values']), true) ? ' win' : '' ?>">
+                <td class="v">
+                  <?= survey_e(survey_label($column, (string) $value)) ?>
+                  <?php $sub = survey_sublabel($column, (string) $value); ?>
+                  <?php if ($sub) : ?><i><?= survey_e($sub) ?></i><?php endif; ?>
+                  <code><?= survey_e((string) $value) ?></code>
+                </td>
+                <td class="bar"><span style="width:<?= $max > 0 ? (int) round(($count / $max) * 100) : 0 ?>%"></span></td>
+                <td class="n"><?= $count ?><span class="pct"><?= $share ?>%</span></td>
+              </tr>
+            <?php endforeach; ?>
+          </table>
+          <code class="col"><?= survey_e($column) ?></code>
+          <span class="answered"><?= $answered ?> har svaret på dette spørgsmål</span>
+        <?php endif; ?>
+      </div>
+    <?php endforeach; ?>
   <?php endforeach; ?>
 
   <h2>Fritekst</h2>
