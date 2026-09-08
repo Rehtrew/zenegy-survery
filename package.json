@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "build:kinsta": "npm run build && node scripts/build-kinsta.mjs",
     "api": "php -S localhost:8000 -t dist",
-    "test:php": "php kinsta/tests/columns.test.php"
+    "test:php": "php kinsta/tests/columns.test.php",
+    "deploy": "bash scripts/deploy-kinsta.sh"
   },
   "dependencies": {
     "motion": "^12.40.0",
@@ -40,6 +41,7 @@
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
     "vite": "^8.0.12",
+    "vite-plugin-singlefile": "^2.3.3",
     "vitest": "^4.1.8"
   }
 }

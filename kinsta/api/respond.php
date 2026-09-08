@@ -19,8 +19,8 @@ function survey_json(int $status, array $body): never
 function survey_read_body(): array
 {
     if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
-        header('Allow: POST');
-        survey_json(405, ['error' => 'Kun POST er tilladt']);
+        header('Allow: GET, POST');
+        survey_json(405, ['error' => 'Kun GET og POST er tilladt']);
     }
     $raw = file_get_contents('php://input');
     if ($raw === false || strlen($raw) > 64 * 1024) {

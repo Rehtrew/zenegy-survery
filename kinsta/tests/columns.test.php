@@ -7,6 +7,7 @@
 
 declare(strict_types=1);
 
+define('SURVEY_NO_DISPATCH', true);
 require_once __DIR__ . '/../api/columns.php';
 
 $failures = 0;

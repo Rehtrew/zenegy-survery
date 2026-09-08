@@ -1,8 +1,17 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
+import { viteSingleFile } from 'vite-plugin-singlefile'
 
 export default defineConfig({
-  plugins: [react()],
+  // Everything — JS, CSS, fonts, logos — ends up inside index.html, so a deploy
+  // is two files: index.html and api.php. That matters because Kinsta's file
+  // manager uploads one file at a time.
+  plugins: [react(), viteSingleFile()],
+  build: {
+    assetsInlineLimit: Number.MAX_SAFE_INTEGER,
+    cssCodeSplit: false,
+    chunkSizeWarningLimit: 4000,
+  },
   // The survey is served from a folder on zenegy.com (like /CVR-Tjek and
   // /SalesTeam), so assets must be referenced relative to index.html — an
   // absolute /assets/… would resolve against the WordPress root.

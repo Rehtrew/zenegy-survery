@@ -32,21 +32,21 @@ describe('endpoint resolution', () => {
     servedFrom('/undersogelse/')
     fetchMock.mockResolvedValueOnce(ok())
     await submitSurvey(submission)
-    expect(fetchMock.mock.calls[0][0]).toBe('/undersogelse/api/submit.php')
+    expect(fetchMock.mock.calls[0][0]).toBe('/undersogelse/api.php')
   })
 
   it('resolves from the folder even without a trailing slash', async () => {
     servedFrom('/undersogelse/index.html')
     fetchMock.mockResolvedValueOnce(ok())
     await submitSurvey(submission)
-    expect(fetchMock.mock.calls[0][0]).toBe('/undersogelse/api/submit.php')
+    expect(fetchMock.mock.calls[0][0]).toBe('/undersogelse/api.php')
   })
 
   it('works at the site root', async () => {
     servedFrom('/')
     fetchMock.mockResolvedValueOnce(ok())
     await submitSurvey(submission)
-    expect(fetchMock.mock.calls[0][0]).toBe('/api/submit.php')
+    expect(fetchMock.mock.calls[0][0]).toBe('/api.php')
   })
 })
 

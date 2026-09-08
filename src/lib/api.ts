@@ -1,9 +1,9 @@
 import type { Submission } from '../types'
 
 /**
- * Talks to the PHP endpoint that ships next to the built site
- * (`kinsta/api/submit.php` → `api/submit.php` in the deployed folder). It owns
- * the database connection, so nothing secret reaches the browser.
+ * Talks to `api.php`, the PHP bundle that sits next to index.html in the
+ * deployed folder. It owns the database connection, so nothing secret reaches
+ * the browser.
  *
  * Answers only — the optional report email goes to HubSpot instead (lib/hubspot.ts).
  *
@@ -11,14 +11,14 @@ import type { Submission } from '../types'
  * zenegy.com, and the folder can be renamed without touching the code. Set
  * `VITE_API_BASE` at build time only if the API ever moves somewhere else.
  */
-const BASE = import.meta.env.VITE_API_BASE ?? 'api'
+const BASE = import.meta.env.VITE_API_BASE ?? '.'
 
 /** Resolve against the page URL so it works in a subfolder, with or without a trailing slash. */
 function endpoint(file: string): string {
   if (/^https?:\/\//.test(BASE) || BASE.startsWith('/')) return `${BASE.replace(/\/$/, '')}/${file}`
   const path = window.location.pathname
   const dir = path.endsWith('/') ? path : path.slice(0, path.lastIndexOf('/') + 1)
-  return `${dir}${BASE}/${file}`
+  return `${dir}${file}`
 }
 
 async function post(file: string, body: unknown): Promise<void> {
@@ -45,5 +45,5 @@ async function post(file: string, body: unknown): Promise<void> {
 
 /** Insert a completed survey. Answers are anonymous; no email is attached. */
 export async function submitSurvey(data: Submission): Promise<void> {
-  await post('submit.php', data)
+  await post('api.php', data)
 }
