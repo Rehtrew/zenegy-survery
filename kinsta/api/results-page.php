@@ -37,7 +37,7 @@ function survey_require_login(): void
 /** Free-text columns, newest first, so the actual wording gets read. */
 const SURVEY_FREE_TEXT = [
     'a_satisfaction_text'     => 'Uddybning af tilfredshed',
-    'a_best_thing_text'       => 'Største værdi — med egne ord',
+    'a_best_thing_text'       => 'Største værdi, med egne ord',
     'a_improve_text'          => 'Hvad kan vi forbedre',
     'b_frustration_other'     => 'Andre frustrationer',
     'b_barrier_other'         => 'Andre barrierer',
@@ -220,7 +220,7 @@ function survey_results_main(): never
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Svar — Lønmarkedsundersøgelsen 2026</title>
+<title>Svar | Lønmarkedsundersøgelsen 2026</title>
 <style>
   :root { --ink:#14132b; --ink-2:#5b5b66; --ink-3:#8b88a5; --line:#e6e4ef; --bg:#fbfaff; --card:#fff; --accent:#6e30fd; --accent-soft:#efeafe; }
   * { box-sizing:border-box }

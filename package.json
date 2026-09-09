@@ -13,7 +13,8 @@
     "build:kinsta": "node scripts/gen-labels.mjs && npm run build && node scripts/build-kinsta.mjs",
     "api": "php -S localhost:8000 -t dist",
     "test:php": "php kinsta/tests/columns.test.php",
-    "deploy": "bash scripts/deploy-kinsta.sh"
+    "deploy": "bash scripts/deploy-kinsta.sh",
+    "gen:content": "node scripts/gen-survey-content.mjs"
   },
   "dependencies": {
     "motion": "^12.40.0",

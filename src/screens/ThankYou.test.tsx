@@ -55,16 +55,38 @@ describe('ThankYou (merged completion page)', () => {
     renderThankYou({ track: 'zenegy' })
     await userEvent.type(screen.getByPlaceholderText('din@email.dk'), 'a@b.dk')
     await userEvent.click(screen.getByText('Send mig rapporten, når den er klar'))
-    await waitFor(() => expect(signupForReport).toHaveBeenCalledWith('a@b.dk', false))
+    await waitFor(() => expect(signupForReport)
+      .toHaveBeenCalledWith('a@b.dk', { newsletter: false, futureSurveys: false }))
     expect(await screen.findByText('Du er på listen')).toBeInTheDocument()
   })
 
   it('passes the newsletter opt-in along with the email', async () => {
     renderThankYou({ track: 'non-zenegy' })
     await userEvent.type(screen.getByPlaceholderText('din@email.dk'), 'a@b.dk')
-    await userEvent.click(screen.getByRole('checkbox'))
+    await userEvent.click(screen.getByLabelText(/nyhedsbrev/i))
     await userEvent.click(screen.getByText('Send mig rapporten, når den er klar'))
-    await waitFor(() => expect(signupForReport).toHaveBeenCalledWith('a@b.dk', true))
+    await waitFor(() => expect(signupForReport)
+      .toHaveBeenCalledWith('a@b.dk', { newsletter: true, futureSurveys: false }))
+  })
+
+  it('passes the future-surveys opt-in without dragging the newsletter along', async () => {
+    renderThankYou({ payroll_context: 'bureau' })
+    await userEvent.type(screen.getByPlaceholderText('din@email.dk'), 'a@b.dk')
+    await userEvent.click(screen.getByLabelText(/kommende undersøgelser/i))
+    await userEvent.click(screen.getByText('Send mig rapporten, når den er klar'))
+    await waitFor(() => expect(signupForReport)
+      .toHaveBeenCalledWith('a@b.dk', { newsletter: false, futureSurveys: true }))
+  })
+
+  it('can take both opt-ins at once', async () => {
+    renderThankYou({ is_employee: true })
+    await userEvent.type(screen.getByPlaceholderText('din@email.dk'), 'a@b.dk')
+    await userEvent.click(screen.getByLabelText(/nyhedsbrev/i))
+    await userEvent.click(screen.getByLabelText(/kommende undersøgelser/i))
+    await userEvent.click(screen.getByText('Send mig rapporten, når den er klar'))
+    await waitFor(() => expect(signupForReport)
+      .toHaveBeenCalledWith('a@b.dk', { newsletter: true, futureSurveys: true }))
+    expect(await screen.findByText(/nye undersøgelser/i)).toBeInTheDocument()
   })
 
   it('shows a retry chip when saving fails', async () => {

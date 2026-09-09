@@ -21,7 +21,7 @@ const SURVEY_QUESTION_LABELS = [
     ],
     'payroll_context' => [
         'short' => 'Din hverdag',
-        'question' => 'Kører du løn for din egen virksomhed — eller for andres?',
+        'question' => 'Kører du løn for din egen virksomhed eller for andres?',
     ],
     'size' => [
         'short' => 'Antal medarbejdere',
@@ -77,7 +77,7 @@ const SURVEY_QUESTION_LABELS = [
     ],
     'c_setup' => [
         'short' => 'Aftalen med kunden',
-        'question' => 'Hvem bestemmer lønsystemet — og hvem betaler for det?',
+        'question' => 'Hvem bestemmer lønsystemet, og hvem betaler for det?',
     ],
     'c_data_collection' => [
         'short' => 'Løndata fra kunder',
@@ -85,7 +85,7 @@ const SURVEY_QUESTION_LABELS = [
     ],
     'c_frustrations' => [
         'short' => 'Tidsrøvere',
-        'question' => 'Hvad tager mest tid — eller giver flest frustrationer — i lønarbejdet for dine kunder?',
+        'question' => 'Hvad tager mest tid eller giver flest frustrationer i lønarbejdet for dine kunder?',
     ],
     'c_priorities' => [
         'short' => 'Prioriteter',
@@ -134,7 +134,7 @@ const SURVEY_VALUE_LABELS = [
         '1' => 'Jeg er primært lønmodtager',
     ],
     'a_nps' => [
-        '0' => '0 — slet ikke',
+        '0' => '0 (slet ikke)',
         '1' => '1',
         '2' => '2',
         '3' => '3',
@@ -144,7 +144,7 @@ const SURVEY_VALUE_LABELS = [
         '7' => '7',
         '8' => '8',
         '9' => '9',
-        '10' => '10 — helt sikkert',
+        '10' => '10 (helt sikkert)',
     ],
     'payroll_context' => [
         'internal' => 'Kun for min egen virksomhed',
@@ -180,7 +180,7 @@ const SURVEY_VALUE_LABELS = [
         'price-value' => 'Prisen står ikke mål med, hvad produktet kan',
         'missing-features' => 'Mangler moderne features (f.eks. app eller HR-værktøjer)',
         'manual-errors' => 'Mange manuelle trin, hvor fejl kan opstå',
-        'satisfied' => 'Faktisk ingenting — jeg er tilfreds',
+        'satisfied' => 'Faktisk ingenting, jeg er tilfreds',
         'other' => 'Andet',
     ],
     'b_priorities' => [
@@ -198,12 +198,12 @@ const SURVEY_VALUE_LABELS = [
         'advisor-decision' => 'Det er vores eksterne revisor/bogholder, der beslutter',
         'contract-lock' => 'Vi er bundet af en kontrakt eller et større ERP-system',
         'unknown-market' => 'Vi kender ikke alternativerne godt nok',
-        'happy-staying' => 'Vi er tilfredse — et skifte er ikke aktuelt',
+        'happy-staying' => 'Vi er tilfredse, så et skifte er ikke aktuelt',
         'other' => 'Andet',
     ],
     'b_switch_intent' => [
         'actively' => 'Ja, vi kigger aktivt på alternativer',
-        'maybe' => 'Måske — det er ikke udelukket',
+        'maybe' => 'Måske, det er ikke udelukket',
         'no' => 'Nej, ikke lige nu',
     ],
     'a_products' => [
@@ -273,7 +273,7 @@ const SURVEY_VALUE_LABELS = [
         'mixed' => 'Det er helt forskelligt fra kunde til kunde',
     ],
     'c_data_collection' => [
-        'email-excel' => 'På mail — typisk et Excel-ark eller en besked',
+        'email-excel' => 'På mail, typisk et Excel-ark eller en besked',
         'client-portal' => 'Kunden taster selv ind i lønsystemet eller en portal',
         'time-system' => 'Automatisk fra et tidsregistreringssystem',
         'messages' => 'Telefon, SMS eller løse beskeder',
@@ -285,8 +285,8 @@ const SURVEY_VALUE_LABELS = [
         'chasing-data' => 'At jage løndata og svar hos kunderne inden deadline',
         'many-systems' => 'At skulle arbejde i flere forskellige lønsystemer',
         'switching-clients' => 'Skift mellem kunder, logins og faner',
-        'client-onboarding' => 'At sætte nye kunder op — lønarter, overenskomst og pension',
-        'no-bulk-actions' => 'Manglende massehandlinger — jeg gentager det samme kunde for kunde',
+        'client-onboarding' => 'At sætte nye kunder op med lønarter, overenskomst og pension',
+        'no-bulk-actions' => 'Manglende massehandlinger, så jeg gentager det samme kunde for kunde',
         'approval-trail' => 'Godkendelse og dokumentation af, hvad kunden har godkendt',
         'reconciliation' => 'Afstemning og bogføring af lønnen i regnskabssystemet',
         'employee-questions' => 'Spørgsmål fra kundernes medarbejdere',
@@ -295,7 +295,7 @@ const SURVEY_VALUE_LABELS = [
     ],
     'c_priorities' => [
         'one-login' => 'Ét login og overblik på tværs af alle kunder',
-        'bulk-actions' => 'Massehandlinger — flere kunder klaret i ét flow',
+        'bulk-actions' => 'Massehandlinger, så flere kunder klares i ét flow',
         'client-self-service' => 'At kunden selv leverer og godkender løndata',
         'integrations' => 'Automatisk bogføring og integration til regnskabssystemet',
         'expert-support' => 'Support med lønfaglig viden, når reglerne er svære',
@@ -304,9 +304,9 @@ const SURVEY_VALUE_LABELS = [
         'compliance' => 'Sikkerhed, GDPR og revisionsspor',
     ],
     'c_switch_intent' => [
-        'actively-consolidating' => 'Ja — jeg leder efter ét system til så mange kunder som muligt',
-        'actively-some' => 'Ja — for enkelte kunder',
-        'maybe' => 'Måske — det er ikke udelukket',
+        'actively-consolidating' => 'Ja, jeg leder efter ét system til så mange kunder som muligt',
+        'actively-some' => 'Ja, for enkelte kunder',
+        'maybe' => 'Måske, det er ikke udelukket',
         'no' => 'Nej, ikke lige nu',
     ],
     'e_payslip' => [
@@ -319,14 +319,14 @@ const SURVEY_VALUE_LABELS = [
         'expense-pain' => 'Gemme kvitteringer og afregne udlæg/kørsel manuelt',
         'time-pain' => 'Tidsregistrering eller at logge ferie og fravær',
         'payslip-confusing' => 'Min lønseddel er svær at tyde',
-        'no-mobile-access' => 'Mangel på en app — jeg skal klare alt fra en computer',
-        'none' => 'Ingen — det fungerer fint',
+        'no-mobile-access' => 'Mangel på en app, så jeg skal klare alt fra en computer',
+        'none' => 'Ingen, det fungerer fint',
     ],
     'e_expenses' => [
-        'seconds' => 'Få sekunder — et billede i en app, så er det klaret',
-        'minutes' => 'Et par minutter — en formular online',
-        'heavy-process' => 'Længere — gemme kvittering, printe eller sende mail',
-        'not-relevant' => 'Ikke relevant — jeg har ikke udlæg',
+        'seconds' => 'Få sekunder: et billede i en app, så er det klaret',
+        'minutes' => 'Et par minutter: en formular online',
+        'heavy-process' => 'Længere: gemme kvittering, printe eller sende mail',
+        'not-relevant' => 'Ikke relevant, jeg har ikke udlæg',
     ],
     'e_ai_trust' => [
         'checking' => 'Til at tjekke min lønseddel for fejl (f.eks. manglende tillæg)',
@@ -359,7 +359,7 @@ const SURVEY_VALUE_SUBLABELS = [
         '1' => 'Jeg modtager lønseddel, men har ikke systemansvar',
     ],
     'payroll_context' => [
-        'internal' => 'Jeg sidder internt — direktør, HR, bogholder eller økonomiansvarlig',
+        'internal' => 'Jeg sidder internt som direktør, HR, bogholder eller økonomiansvarlig',
         'bureau' => 'Revisor, bogholder eller lønbureau, der kører løn for kunder',
         'both' => 'Både min egen virksomhed og et antal kunder',
     ],
@@ -397,7 +397,7 @@ const SURVEY_VALUE_SUBLABELS = [
         'epos' => 'Azets',
     ],
     'c_setup' => [
-        'we-choose-we-pay' => 'Vi fakturerer kunden for lønnen — kunden ser sjældent systemet',
+        'we-choose-we-pay' => 'Vi fakturerer kunden for lønnen, og kunden ser sjældent systemet',
         'we-choose-client-pays' => 'Kunden betaler selv, men følger vores anbefaling',
         'client-chose' => 'Vi arbejder i det, kunden allerede har',
         'mixed' => 'Ingen fast model',

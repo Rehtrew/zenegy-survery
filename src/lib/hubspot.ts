@@ -8,13 +8,15 @@
  * straight from the browser with no token and no proxy.
  *
  * HubSpot rejects submissions containing fields that don't exist on the form, so
- * the newsletter checkbox is only sent when its field name is configured.
+ * each checkbox is only sent when its field name is configured.
  */
 
 const PORTAL_ID = import.meta.env.VITE_HUBSPOT_PORTAL_ID ?? ''
 const FORM_GUID = import.meta.env.VITE_HUBSPOT_FORM_GUID ?? ''
 /** Internal name of the newsletter property on the HubSpot form, if it has one. */
 const NEWSLETTER_FIELD = import.meta.env.VITE_HUBSPOT_NEWSLETTER_FIELD ?? ''
+/** Internal name of the "tell me about future surveys" property, if the form has one. */
+const SURVEYS_FIELD = import.meta.env.VITE_HUBSPOT_SURVEYS_FIELD ?? ''
 
 /** The tracking cookie HubSpot sets, so a submission joins up with the visit. */
 function hubspotCookie(): string | undefined {
@@ -24,10 +26,21 @@ function hubspotCookie(): string | undefined {
 
 interface HubSpotField { name: string; value: string }
 
-export function buildPayload(email: string, newsletterOptIn: boolean) {
+/** What the respondent ticked. Both are optional and independent of each other. */
+export interface SignupOptIns {
+  /** Zenegy's newsletter: tips and product updates. */
+  newsletter: boolean
+  /** A heads-up when we run the next survey. */
+  futureSurveys: boolean
+}
+
+export function buildPayload(email: string, optIns: SignupOptIns) {
   const fields: HubSpotField[] = [{ name: 'email', value: email }]
   if (NEWSLETTER_FIELD) {
-    fields.push({ name: NEWSLETTER_FIELD, value: String(newsletterOptIn) })
+    fields.push({ name: NEWSLETTER_FIELD, value: String(optIns.newsletter) })
+  }
+  if (SURVEYS_FIELD) {
+    fields.push({ name: SURVEYS_FIELD, value: String(optIns.futureSurveys) })
   }
   const hutk = hubspotCookie()
   return {
@@ -44,7 +57,7 @@ export function buildPayload(email: string, newsletterOptIn: boolean) {
  * Send the email to HubSpot. Answers are already saved at this point, so a
  * failure here only costs the report opt-in — the caller shows a retry.
  */
-export async function signupForReport(email: string, newsletterOptIn: boolean): Promise<void> {
+export async function signupForReport(email: string, optIns: SignupOptIns): Promise<void> {
   if (!PORTAL_ID || !FORM_GUID) {
     console.error('HubSpot is not configured: set VITE_HUBSPOT_PORTAL_ID and VITE_HUBSPOT_FORM_GUID at build time.')
     throw new Error('Tilmelding er ikke sat op endnu. Prøv igen senere.')
@@ -57,7 +70,7 @@ export async function signupForReport(email: string, newsletterOptIn: boolean): 
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(buildPayload(email, newsletterOptIn)),
+        body: JSON.stringify(buildPayload(email, optIns)),
       },
     )
   } catch {

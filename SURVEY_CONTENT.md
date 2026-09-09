@@ -1,23 +1,23 @@
-# Survey Content — Lønmarkedet 2026
+# Survey Content: Lønmarkedet 2026
 
 Alt tekst, alle spørgsmål og alle svarmuligheder i undersøgelsen. Genereret ud fra
-`src/lib/questions.ts` (2026-09-02) — koden er kilden; opdater doc'et, når spørgsmålene ændres.
+`src/lib/questions.ts` (2026-09-09). Koden er kilden; opdater doc'et, når spørgsmålene ændres.
 
 Undersøgelsen har fire spor:
 
 | Spor | Hvem | Hvordan de rammes |
 |------|------|-------------------|
 | **Medarbejder** | Lønmodtagere uden systemansvar | `gate` = `employee` |
-| **A — Zenegy-kunde** | Intern løn-/systemansvarlig, der bruger Zenegy | `context` = `internal` + `q0` = `zenegy` |
-| **B — Andet system** | Intern løn-/systemansvarlig på et andet system | `context` = `internal` + `q0` = `non-zenegy` |
-| **C — Bureau** | Revisorer, bogholdere og lønbureauer, der kører løn for kunder | `context` = `bureau` eller `both` |
+| **A · Zenegy-kunde** | Intern løn-/systemansvarlig, der bruger Zenegy | `context` = `internal` + `q0` = `zenegy` |
+| **B · Andet system** | Intern løn-/systemansvarlig på et andet system | `context` = `internal` + `q0` = `non-zenegy` |
+| **C · Bureau** | Revisorer, bogholdere og lønbureauer, der kører løn for kunder | `context` = `bureau` eller `both` |
 
 ## Alle spørgsmål, sti for sti
 
-Hver respondent ser én af stierne herunder — spørgsmålene i den rækkefølge, de kommer.
-Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgsmål**.
+Hver respondent ser én af stierne herunder. Ingen ser dem alle. Ordlyd og
+svarmuligheder står længere nede under **Spørgsmål**.
 
-### employee — 5 spørgsmål
+### Medarbejder (5 spørgsmål)
 
 | # | ID | Spørgsmål | Type |
 |---|----|-----------|------|
@@ -27,12 +27,12 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 | 4 | `e3` | Hvis du laver et udlæg, hvor lang tid bruger du i gennemsnit på at registrere det? | choice-single |
 | 5 | `e4` | Hvor ville du være mest tryg ved, at en AI hjalp dig med dine løn- og arbejdsdata? | choice-single |
 
-### internal-zenegy — 11 spørgsmål
+### A · Intern, bruger Zenegy (11 spørgsmål)
 
 | # | ID | Spørgsmål | Type |
 |---|----|-----------|------|
 | 1 | `gate` | Hvilken rolle spiller du i håndteringen af løn eller regnskab? | choice-single |
-| 2 | `context` | Kører du løn for din egen virksomhed — eller for andres? | choice-single |
+| 2 | `context` | Kører du løn for din egen virksomhed eller for andres? | choice-single |
 | 3 | `q0` | Er Zenegy en del af jeres systemlandskab i dag? | choice-tiles |
 | 4 | `size` | Hvor mange medarbejdere kører I løn for? | choice-single |
 | 5 | `a1` | Hvilke Zenegy-produkter bruger du aktivt i dag? | choice-multi |
@@ -43,12 +43,12 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 | 10 | `ai` | Hvor ser du det største potentiale for AI i jeres administrative processer? | choice-single |
 | 11 | `numbers` | Hvilket regnskabs- eller ERP-system bruger I i dag? | logo-grid |
 
-### internal-non-zenegy — 11 spørgsmål
+### B · Intern, andet system (11 spørgsmål)
 
 | # | ID | Spørgsmål | Type |
 |---|----|-----------|------|
 | 1 | `gate` | Hvilken rolle spiller du i håndteringen af løn eller regnskab? | choice-single |
-| 2 | `context` | Kører du løn for din egen virksomhed — eller for andres? | choice-single |
+| 2 | `context` | Kører du løn for din egen virksomhed eller for andres? | choice-single |
 | 3 | `q0` | Er Zenegy en del af jeres systemlandskab i dag? | choice-tiles |
 | 4 | `size` | Hvor mange medarbejdere kører I løn for? | choice-single |
 | 5 | `b1` | Hvilket lønsystem bruger din virksomhed primært i dag? | logo-grid |
@@ -59,62 +59,38 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 | 10 | `ai` | Hvor ser du det største potentiale for AI i jeres administrative processer? | choice-single |
 | 11 | `numbers` | Hvilket regnskabs- eller ERP-system bruger I i dag? | logo-grid |
 
-### bureau-zenegy — 12 spørgsmål
+### C · Bureau, arbejder i Zenegy (12 spørgsmål)
 
 | # | ID | Spørgsmål | Type |
 |---|----|-----------|------|
 | 1 | `gate` | Hvilken rolle spiller du i håndteringen af løn eller regnskab? | choice-single |
-| 2 | `context` | Kører du løn for din egen virksomhed — eller for andres? | choice-single |
+| 2 | `context` | Kører du løn for din egen virksomhed eller for andres? | choice-single |
 | 3 | `c1` | Hvor mange virksomheder kører du løn for i dag? | choice-single |
 | 4 | `c2` | Hvilke lønsystemer arbejder du i for dine kunder? | logo-grid-multi |
-| 5 | `c3` | Hvem bestemmer lønsystemet — og hvem betaler for det? | choice-single |
+| 5 | `c3` | Hvem bestemmer lønsystemet, og hvem betaler for det? | choice-single |
 | 6 | `c4` | Hvordan får du løndata fra dine kunder? | tile-select |
-| 7 | `c5` | Hvad tager mest tid — eller giver flest frustrationer — i lønarbejdet for dine kunder? | tile-select |
+| 7 | `c5` | Hvad tager mest tid eller giver flest frustrationer i lønarbejdet for dine kunder? | tile-select |
 | 8 | `c6` | Hvad vejer tungest, når du vælger lønsystem til dine kunder? | priority-rank |
 | 9 | `a2` | Hvor tilfreds er du med Zenegy i dit daglige arbejde med kunder? | emoji-rating + fritekst |
 | 10 | `a4` | Ville du anbefale Zenegy til en kollega i branchen? | nps-scale + fritekst |
 | 11 | `ai` | Hvor ser du det største potentiale for AI i lønarbejdet for dine kunder? | choice-single |
 | 12 | `numbers` | Hvilket regnskabssystem arbejder du mest i for dine kunder? | logo-grid |
 
-### bureau-other — 11 spørgsmål
+### C · Bureau, ikke Zenegy (11 spørgsmål)
 
 | # | ID | Spørgsmål | Type |
 |---|----|-----------|------|
 | 1 | `gate` | Hvilken rolle spiller du i håndteringen af løn eller regnskab? | choice-single |
-| 2 | `context` | Kører du løn for din egen virksomhed — eller for andres? | choice-single |
+| 2 | `context` | Kører du løn for din egen virksomhed eller for andres? | choice-single |
 | 3 | `c1` | Hvor mange virksomheder kører du løn for i dag? | choice-single |
 | 4 | `c2` | Hvilke lønsystemer arbejder du i for dine kunder? | logo-grid-multi |
-| 5 | `c3` | Hvem bestemmer lønsystemet — og hvem betaler for det? | choice-single |
+| 5 | `c3` | Hvem bestemmer lønsystemet, og hvem betaler for det? | choice-single |
 | 6 | `c4` | Hvordan får du løndata fra dine kunder? | tile-select |
-| 7 | `c5` | Hvad tager mest tid — eller giver flest frustrationer — i lønarbejdet for dine kunder? | tile-select |
+| 7 | `c5` | Hvad tager mest tid eller giver flest frustrationer i lønarbejdet for dine kunder? | tile-select |
 | 8 | `c6` | Hvad vejer tungest, når du vælger lønsystem til dine kunder? | priority-rank |
 | 9 | `c7` | Overvejer du at flytte kunder til et andet lønsystem inden for det næste år? | choice-single |
 | 10 | `ai` | Hvor ser du det største potentiale for AI i lønarbejdet for dine kunder? | choice-single |
 | 11 | `numbers` | Hvilket regnskabssystem arbejder du mest i for dine kunder? | logo-grid |
-
----
-
-## Landingsside
-
-**Eyebrow chip**
-> Markedsundersøgelse 2026
-
-**Headline**
-> Hvordan ser lønmarkedet ud i Danmark i 2026?
-
-**Body**
-> Vi spørger dem, der arbejder med løn hver måned — virksomheder, revisorer og lønbureauer, og dem der bare modtager lønsedlen. Brug 2–3 minutter på dine erfaringer med lønsystemerne og arbejdsgangene omkring dem, og få Lønmarkedsrapporten 2026 tilsendt, når undersøgelsen lukker.
-
-**Primær CTA**
-> Start undersøgelsen
-
-**Value rows**
-
-| Titel | Undertekst |
-|-------|------------|
-| 2–3 minutter | Kort og kontant — de fleste er færdige på et øjeblik. |
-| Anonymt | Vi registrerer ikke, hvem du er. Til sidst kan du selv vælge at give os din mail. |
-| Få rapporten tilsendt | Du modtager de samlede indsigter og benchmarks, når undersøgelsen lukker. |
 
 ---
 
@@ -123,7 +99,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `gate` · Din rolle
 
 **Type:** choice-single (auto-advance)  
-**Vises for:** employee, internal-zenegy, internal-non-zenegy, bureau-zenegy, bureau-other
+**Vises for:** Medarbejder, A · Intern, bruger Zenegy, B · Intern, andet system, C · Bureau, arbejder i Zenegy, C · Bureau, ikke Zenegy
 
 > Hvilken rolle spiller du i håndteringen af løn eller regnskab?
 
@@ -139,7 +115,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `e1` · Din lønseddel
 
 **Type:** choice-single (auto-advance)  
-**Vises for:** employee
+**Vises for:** Medarbejder
 
 > Hvor modtager du typisk din lønseddel?
 
@@ -157,7 +133,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `e2` · Besværlige opgaver
 
 **Type:** tile-select  
-**Vises for:** employee
+**Vises for:** Medarbejder
 
 > Hvilke administrative opgaver oplever du som mest besværlige på din arbejdsplads?
 
@@ -168,31 +144,31 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 | `expense-pain` | Gemme kvitteringer og afregne udlæg/kørsel manuelt |  |
 | `time-pain` | Tidsregistrering eller at logge ferie og fravær |  |
 | `payslip-confusing` | Min lønseddel er svær at tyde |  |
-| `no-mobile-access` | Mangel på en app — jeg skal klare alt fra en computer |  |
-| `none` | Ingen — det fungerer fint |  |
+| `no-mobile-access` | Mangel på en app, så jeg skal klare alt fra en computer |  |
+| `none` | Ingen, det fungerer fint |  |
 
 ---
 
 ### `e3` · Udlægsregistrering
 
 **Type:** choice-single (auto-advance)  
-**Vises for:** employee
+**Vises for:** Medarbejder
 
 > Hvis du laver et udlæg, hvor lang tid bruger du i gennemsnit på at registrere det?
 
 | Value | Label | Sublabel |
 |-------|-------|----------|
-| `seconds` | Få sekunder — et billede i en app, så er det klaret |  |
-| `minutes` | Et par minutter — en formular online |  |
-| `heavy-process` | Længere — gemme kvittering, printe eller sende mail |  |
-| `not-relevant` | Ikke relevant — jeg har ikke udlæg |  |
+| `seconds` | Få sekunder: et billede i en app, så er det klaret |  |
+| `minutes` | Et par minutter: en formular online |  |
+| `heavy-process` | Længere: gemme kvittering, printe eller sende mail |  |
+| `not-relevant` | Ikke relevant, jeg har ikke udlæg |  |
 
 ---
 
 ### `e4` · AI i løn
 
 **Type:** choice-single (auto-advance)  
-**Vises for:** employee
+**Vises for:** Medarbejder
 
 > Hvor ville du være mest tryg ved, at en AI hjalp dig med dine løn- og arbejdsdata?
 
@@ -208,15 +184,15 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `context` · Din hverdag
 
 **Type:** choice-single (auto-advance)  
-**Vises for:** internal-zenegy, internal-non-zenegy, bureau-zenegy, bureau-other
+**Vises for:** A · Intern, bruger Zenegy, B · Intern, andet system, C · Bureau, arbejder i Zenegy, C · Bureau, ikke Zenegy
 
-> Kører du løn for din egen virksomhed — eller for andres?
+> Kører du løn for din egen virksomhed eller for andres?
 
 *Vi spørger, fordi hverdagen ser helt forskellig ud, alt efter om du sidder internt eller håndterer løn for kunder.*
 
 | Value | Label | Sublabel |
 |-------|-------|----------|
-| `internal` | Kun for min egen virksomhed | Jeg sidder internt — direktør, HR, bogholder eller økonomiansvarlig |
+| `internal` | Kun for min egen virksomhed | Jeg sidder internt som direktør, HR, bogholder eller økonomiansvarlig |
 | `bureau` | For andre virksomheder (lønadministrator) | Revisor, bogholder eller lønbureau, der kører løn for kunder |
 | `both` | Begge dele | Både min egen virksomhed og et antal kunder |
 
@@ -225,7 +201,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `q0` · Dit system
 
 **Type:** choice-tiles (auto-advance)  
-**Vises for:** internal-zenegy, internal-non-zenegy
+**Vises for:** A · Intern, bruger Zenegy, B · Intern, andet system
 
 > Er Zenegy en del af jeres systemlandskab i dag?
 
@@ -241,7 +217,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `size` · Antal medarbejdere
 
 **Type:** choice-single (auto-advance)  
-**Vises for:** internal-zenegy, internal-non-zenegy
+**Vises for:** A · Intern, bruger Zenegy, B · Intern, andet system
 
 > Hvor mange medarbejdere kører I løn for?
 
@@ -259,7 +235,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `a1` · Zenegy-produkter
 
 **Type:** choice-multi  
-**Vises for:** internal-zenegy
+**Vises for:** A · Intern, bruger Zenegy
 
 > Hvilke Zenegy-produkter bruger du aktivt i dag?
 
@@ -277,7 +253,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `a1_migration` · Tidligere system
 
 **Type:** logo-grid (auto-advance)  
-**Vises for:** internal-zenegy
+**Vises for:** A · Intern, bruger Zenegy
 
 > Hvilket system kom du fra, da du valgte Zenegy?
 
@@ -305,11 +281,11 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `a2` · Tilfredshed
 
 **Type:** emoji-rating  
-**Vises for:** internal-zenegy
+**Vises for:** A · Intern, bruger Zenegy
 
 > Hvor tilfreds er du med Zenegy i hverdagen?
 
-*Tænk på den generelle oplevelse — ikke kun onboarding.*
+*Tænk på den generelle oplevelse, ikke kun onboarding.*
 
 **Fritekst-label:** Vil du sætte et par ord på? (valgfrit)  
 **Fritekst-placeholder:** Hvad er den primære årsag til din rating?  
@@ -328,7 +304,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `a3` · Største værdi
 
 **Type:** choice-single  
-**Vises for:** internal-zenegy
+**Vises for:** A · Intern, bruger Zenegy
 
 > Hvor mærker du den største værdi ved at bruge Zenegy?
 
@@ -352,11 +328,11 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `a4` · Anbefaling
 
 **Type:** nps-scale  
-**Vises for:** internal-zenegy
+**Vises for:** A · Intern, bruger Zenegy
 
 > Ville du anbefale Zenegy til en kollega eller en i dit professionelle netværk?
 
-*Det her måler noget andet end tilfredshed — om du ville sætte dit navn på en anbefaling.*
+*Det her måler noget andet end tilfredshed, nemlig om du ville sætte dit navn på en anbefaling.*
 
 **Fritekst-label:** Hvad er det vigtigste, vi kan forbedre? (valgfrit)  
 **Fritekst-placeholder:** Din feedback går direkte til vores produktteam...  
@@ -366,7 +342,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `ai` · AI-potentiale
 
 **Type:** choice-single (auto-advance)  
-**Vises for:** internal-zenegy, internal-non-zenegy
+**Vises for:** A · Intern, bruger Zenegy, B · Intern, andet system
 
 > Hvor ser du det største potentiale for AI i jeres administrative processer?
 
@@ -384,11 +360,11 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `numbers` · Regnskabssystem
 
 **Type:** logo-grid (auto-advance)  
-**Vises for:** internal-zenegy, internal-non-zenegy
+**Vises for:** A · Intern, bruger Zenegy, B · Intern, andet system
 
 > Hvilket regnskabs- eller ERP-system bruger I i dag?
 
-*Vi er nysgerrige — ikke på jagt efter salg.*
+*Vi er nysgerrige, ikke på jagt efter salg.*
 
 | Value | Label | Sublabel |
 |-------|-------|----------|
@@ -406,7 +382,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `b1` · Lønsystem
 
 **Type:** logo-grid (auto-advance)  
-**Vises for:** internal-non-zenegy
+**Vises for:** B · Intern, andet system
 
 > Hvilket lønsystem bruger din virksomhed primært i dag?
 
@@ -433,7 +409,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `b2` · Frustrationer
 
 **Type:** tile-select  
-**Vises for:** internal-non-zenegy
+**Vises for:** B · Intern, andet system
 
 > Hvad frustrerer dig mest ved dit nuværende lønsystem?
 
@@ -450,7 +426,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 | `price-value` | Prisen står ikke mål med, hvad produktet kan |  |
 | `missing-features` | Mangler moderne features (f.eks. app eller HR-værktøjer) |  |
 | `manual-errors` | Mange manuelle trin, hvor fejl kan opstå |  |
-| `satisfied` | Faktisk ingenting — jeg er tilfreds |  |
+| `satisfied` | Faktisk ingenting, jeg er tilfreds |  |
 | `other` | Andet |  |
 
 ---
@@ -458,7 +434,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `b3` · Prioriteter
 
 **Type:** priority-rank  
-**Vises for:** internal-non-zenegy
+**Vises for:** B · Intern, andet system
 
 > Hvilke faktorer vejer du højest i et lønsystem?
 
@@ -480,7 +456,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `b4` · Skiftehindringer
 
 **Type:** tile-select  
-**Vises for:** internal-non-zenegy
+**Vises for:** B · Intern, andet system
 
 > Hvad er den primære årsag til, at I ikke skifter lønsystem?
 
@@ -496,7 +472,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 | `advisor-decision` | Det er vores eksterne revisor/bogholder, der beslutter |  |
 | `contract-lock` | Vi er bundet af en kontrakt eller et større ERP-system |  |
 | `unknown-market` | Vi kender ikke alternativerne godt nok |  |
-| `happy-staying` | Vi er tilfredse — et skifte er ikke aktuelt |  |
+| `happy-staying` | Vi er tilfredse, så et skifte er ikke aktuelt |  |
 | `other` | Andet |  |
 
 ---
@@ -504,16 +480,16 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `b5` · Skifteplaner
 
 **Type:** choice-single (auto-advance)  
-**Vises for:** internal-non-zenegy
+**Vises for:** B · Intern, andet system
 
 > Overvejer I at skifte lønsystem inden for det næste år?
 
-*Helt uforpligtende — vi er bare nysgerrige.*
+*Helt uforpligtende. Vi er bare nysgerrige.*
 
 | Value | Label | Sublabel |
 |-------|-------|----------|
 | `actively` | Ja, vi kigger aktivt på alternativer |  |
-| `maybe` | Måske — det er ikke udelukket |  |
+| `maybe` | Måske, det er ikke udelukket |  |
 | `no` | Nej, ikke lige nu |  |
 
 ---
@@ -521,11 +497,11 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `c1` · Antal kunder
 
 **Type:** choice-single (auto-advance)  
-**Vises for:** bureau-zenegy, bureau-other
+**Vises for:** C · Bureau, arbejder i Zenegy, C · Bureau, ikke Zenegy
 
 > Hvor mange virksomheder kører du løn for i dag?
 
-*Tæl de kunder, du selv står for lønnen på — også de helt små.*
+*Tæl de kunder, du selv står for lønnen på, også de helt små.*
 
 | Value | Label | Sublabel |
 |-------|-------|----------|
@@ -540,11 +516,11 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `c2` · Lønsystemer
 
 **Type:** logo-grid-multi  
-**Vises for:** bureau-zenegy, bureau-other
+**Vises for:** C · Bureau, arbejder i Zenegy, C · Bureau, ikke Zenegy
 
 > Hvilke lønsystemer arbejder du i for dine kunder?
 
-*Vælg alle, du bruger i dag — også dem, du kun har en enkelt kunde i.*
+*Vælg alle, du bruger i dag, også dem du kun har en enkelt kunde i.*
 
 | Value | Label | Sublabel |
 |-------|-------|----------|
@@ -568,15 +544,15 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `c3` · Aftalen med kunden
 
 **Type:** choice-single (auto-advance)  
-**Vises for:** bureau-zenegy, bureau-other
+**Vises for:** C · Bureau, arbejder i Zenegy, C · Bureau, ikke Zenegy
 
-> Hvem bestemmer lønsystemet — og hvem betaler for det?
+> Hvem bestemmer lønsystemet, og hvem betaler for det?
 
 *Vælg det, der passer på flest af dine kunder.*
 
 | Value | Label | Sublabel |
 |-------|-------|----------|
-| `we-choose-we-pay` | Vi vælger systemet og har abonnementet | Vi fakturerer kunden for lønnen — kunden ser sjældent systemet |
+| `we-choose-we-pay` | Vi vælger systemet og har abonnementet | Vi fakturerer kunden for lønnen, og kunden ser sjældent systemet |
 | `we-choose-client-pays` | Vi vælger systemet, kunden har abonnementet | Kunden betaler selv, men følger vores anbefaling |
 | `client-chose` | Kunden har valgt systemet | Vi arbejder i det, kunden allerede har |
 | `mixed` | Det er helt forskelligt fra kunde til kunde | Ingen fast model |
@@ -586,17 +562,17 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `c4` · Løndata fra kunder
 
 **Type:** tile-select  
-**Vises for:** bureau-zenegy, bureau-other
+**Vises for:** C · Bureau, arbejder i Zenegy, C · Bureau, ikke Zenegy
 
 > Hvordan får du løndata fra dine kunder?
 
-*Timer, tillæg, fravær og ændringer — vælg alle de måder, det sker på i dag.*
+*Timer, tillæg, fravær og ændringer. Vælg alle de måder, det sker på i dag.*
 
 **Fritekst-placeholder:** Hvordan kommer data ellers ind?  
 
 | Value | Label | Sublabel |
 |-------|-------|----------|
-| `email-excel` | På mail — typisk et Excel-ark eller en besked |  |
+| `email-excel` | På mail, typisk et Excel-ark eller en besked |  |
 | `client-portal` | Kunden taster selv ind i lønsystemet eller en portal |  |
 | `time-system` | Automatisk fra et tidsregistreringssystem |  |
 | `messages` | Telefon, SMS eller løse beskeder |  |
@@ -609,9 +585,9 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `c5` · Tidsrøvere
 
 **Type:** tile-select  
-**Vises for:** bureau-zenegy, bureau-other
+**Vises for:** C · Bureau, arbejder i Zenegy, C · Bureau, ikke Zenegy
 
-> Hvad tager mest tid — eller giver flest frustrationer — i lønarbejdet for dine kunder?
+> Hvad tager mest tid eller giver flest frustrationer i lønarbejdet for dine kunder?
 
 *Vælg alle der passer. Det er præcis den slags input, vi har brug for.*
 
@@ -622,8 +598,8 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 | `chasing-data` | At jage løndata og svar hos kunderne inden deadline |  |
 | `many-systems` | At skulle arbejde i flere forskellige lønsystemer |  |
 | `switching-clients` | Skift mellem kunder, logins og faner |  |
-| `client-onboarding` | At sætte nye kunder op — lønarter, overenskomst og pension |  |
-| `no-bulk-actions` | Manglende massehandlinger — jeg gentager det samme kunde for kunde |  |
+| `client-onboarding` | At sætte nye kunder op med lønarter, overenskomst og pension |  |
+| `no-bulk-actions` | Manglende massehandlinger, så jeg gentager det samme kunde for kunde |  |
 | `approval-trail` | Godkendelse og dokumentation af, hvad kunden har godkendt |  |
 | `reconciliation` | Afstemning og bogføring af lønnen i regnskabssystemet |  |
 | `employee-questions` | Spørgsmål fra kundernes medarbejdere |  |
@@ -635,7 +611,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `c6` · Prioriteter
 
 **Type:** priority-rank  
-**Vises for:** bureau-zenegy, bureau-other
+**Vises for:** C · Bureau, arbejder i Zenegy, C · Bureau, ikke Zenegy
 
 > Hvad vejer tungest, når du vælger lønsystem til dine kunder?
 
@@ -646,7 +622,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 | Value | Label | Sublabel |
 |-------|-------|----------|
 | `one-login` | Ét login og overblik på tværs af alle kunder |  |
-| `bulk-actions` | Massehandlinger — flere kunder klaret i ét flow |  |
+| `bulk-actions` | Massehandlinger, så flere kunder klares i ét flow |  |
 | `client-self-service` | At kunden selv leverer og godkender løndata |  |
 | `integrations` | Automatisk bogføring og integration til regnskabssystemet |  |
 | `expert-support` | Support med lønfaglig viden, når reglerne er svære |  |
@@ -659,11 +635,11 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `a2` · Tilfredshed
 
 **Type:** emoji-rating  
-**Vises for:** bureau-zenegy
+**Vises for:** C · Bureau, arbejder i Zenegy
 
 > Hvor tilfreds er du med Zenegy i dit daglige arbejde med kunder?
 
-*Tænk på oplevelsen på tværs af dine kunder — ikke kun en enkelt lønkørsel.*
+*Tænk på oplevelsen på tværs af dine kunder, ikke kun en enkelt lønkørsel.*
 
 **Fritekst-label:** Vil du sætte et par ord på? (valgfrit)  
 **Fritekst-placeholder:** Hvad er den primære årsag til din rating?  
@@ -682,11 +658,11 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `a4` · Anbefaling
 
 **Type:** nps-scale  
-**Vises for:** bureau-zenegy
+**Vises for:** C · Bureau, arbejder i Zenegy
 
 > Ville du anbefale Zenegy til en kollega i branchen?
 
-*Det her måler noget andet end tilfredshed — om du ville sætte dit navn på en anbefaling.*
+*Det her måler noget andet end tilfredshed, nemlig om du ville sætte dit navn på en anbefaling.*
 
 **Fritekst-label:** Hvad skal der til, før du flytter flere kunder over på Zenegy? (valgfrit)  
 **Fritekst-placeholder:** Din feedback går direkte til vores produktteam...  
@@ -696,7 +672,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `ai` · AI-potentiale
 
 **Type:** choice-single (auto-advance)  
-**Vises for:** bureau-zenegy, bureau-other
+**Vises for:** C · Bureau, arbejder i Zenegy, C · Bureau, ikke Zenegy
 
 > Hvor ser du det største potentiale for AI i lønarbejdet for dine kunder?
 
@@ -707,7 +683,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 | `bureau-anomaly-detection` | Automatisk kontrol af lønkørslen, før den sendes til godkendelse |  |
 | `bureau-data-entry` | Indlæsning af timer og bilag, jeg i dag taster manuelt |  |
 | `bureau-client-questions` | Svar på kundernes spørgsmål om løn, ferie og regler |  |
-| `bureau-client-onboarding` | Opsætning af nye kunder — lønarter og overenskomster |  |
+| `bureau-client-onboarding` | Opsætning af nye kunder med lønarter og overenskomster |  |
 | `bureau-not-ready` | Jeg er ikke tryg ved AI i mine kunders løndata |  |
 
 ---
@@ -715,11 +691,11 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `numbers` · Regnskabssystem
 
 **Type:** logo-grid (auto-advance)  
-**Vises for:** bureau-zenegy, bureau-other
+**Vises for:** C · Bureau, arbejder i Zenegy, C · Bureau, ikke Zenegy
 
 > Hvilket regnskabssystem arbejder du mest i for dine kunder?
 
-*Vælg det, du bruger på flest kunder. Vi er nysgerrige — ikke på jagt efter salg.*
+*Vælg det, du bruger på flest kunder. Vi er nysgerrige, ikke på jagt efter salg.*
 
 | Value | Label | Sublabel |
 |-------|-------|----------|
@@ -737,17 +713,17 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 ### `c7` · Skifteplaner
 
 **Type:** choice-single (auto-advance)  
-**Vises for:** bureau-other
+**Vises for:** C · Bureau, ikke Zenegy
 
 > Overvejer du at flytte kunder til et andet lønsystem inden for det næste år?
 
-*Helt uforpligtende — vi er bare nysgerrige.*
+*Helt uforpligtende. Vi er bare nysgerrige.*
 
 | Value | Label | Sublabel |
 |-------|-------|----------|
-| `actively-consolidating` | Ja — jeg leder efter ét system til så mange kunder som muligt |  |
-| `actively-some` | Ja — for enkelte kunder |  |
-| `maybe` | Måske — det er ikke udelukket |  |
+| `actively-consolidating` | Ja, jeg leder efter ét system til så mange kunder som muligt |  |
+| `actively-some` | Ja, for enkelte kunder |  |
+| `maybe` | Måske, det er ikke udelukket |  |
 | `no` | Nej, ikke lige nu |  |
 
 ---
@@ -768,7 +744,7 @@ Ingen ser dem alle. Ordlyd og svarmuligheder står længere nede under **Spørgs
 
 Bureauer genbruger `a2` (tilfredshed) og `a4` (NPS) med bureau-tilpasset tekst, så
 tilfredshed og NPS kan sammenlignes på tværs af spor A og C. Hvilke systemer et bureau
-faktisk arbejder i, ligger i `c_payroll_systems` — ikke i `track`, som for bureauer altid
+faktisk arbejder i, ligger i `c_payroll_systems`, ikke i `track`, som for bureauer altid
 er `'bureau'`.
 
 ---

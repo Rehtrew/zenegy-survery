@@ -128,6 +128,7 @@ the bundle:
 | `VITE_HUBSPOT_PORTAL_ID` | Marketing → Forms → your form → Share, or the number in any embed code |
 | `VITE_HUBSPOT_FORM_GUID` | same place — the form's id |
 | `VITE_HUBSPOT_NEWSLETTER_FIELD` | optional: the internal name of the newsletter property on that form |
+| `VITE_HUBSPOT_SURVEYS_FIELD` | optional: the property for "keep me posted about future surveys" |
 
 Neither the portal id nor the form guid is a secret; they're visible in every
 embedded HubSpot form on the web.
@@ -135,9 +136,12 @@ embedded HubSpot form on the web.
 Two things worth knowing:
 
 - **HubSpot rejects a submission containing a field the form doesn't have.** That
-  is why the newsletter checkbox is only sent when you name its field. If the
-  form has required fields beyond email, submissions will be rejected too — keep
-  the form to just email (plus the optional newsletter property).
+  is why each checkbox is only sent when you name its field. If the form has
+  required fields beyond email, submissions get rejected too, so keep it to email
+  plus the two optional checkbox properties.
+- **The two opt-ins are deliberately separate.** Someone happy to answer another
+  survey often doesn't want the newsletter, so they need their own property in
+  HubSpot rather than sharing one.
 - **The `hubspotutk` cookie is passed along** when the visitor has one, so the
   signup joins up with the rest of their activity in HubSpot. If your form uses
   GDPR consent options, tell me and I'll add `legalConsentOptions` to the

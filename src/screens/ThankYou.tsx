@@ -98,6 +98,24 @@ function StatusChip({ state, onRetry }: { state: 'saving' | 'saved' | 'error'; o
   )
 }
 
+function OptIn({ checked, onChange, label }: {
+  checked: boolean
+  onChange: (checked: boolean) => void
+  label: string
+}) {
+  return (
+    <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={e => onChange(e.target.checked)}
+        style={{ marginTop: 1, accentColor: ACCENT, width: 16, height: 16, cursor: 'pointer', flexShrink: 0 }}
+      />
+      <span style={{ fontSize: 13, fontWeight: 500, color: '#5b5b66', lineHeight: 1.5 }}>{label}</span>
+    </label>
+  )
+}
+
 /** Completion — answers are saved on arrival; the email opt-in is optional and separate. */
 // One-per-browser guard. Soft (cleared by wiping site data / incognito), but
 // stops casual repeat submissions from the same person.
@@ -119,6 +137,7 @@ export function ThankYou({ answers, meta }: { answers: SurveyAnswers; meta: Subm
 
   const [email, setEmail] = useState('')
   const [newsletter, setNewsletter] = useState(false)
+  const [futureSurveys, setFutureSurveys] = useState(false)
   const [signupState, setSignupState] = useState<'idle' | 'sending' | 'sent'>('idle')
   const [signupError, setSignupError] = useState('')
 
@@ -163,7 +182,7 @@ export function ThankYou({ answers, meta }: { answers: SurveyAnswers; meta: Subm
     setSignupState('sending')
     setSignupError('')
     try {
-      await signupForReport(email, newsletter)
+      await signupForReport(email, { newsletter, futureSurveys })
       setSignupState('sent')
     } catch (err) {
       console.error('Report signup failed:', err)
@@ -179,11 +198,11 @@ export function ThankYou({ answers, meta }: { answers: SurveyAnswers; meta: Subm
       <StatusChip state={saveState} onRetry={() => void save()} />
 
       <h2 style={{ fontSize: 27, fontWeight: 500, lineHeight: 1.2, letterSpacing: '-0.02em', marginBottom: 10, color: '#14132b' }}>
-        Tak for din tid — du er færdig.
+        Tak for din tid. Du er færdig.
       </h2>
       <p style={{ fontSize: 15.5, fontWeight: 500, color: '#5b5b66', lineHeight: 1.6, marginBottom: 26 }}>
         Din ærlige mening hjælper os med at gøre løn nemmere for alle i Danmark.
-        Du behøver ikke gøre mere — dine svar er gemt.
+        Du behøver ikke gøre mere, dine svar er gemt.
       </p>
 
       {/* Optional report opt-in — answers are already saved; this is purely for
@@ -207,6 +226,7 @@ export function ThankYou({ answers, meta }: { answers: SurveyAnswers; meta: Subm
                 Rapporten er ikke udkommet endnu. Så snart undersøgelsen lukker og tallene er
                 samlet, sender vi den til <span style={{ color: '#14132b' }}>{email}</span>.
                 {newsletter && ' Du er også tilmeldt nyhedsbrevet.'}
+                {futureSurveys && ' Vi skriver også, når vi laver nye undersøgelser.'}
               </div>
             </div>
           </div>
@@ -227,7 +247,7 @@ export function ThankYou({ answers, meta }: { answers: SurveyAnswers; meta: Subm
                   Få Lønmarkedsrapporten 2026
                 </div>
                 <div style={{ fontSize: 13, fontWeight: 500, color: '#86868b', lineHeight: 1.5 }}>
-                  Rapporten er ikke klar endnu — vi udgiver den, når undersøgelsen lukker.
+                  Rapporten er ikke klar endnu. Vi udgiver den, når undersøgelsen lukker.
                   Skriv din email, så sender vi den direkte til dig. Helt valgfrit.
                 </div>
               </div>
@@ -253,18 +273,21 @@ export function ThankYou({ answers, meta }: { answers: SurveyAnswers; meta: Subm
             />
             {signupError && <p style={{ color: '#ff1e46', fontSize: 12.5, margin: '-4px 0 12px' }}>{signupError}</p>}
 
-            {/* Newsletter opt-in */}
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', marginBottom: 16 }}>
-              <input
-                type="checkbox"
+            {/* Two separate opt-ins: the newsletter is marketing, future surveys is
+                being asked again. Someone who'll happily answer another survey often
+                doesn't want the newsletter, so they can't share a checkbox. */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+              <OptIn
                 checked={newsletter}
-                onChange={e => setNewsletter(e.target.checked)}
-                style={{ marginTop: 1, accentColor: ACCENT, width: 16, height: 16, cursor: 'pointer', flexShrink: 0 }}
+                onChange={setNewsletter}
+                label="Ja tak, send mig også Zenegys nyhedsbrev med tips og produktopdateringer."
               />
-              <span style={{ fontSize: 13, fontWeight: 500, color: '#5b5b66', lineHeight: 1.5 }}>
-                Ja tak, send mig også Zenegys nyhedsbrev med tips og produktopdateringer.
-              </span>
-            </label>
+              <OptIn
+                checked={futureSurveys}
+                onChange={setFutureSurveys}
+                label="Ja tak, hold mig opdateret om kommende undersøgelser fra Zenegy."
+              />
+            </div>
 
             {/* Full-width primary action */}
             <button

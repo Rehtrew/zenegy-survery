@@ -63,8 +63,8 @@ export function PriorityRank({ options, value, onChange, maxRank = 3, scene = SC
       })}
       <p style={{ fontSize: 13, color: scene.inkMuted, marginTop: 4 }}>
         {value.length > 0
-          ? `${value.length} af ${effectiveMaxRank} valgt — 1 er vigtigst`
-          : `Tryk for at vælge dine top ${effectiveMaxRank} — 1 er vigtigst`}
+          ? `${value.length} af ${effectiveMaxRank} valgt. 1 er vigtigst`
+          : `Tryk for at vælge dine top ${effectiveMaxRank}. 1 er vigtigst`}
       </p>
     </div>
   )

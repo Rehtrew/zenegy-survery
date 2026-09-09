@@ -57,8 +57,8 @@ export function LandingPage({ onStart }: { onStart: () => void }) {
               Hvordan ser lønmarkedet ud i Danmark i 2026?
             </h1>
             <p style={{ fontSize: 17, fontWeight: 500, color: '#5b5b66', lineHeight: 1.6, marginBottom: 30 }}>
-              Vi spørger dem, der arbejder med løn hver måned — virksomheder, revisorer og
-              lønbureauer, og dem der bare modtager lønsedlen. Brug 2–3 minutter på dine
+              Vi spørger dem, der arbejder med løn hver måned: virksomheder, revisorer,
+              lønbureauer og dem, der bare modtager lønsedlen. Brug 2–3 minutter på dine
               erfaringer med lønsystemerne og arbejdsgangene omkring dem, og få
               Lønmarkedsrapporten 2026 tilsendt, når undersøgelsen lukker.
             </p>
@@ -71,7 +71,7 @@ export function LandingPage({ onStart }: { onStart: () => void }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 34 }}>
               <ValueRow
                 title="2–3 minutter"
-                sub="Kort og kontant — de fleste er færdige på et øjeblik."
+                sub="Kort og kontant. De fleste er færdige på et øjeblik."
                 icon={
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={ICON_COLOR} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="9" /><g className="ic-clock-hand"><path d="M12 7v5l3 2" /></g>

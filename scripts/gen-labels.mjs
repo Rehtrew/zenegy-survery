@@ -70,7 +70,7 @@ const OWN_VALUES = new Set(['is_employee', 'a_nps'])
 
 /** NPS has no options — the scale is the answer. */
 const NPS_LABELS = Object.fromEntries(
-  Array.from({ length: 11 }, (_, n) => [n, n === 0 ? '0 — slet ikke' : n === 10 ? '10 — helt sikkert' : String(n)]),
+  Array.from({ length: 11 }, (_, n) => [n, n === 0 ? '0 (slet ikke)' : n === 10 ? '10 (helt sikkert)' : String(n)]),
 )
 
 /**
