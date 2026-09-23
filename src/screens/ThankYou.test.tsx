@@ -9,6 +9,8 @@ vi.mock('../lib/api', () => ({
 }))
 vi.mock('../lib/hubspot', () => ({
   signupForReport: vi.fn().mockResolvedValue(undefined),
+  NEWSLETTER_ENABLED: true,
+  SURVEYS_ENABLED: true,
 }))
 import { submitSurvey } from '../lib/api'
 import { signupForReport } from '../lib/hubspot'

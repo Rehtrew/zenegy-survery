@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { SurveyAnswers, SubmissionMeta, SubmittedTrack } from '../types'
 import { submitSurvey } from '../lib/api'
-import { signupForReport } from '../lib/hubspot'
+import { signupForReport, NEWSLETTER_ENABLED, SURVEYS_ENABLED } from '../lib/hubspot'
 import { isBureau } from '../lib/questions'
 
 const ACCENT = '#6e30fd'
@@ -275,19 +275,27 @@ export function ThankYou({ answers, meta }: { answers: SurveyAnswers; meta: Subm
 
             {/* Two separate opt-ins: the newsletter is marketing, future surveys is
                 being asked again. Someone who'll happily answer another survey often
-                doesn't want the newsletter, so they can't share a checkbox. */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
-              <OptIn
-                checked={newsletter}
-                onChange={setNewsletter}
-                label="Ja tak, send mig også Zenegys nyhedsbrev med tips og produktopdateringer."
-              />
-              <OptIn
-                checked={futureSurveys}
-                onChange={setFutureSurveys}
-                label="Ja tak, hold mig opdateret om kommende undersøgelser fra Zenegy."
-              />
-            </div>
+                doesn't want the newsletter, so they can't share a checkbox.
+                Each one only appears when the HubSpot form has a field to store it,
+                so a tick can never go quietly nowhere. */}
+            {(NEWSLETTER_ENABLED || SURVEYS_ENABLED) && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+                {NEWSLETTER_ENABLED && (
+                  <OptIn
+                    checked={newsletter}
+                    onChange={setNewsletter}
+                    label="Ja tak, send mig også Zenegys nyhedsbrev med tips og produktopdateringer."
+                  />
+                )}
+                {SURVEYS_ENABLED && (
+                  <OptIn
+                    checked={futureSurveys}
+                    onChange={setFutureSurveys}
+                    label="Ja tak, hold mig opdateret om kommende undersøgelser fra Zenegy."
+                  />
+                )}
+              </div>
+            )}
 
             {/* Full-width primary action */}
             <button

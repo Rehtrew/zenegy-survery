@@ -18,6 +18,15 @@ const NEWSLETTER_FIELD = import.meta.env.VITE_HUBSPOT_NEWSLETTER_FIELD ?? ''
 /** Internal name of the "tell me about future surveys" property, if the form has one. */
 const SURVEYS_FIELD = import.meta.env.VITE_HUBSPOT_SURVEYS_FIELD ?? ''
 
+/**
+ * Whether each checkbox has somewhere to go. HubSpot accepts a submission
+ * carrying a field its form doesn't have and silently drops that field, so an
+ * unconfigured checkbox would look like it worked and record nothing. Better to
+ * not offer the choice until the form can keep it.
+ */
+export const NEWSLETTER_ENABLED = NEWSLETTER_FIELD !== ''
+export const SURVEYS_ENABLED = SURVEYS_FIELD !== ''
+
 /** The tracking cookie HubSpot sets, so a submission joins up with the visit. */
 function hubspotCookie(): string | undefined {
   const match = document.cookie.match(/(?:^|;\s*)hubspotutk=([^;]+)/)
