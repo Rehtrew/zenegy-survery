@@ -36,7 +36,7 @@ function survey_handle_health(): never
 function survey_handle_submit(): never
 {
     $body = survey_read_body();
-    survey_rate_limit('submit', 30);
+    survey_rate_limit('submit', 50);
 
     try {
         [$columns, $values] = survey_build_submission($body);

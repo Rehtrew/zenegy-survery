@@ -182,6 +182,7 @@ npm test         # unit tests (Vitest) + the PHP validation checks
 
 - `kinsta/api/columns.php` is the allowlist. Anything a browser posts that isn't
   listed there is dropped, and every write is a prepared statement.
-- Rate limiting is per IP in a temp file (30 submissions/hour, 10 signups/hour).
+- Rate limiting is per IP in a temp file (50 submissions/hour). A whole office
+  shares one public IP, so this is a shared ceiling, not a per-person one.
   It blunts a script; it is not a security control.
 - Vercel and Supabase were the prototype. Neither is used by this deployment.

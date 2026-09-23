@@ -35,8 +35,11 @@ function survey_read_body(): array
 
 /**
  * Blunt a script without adding infrastructure: count recent hits per IP in a
- * temp file. Not a security control — the honeypot and timing checks in the
+ * temp file. Not a security control: the honeypot and timing checks in the
  * client catch the lazy bots, and this catches the impatient ones.
+ *
+ * An office or a conference venue shares one public IP, so the ceiling has to
+ * clear a room full of people answering at once, not just one person.
  */
 function survey_rate_limit(string $bucket, int $maxPerHour): void
 {
