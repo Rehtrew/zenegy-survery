@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="0 0 2100 2970" fill="none">
+  <!--
+    Lønmarkedsrapporten 2026 — A4 forside (mockup).
+    Tallene er opdigtede pladsholdere, indtil undersøgelsen lukker.
+    Render: npm run gen:cover  (se scripts/build-cover.sh)
+  -->
+  <defs>
+    <linearGradient id="blob" x1="1500" y1="0" x2="2100" y2="900" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8a5cff"/>
+      <stop offset="1" stop-color="#5a1fe0"/>
+    </linearGradient>
+    <linearGradient id="blobSoft" x1="1200" y1="2400" x2="2100" y2="2970" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#efeafe"/>
+      <stop offset="1" stop-color="#ded4ff"/>
+    </linearGradient>
+    <clipPath id="page"><rect width="2100" height="2970"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#page)">
+    <rect width="2100" height="2970" fill="#ffffff"/>
+
+    <!-- Purple mass, top right. Echoes the cover mockup marketing already made. -->
+    <circle cx="1980" cy="300" r="620" fill="url(#blob)"/>
+    <circle cx="1560" cy="120" r="180" fill="#6e30fd" opacity="0.18"/>
+    <!-- Soft counterweight, bottom right -->
+    <circle cx="2010" cy="2870" r="560" fill="url(#blobSoft)"/>
+
+    <!-- Zenegy lockup -->
+    <g transform="translate(190 200)">
+      <rect width="96" height="96" rx="22" fill="#6e30fd"/>
+      <path d="M49.9534 40.0296H29.5769C27.3364 40.0296 25.4695 41.8289 25.4695 44.0046V63.0225C25.4695 67.5736 31.4438 69.3729 34.0042 65.5627L50.4869 40.9352" fill="#ffffff"/>
+      <path d="M45.9466 55.9704H66.3231C68.5636 55.9704 70.4305 54.1711 70.4305 51.9954V32.9775C70.4305 28.4264 64.4562 26.6271 61.8958 30.4373L45.4131 55.0648" fill="#ffffff"/>
+      <text x="128" y="66" font-family="PP Neue Montreal" font-size="52" font-weight="500" fill="#14132b" letter-spacing="0.5">zenegy</text>
+    </g>
+
+    <!-- Eyebrow -->
+    <g transform="translate(190 560)">
+      <rect width="560" height="66" rx="33" fill="#f2f0fa"/>
+      <circle cx="36" cy="33" r="7" fill="#6e30fd"/>
+      <text x="62" y="44" font-family="PP Neue Montreal" font-size="28" font-weight="500" fill="#5b5b66" letter-spacing="1.2">MARKEDSUNDERSØGELSE 2026</text>
+    </g>
+
+    <!-- Title -->
+    <text x="190" y="860" font-family="PP Neue Montreal" font-size="124" font-weight="500" fill="#14132b" letter-spacing="-4">Lønmarkedsrapporten</text>
+    <text x="184" y="1090" font-family="PP Neue Montreal" font-size="230" font-weight="500" fill="#6e30fd" letter-spacing="-8">2026</text>
+
+    <text font-family="PP Neue Montreal" font-size="44" font-weight="400" fill="#5b5b66">
+      <tspan x="190" y="1215">Hvad danske virksomheder, lønbureauer og</tspan>
+      <tspan x="190" y="1277">lønmodtagere siger om løn, systemer og AI.</tspan>
+    </text>
+
+    <!-- Key figures. Fictive until the survey closes. -->
+    <g transform="translate(190 1470)">
+      <line x1="0" y1="0" x2="1720" y2="0" stroke="#e8e6f2" stroke-width="3"/>
+
+      <g transform="translate(0 60)">
+        <text font-family="PP Neue Montreal" font-size="130" font-weight="500" fill="#6e30fd" letter-spacing="-4">
+          <tspan x="0" y="110">1.284</tspan>
+        </text>
+        <text x="0" y="176" font-family="PP Neue Montreal" font-size="30" fill="#5b5b66">besvarelser fra hele landet</text>
+      </g>
+
+      <line x1="0" y1="300" x2="1720" y2="300" stroke="#e8e6f2" stroke-width="3"/>
+
+      <g transform="translate(0 360)">
+        <text font-family="PP Neue Montreal" font-size="130" font-weight="500" fill="#14132b" letter-spacing="-4">
+          <tspan x="0" y="110">61 %</tspan>
+        </text>
+        <text x="0" y="176" font-family="PP Neue Montreal" font-size="30" fill="#5b5b66">overvejer at skifte lønsystem inden for et år</text>
+      </g>
+
+      <line x1="0" y1="600" x2="1720" y2="600" stroke="#e8e6f2" stroke-width="3"/>
+
+      <g transform="translate(0 660)">
+        <text font-family="PP Neue Montreal" font-size="130" font-weight="500" fill="#14132b" letter-spacing="-4">
+          <tspan x="0" y="110">3,5 timer</tspan>
+        </text>
+        <text x="0" y="176" font-family="PP Neue Montreal" font-size="30" fill="#5b5b66">bruger et lønbureau i snit pr. kunde om måneden</text>
+      </g>
+
+      <line x1="0" y1="900" x2="1720" y2="900" stroke="#e8e6f2" stroke-width="3"/>
+    </g>
+
+    <!-- Footer -->
+    <g transform="translate(190 2720)">
+      <text font-family="PP Neue Montreal" font-size="30" font-weight="500" fill="#14132b">Udgives januar 2027</text>
+      <text x="0" y="52" font-family="PP Neue Montreal" font-size="30" fill="#8b88a5">zenegy.com/markeds-undersoegelse</text>
+    </g>
+
+    <!-- Honest marker: this is a design mockup, the numbers are invented. -->
+    <g transform="translate(190 2600)">
+      <rect width="404" height="56" rx="28" fill="#f7f4ff" stroke="#e2d8ff" stroke-width="3"/>
+      <text x="202" y="37" text-anchor="middle" font-family="PP Neue Montreal" font-size="26" fill="#6e30fd">Mockup · tallene er pladsholdere</text>
+    </g>
+  </g>
+</svg>
