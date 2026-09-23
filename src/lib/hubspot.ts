@@ -13,7 +13,14 @@
 
 const PORTAL_ID = import.meta.env.VITE_HUBSPOT_PORTAL_ID ?? ''
 const FORM_GUID = import.meta.env.VITE_HUBSPOT_FORM_GUID ?? ''
-/** Internal name of the newsletter property on the HubSpot form, if it has one. */
+/**
+ * The newsletter is a HubSpot *subscription*, not a form field. Ticking the box
+ * has to be sent as consent (legalConsentOptions) against this subscription
+ * type id, or nothing is recorded.
+ */
+const NEWSLETTER_SUBSCRIPTION_ID = import.meta.env.VITE_HUBSPOT_NEWSLETTER_SUBSCRIPTION_ID ?? ''
+
+/** Internal name of the newsletter property, for forms that use a plain checkbox instead. */
 const NEWSLETTER_FIELD = import.meta.env.VITE_HUBSPOT_NEWSLETTER_FIELD ?? ''
 /** Internal name of the "tell me about future surveys" property, if the form has one. */
 const SURVEYS_FIELD = import.meta.env.VITE_HUBSPOT_SURVEYS_FIELD ?? ''
@@ -24,7 +31,7 @@ const SURVEYS_FIELD = import.meta.env.VITE_HUBSPOT_SURVEYS_FIELD ?? ''
  * unconfigured checkbox would look like it worked and record nothing. Better to
  * not offer the choice until the form can keep it.
  */
-export const NEWSLETTER_ENABLED = NEWSLETTER_FIELD !== ''
+export const NEWSLETTER_ENABLED = NEWSLETTER_FIELD !== '' || NEWSLETTER_SUBSCRIPTION_ID !== ''
 export const SURVEYS_ENABLED = SURVEYS_FIELD !== ''
 
 /** The tracking cookie HubSpot sets, so a submission joins up with the visit. */
@@ -43,6 +50,15 @@ export interface SignupOptIns {
   futureSurveys: boolean
 }
 
+/**
+ * The wording stored alongside the consent. HubSpot keeps it as the record of
+ * what the person actually agreed to, so it has to match the screen they saw.
+ */
+export const CONSENT_TEXT =
+  'Jeg giver Zenegy lov til at gemme min email og sende mig Lønmarkedsrapporten 2026.'
+export const NEWSLETTER_TEXT =
+  'Ja tak, send mig også Zenegys nyhedsbrev med tips og produktopdateringer.'
+
 export function buildPayload(email: string, optIns: SignupOptIns) {
   const fields: HubSpotField[] = [{ name: 'email', value: email }]
   if (NEWSLETTER_FIELD) {
@@ -59,6 +75,23 @@ export function buildPayload(email: string, optIns: SignupOptIns) {
       pageUri: window.location.href,
       pageName: document.title,
     },
+    // Asking for the report is the consent to be emailed it. The newsletter is a
+    // separate yes or no, carried on its own subscription type.
+    ...(NEWSLETTER_SUBSCRIPTION_ID
+      ? {
+          legalConsentOptions: {
+            consent: {
+              consentToProcess: true,
+              text: CONSENT_TEXT,
+              communications: [{
+                value: optIns.newsletter,
+                subscriptionTypeId: Number(NEWSLETTER_SUBSCRIPTION_ID),
+                text: NEWSLETTER_TEXT,
+              }],
+            },
+          },
+        }
+      : {}),
   }
 }
 

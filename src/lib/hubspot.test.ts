@@ -12,6 +12,7 @@ async function load(env: Record<string, string> = {}) {
   vi.stubEnv('VITE_HUBSPOT_FORM_GUID', env.form ?? 'abcd-efgh')
   vi.stubEnv('VITE_HUBSPOT_NEWSLETTER_FIELD', env.newsletter ?? '')
   vi.stubEnv('VITE_HUBSPOT_SURVEYS_FIELD', env.surveys ?? '')
+  vi.stubEnv('VITE_HUBSPOT_NEWSLETTER_SUBSCRIPTION_ID', env.subscription ?? '')
   return import('./hubspot')
 }
 
@@ -54,6 +55,36 @@ describe('signupForReport', () => {
     const { buildPayload } = await load({ surveys: 'fremtidige_undersoegelser' })
     expect(buildPayload('a@b.dk', { newsletter: false, futureSurveys: true }).fields)
       .toContainEqual({ name: 'fremtidige_undersoegelser', value: 'true' })
+  })
+
+  it('sends the newsletter tick as consent when a subscription id is configured', async () => {
+    const { buildPayload } = await load({ subscription: '237167256' })
+    const consent = buildPayload('a@b.dk', { newsletter: true, futureSurveys: false }).legalConsentOptions?.consent
+    expect(consent?.consentToProcess).toBe(true)
+    expect(consent?.communications).toEqual([{
+      value: true,
+      subscriptionTypeId: 237167256,
+      text: expect.stringContaining('nyhedsbrev'),
+    }])
+  })
+
+  it('records an unticked newsletter as a no rather than leaving it out', async () => {
+    const { buildPayload } = await load({ subscription: '237167256' })
+    const consent = buildPayload('a@b.dk', { newsletter: false, futureSurveys: false }).legalConsentOptions?.consent
+    // consentToProcess stays true: they asked for the report either way.
+    expect(consent?.consentToProcess).toBe(true)
+    expect(consent?.communications?.[0].value).toBe(false)
+  })
+
+  it('leaves consent out entirely when no subscription id is configured', async () => {
+    const { buildPayload } = await load()
+    expect(buildPayload('a@b.dk', { newsletter: true, futureSurveys: false }))
+      .not.toHaveProperty('legalConsentOptions')
+  })
+
+  it('offers the newsletter checkbox when only a subscription id is set', async () => {
+    const { NEWSLETTER_ENABLED } = await load({ subscription: '237167256' })
+    expect(NEWSLETTER_ENABLED).toBe(true)
   })
 
   it('keeps the two opt-ins independent of each other', async () => {
