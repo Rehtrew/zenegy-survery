@@ -351,6 +351,11 @@ const SURVEY_VALUE_LABELS = [
         'data-entry' => 'Automatisk bogføring og matchning af udlæg/kvitteringer',
         'support-answers' => 'Besvarelse af interne spørgsmål om ferie og regler',
         'not-ready' => 'Vi er ikke klar til AI i lønprocessen endnu',
+        'bureau-anomaly-detection' => 'Automatisk kontrol af lønkørslen, før den sendes til godkendelse',
+        'bureau-data-entry' => 'Indlæsning af timer og bilag, jeg i dag taster manuelt',
+        'bureau-client-questions' => 'Svar på kundernes spørgsmål om løn, ferie og regler',
+        'bureau-client-onboarding' => 'Opsætning af nye kunder med lønarter og overenskomster',
+        'bureau-not-ready' => 'Jeg er ikke tryg ved AI i mine kunders løndata',
     ],
     'accounting_system' => [
         'e-conomic' => 'e-conomic',

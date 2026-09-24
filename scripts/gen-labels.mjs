@@ -140,9 +140,21 @@ try {
   const order = []
   paths.forEach((args, index) => {
     for (const question of getQuestionSequence(args)) {
-      if (!byId.has(question.id)) {
-        byId.set(question.id, question)
+      // A question id can have more than one wording: the AI question and the
+      // satisfaction pair are asked differently of bureaus than of companies,
+      // and the bureau variant carries its own option values. Keep the first
+      // wording for the heading, but merge every variant's options, or the
+      // results page falls back to printing raw values like
+      // "bureau-anomaly-detection" at the reader.
+      const existing = byId.get(question.id)
+      if (!existing) {
+        byId.set(question.id, { ...question, options: [...(question.options ?? [])] })
         order.push(question.id)
+      } else if (question.options?.length) {
+        const known = new Set(existing.options.map(o => o.value))
+        for (const option of question.options) {
+          if (!known.has(option.value)) existing.options.push(option)
+        }
       }
       const on = seenOn.get(question.id) ?? new Set()
       on.add(PATH_KEYS[index])
