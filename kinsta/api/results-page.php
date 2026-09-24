@@ -200,11 +200,32 @@ function survey_send_csv(array $rows): never
         $write(['id', 'created_at', 'track']);
         exit;
     }
-    $write(array_keys($rows[0]));
+    $headers = array_keys($rows[0]);
+    $write(array_map(static fn ($h) => $h === 'created_at' ? 'created_at_dansk_tid' : $h, $headers));
     foreach ($rows as $row) {
+        $row['created_at'] = survey_local_time($row['created_at'] ?? null, 'Y-m-d H:i:s');
         $write(array_map(static fn ($v) => $v === null ? '' : (string) $v, $row));
     }
     exit;
+}
+
+/**
+ * The server runs in UTC, so a raw timestamp reads two hours early to anyone in
+ * Denmark and invites exactly the wrong conclusion about when an answer landed.
+ * Convert for display; the database keeps UTC, which is the right thing to store.
+ */
+function survey_local_time(?string $utc, string $format = 'd.m.Y H:i'): string
+{
+    if ($utc === null || $utc === '') {
+        return '';
+    }
+    try {
+        return (new DateTimeImmutable($utc, new DateTimeZone('UTC')))
+            ->setTimezone(new DateTimeZone('Europe/Copenhagen'))
+            ->format($format);
+    } catch (Throwable) {
+        return $utc;
+    }
 }
 
 function survey_e(?string $value): string
@@ -323,8 +344,8 @@ function survey_results_main(): never
 <div class="wrap">
   <h1>Lønmarkedsundersøgelsen 2026</h1>
   <p class="sub">
-    Svar opdateret live<?= $latest ? ' · seneste svar ' . survey_e($latest) : '' ?>.
-    Kun synlig for indloggede i WordPress.
+    Svar opdateret live<?= $latest ? ' · seneste svar ' . survey_e(survey_local_time($latest)) : '' ?>.
+    Alle tidspunkter er dansk tid. Kun synlig for indloggede i WordPress.
   </p>
 
   <div class="actions">
@@ -469,7 +490,7 @@ function survey_results_main(): never
       <?php foreach (array_slice($quotes, 0, 25) as $quote) : ?>
         <div class="quote" style="margin-top:10px">
           <p><?= survey_e($quote['text']) ?></p>
-          <span><?= survey_e(survey_label('track', (string) $quote['track'])) ?> · <?= survey_e($quote['when']) ?></span>
+          <span><?= survey_e(survey_label('track', (string) $quote['track'])) ?> · <?= survey_e(survey_local_time($quote['when'])) ?></span>
         </div>
       <?php endforeach; ?>
     </div>
