@@ -5,8 +5,9 @@
  * The deployed survey is two files — index.html and api.php — so both the write
  * and the health check live behind one URL:
  *
- *   POST api.php   one completed survey
- *   GET  api.php   "are the credentials right and does the table exist?"
+ *   POST api.php            one completed survey
+ *   POST api.php?event=1    a funnel ping: opened or started
+ *   GET  api.php            "are the credentials right and does the table exist?"
  *
  * The optional report email is not here: it goes to HubSpot from the browser.
  */
@@ -54,10 +55,38 @@ function survey_handle_submit(): never
     survey_json(201, ['ok' => true]);
 }
 
+/**
+ * Counts an open or a start. Deliberately quiet: a funnel number is never worth
+ * an error in front of a respondent, so a failure is logged and answered 204.
+ */
+function survey_handle_event(): never
+{
+    $body = survey_read_body();
+    survey_rate_limit('event', 300);
+
+    try {
+        [$columns, $values] = survey_build_event($body);
+    } catch (InvalidArgumentException $e) {
+        survey_json(400, ['error' => $e->getMessage()]);
+    }
+
+    try {
+        survey_insert('events', $columns, $values);
+    } catch (Throwable $e) {
+        error_log('Survey event failed: ' . $e->getMessage());
+    }
+
+    http_response_code(204);
+    exit;
+}
+
 function survey_main(): never
 {
     if (($_SERVER['REQUEST_METHOD'] ?? '') === 'GET') {
         survey_handle_health();
+    }
+    if (isset($_GET['event'])) {
+        survey_handle_event();
     }
     survey_handle_submit();
 }

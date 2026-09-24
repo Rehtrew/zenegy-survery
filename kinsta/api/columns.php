@@ -167,3 +167,35 @@ function survey_build_submission(mixed $body): array
     }
     return [$columns, $values];
 }
+
+/** The only two funnel events we record. Anything else is rejected. */
+const SURVEY_EVENTS = ['view', 'start'];
+
+/**
+ * Turn a posted funnel event into columns and values.
+ *
+ * @return array{0: string[], 1: array<int, string>}
+ * @throws InvalidArgumentException
+ */
+function survey_build_event(mixed $body): array
+{
+    if (!is_array($body)) {
+        throw new InvalidArgumentException('Body skal være et JSON-objekt');
+    }
+    $event = survey_clean_text($body['event'] ?? null);
+    if ($event === null || !in_array($event, SURVEY_EVENTS, true)) {
+        throw new InvalidArgumentException('event skal være en af: ' . implode(', ', SURVEY_EVENTS));
+    }
+
+    $columns = ['event'];
+    $values = [$event];
+    foreach (['utm_source', 'utm_medium', 'utm_campaign'] as $column) {
+        $value = survey_clean_text($body[$column] ?? null);
+        if ($value === null) {
+            continue;
+        }
+        $columns[] = $column;
+        $values[] = mb_substr($value, 0, 60);
+    }
+    return [$columns, $values];
+}

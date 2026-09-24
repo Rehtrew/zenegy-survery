@@ -48,6 +48,43 @@ const SURVEY_FREE_TEXT = [
     'accounting_other'        => 'Andet regnskabssystem',
 ];
 
+/**
+ * Funnel counts per event, and per campaign source.
+ *
+ * The events table holds counts only, so this is the whole picture: how many
+ * opened the survey, how many started, and (from the answers) how many finished.
+ */
+function survey_funnel(): array
+{
+    $table = survey_table('events');
+    $rows = survey_pdo()
+        ->query("SELECT `event`, COALESCE(`utm_source`, 'direkte') AS src, COUNT(*) AS n
+                 FROM `{$table}` GROUP BY `event`, src")
+        ->fetchAll();
+
+    $totals = ['view' => 0, 'start' => 0];
+    $bySource = [];
+    foreach ($rows as $row) {
+        $event = (string) $row['event'];
+        $src = (string) $row['src'];
+        $n = (int) $row['n'];
+        $totals[$event] = ($totals[$event] ?? 0) + $n;
+        $bySource[$src][$event] = ($bySource[$src][$event] ?? 0) + $n;
+    }
+    return ['totals' => $totals, 'bySource' => $bySource];
+}
+
+/** Completed answers per campaign source, to close the funnel. */
+function survey_completions_by_source(array $rows): array
+{
+    $counts = [];
+    foreach ($rows as $row) {
+        $src = ($row['utm_source'] ?? null) ?: 'direkte';
+        $counts[$src] = ($counts[$src] ?? 0) + 1;
+    }
+    return $counts;
+}
+
 function survey_rows(): array
 {
     return survey_pdo()
@@ -209,6 +246,13 @@ function survey_results_main(): never
 
     $total = count($rows);
     $nps = survey_nps($rows);
+    try {
+        $funnel = survey_funnel();
+    } catch (Throwable $e) {
+        error_log('Survey funnel failed: ' . $e->getMessage());
+        $funnel = ['totals' => ['view' => 0, 'start' => 0], 'bySource' => []];
+    }
+    $completionsBySource = survey_completions_by_source($rows);
     $latest = $rows[0]['created_at'] ?? null;
 
     header('Content-Type: text/html; charset=utf-8');
@@ -248,6 +292,7 @@ function survey_results_main(): never
   tr.zero td.v { color:var(--ink-3) }
   tr.zero .bar span { background:var(--line) }
   tr.win td.v { font-weight:600 }
+  tr.head td { border-top:none; color:var(--ink-3); font-size:13px }
   .q-empty { background:#fcfbff; border-style:dashed }
   .none { margin:12px 0 0; color:var(--ink-3); font-size:14px }
   details { margin-top:10px }
@@ -293,6 +338,45 @@ function survey_results_main(): never
     </div>
   <?php else : ?>
 
+  <?php if ($funnel['totals']['view'] > 0) :
+      $views = $funnel['totals']['view'];
+      $starts = $funnel['totals']['start'];
+      $pct = static fn (int $n, int $of): string => $of > 0 ? round(($n / $of) * 100) . ' %' : '0 %'; ?>
+    <h2>Tragt<span class="count">åbnet → startet → gennemført</span></h2>
+    <div class="cards">
+      <div class="card"><b><?= $views ?></b><span>åbnede undersøgelsen</span></div>
+      <div class="card"><b><?= $starts ?></b><span>trykkede start · <?= $pct($starts, $views) ?> af åbnede</span></div>
+      <div class="card"><b><?= $total ?></b><span>gennemførte · <?= $pct($total, $views) ?> af åbnede</span></div>
+    </div>
+
+    <?php if (count($funnel['bySource']) > 1 || !isset($funnel['bySource']['direkte'])) : ?>
+      <div class="q">
+        <h3>Per kilde</h3>
+        <p class="asked">Hvilke links giver besvarelser, ikke bare klik.</p>
+        <table>
+          <tr class="head">
+            <td class="v"><b>Kilde</b></td>
+            <td class="n"><b>Åbnet</b></td>
+            <td class="n"><b>Startet</b></td>
+            <td class="n"><b>Gennemført</b></td>
+          </tr>
+          <?php foreach ($funnel['bySource'] as $src => $counts) :
+              $v = $counts['view'] ?? 0;
+              $done = $completionsBySource[$src] ?? 0; ?>
+            <tr>
+              <td class="v"><?= survey_e($src) ?></td>
+              <td class="n"><?= $v ?></td>
+              <td class="n"><?= $counts['start'] ?? 0 ?></td>
+              <td class="n"><?= $done ?><span class="pct"><?= $pct($done, $v) ?></span></td>
+            </tr>
+          <?php endforeach; ?>
+        </table>
+        <span class="answered">Tæller sidevisninger, ikke unikke personer. En genindlæsning tæller igen.</span>
+      </div>
+    <?php endif; ?>
+  <?php endif; ?>
+
+  <h2>Svar<span class="count"><?= $total ?> i alt</span></h2>
   <div class="cards">
     <div class="card"><b><?= $total ?></b><span>svar i alt</span></div>
     <?php foreach (survey_count($rows, 'track') as $track => $count) : ?>

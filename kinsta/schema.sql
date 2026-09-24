@@ -65,3 +65,23 @@ CREATE TABLE IF NOT EXISTS `survey_submissions` (
   KEY `survey_submissions_context` (`payroll_context`),
   KEY `survey_submissions_utm_source` (`utm_source`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Funnel counters: one row when the survey is opened, one when someone starts
+-- answering. Completions live in survey_submissions, so the three together give
+-- åbnet -> startet -> gennemført.
+--
+-- Deliberately holds no IP, no cookie and no identifier of any kind. It counts
+-- events, not people, which is what keeps the survey free of a consent banner.
+-- A refresh counts again: these are page opens, not unique visitors.
+CREATE TABLE IF NOT EXISTS `survey_events` (
+  `id`           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `created_at`   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `event`        VARCHAR(20) NOT NULL,
+  `utm_source`   VARCHAR(60) DEFAULT NULL,
+  `utm_medium`   VARCHAR(60) DEFAULT NULL,
+  `utm_campaign` VARCHAR(60) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `survey_events_event` (`event`),
+  KEY `survey_events_created_at` (`created_at`),
+  KEY `survey_events_utm_source` (`utm_source`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

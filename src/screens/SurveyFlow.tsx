@@ -1,7 +1,8 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import type { Phase, Direction, SurveyAnswers, Question, SubmissionMeta } from '../types'
 import { getQuestionSequence, isBureau } from '../lib/questions'
+import { trackEvent } from '../lib/track'
 import { getScene } from '../lib/scenes'
 import { useKeyboard } from '../lib/useKeyboard'
 import { SurveyShell, type StepGroup } from '../components/SurveyShell'
@@ -118,6 +119,14 @@ export function SurveyFlow({ renderLanding, renderThankYou }: SurveyFlowProps) {
   const [startedAt, setStartedAt] = useState<number | null>(null)
   const [honeypot, setHoneypot] = useState('')
 
+  // Funnel counters. Counted once per page load, never per render.
+  const counted = useRef({ view: false, start: false })
+  useEffect(() => {
+    if (counted.current.view) return
+    counted.current.view = true
+    trackEvent('view')
+  }, [])
+
   const questions = getQuestionSequence({
     track: answers.track,
     a_products: answers.a_products,
@@ -180,6 +189,10 @@ export function SurveyFlow({ renderLanding, renderThankYou }: SurveyFlowProps) {
 
   const advance = useCallback(() => {
     if (phase === 'landing') {
+      if (!counted.current.start) {
+        counted.current.start = true
+        trackEvent('start')
+      }
       setStartedAt(prev => prev ?? Date.now())
       setDirection('forward')
       setPhase('questions')
