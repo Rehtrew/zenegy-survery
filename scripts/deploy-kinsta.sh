@@ -52,6 +52,13 @@ echo "→ Uploading dist/ to $USER@$HOST:$REMOTE"
 rsync -avz --delete $DRY -e "$SSH_CMD" dist/ "$USER@$HOST:$REMOTE/"
 
 if [ -z "$DRY" ]; then
+  # Kinsta's edge cache keeps a copy for four hours and overrides the page's own
+  # Cache-Control, so without this a deploy is invisible to real visitors while
+  # every check from here looks fine. This cost us a live campaign running on a
+  # build with no tracking in it. --site clears the page and edge cache only.
+  echo "→ Clearing the Kinsta page cache"
+  $SSH_CMD "$USER@$HOST" "cd $(dirname "$REMOTE") && wp kinsta cache purge --site" | tail -1
+
   URL="${KINSTA_PUBLIC_URL:-https://zenegy.com/$(basename "$REMOTE")}"
   echo "→ Health check: $URL/api.php"
   curl -fsS "$URL/api.php" && echo

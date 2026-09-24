@@ -67,7 +67,13 @@ await writeFile(join(dist, 'index.php'), `<?php
  * cache with. Without this, a visitor can keep running a build from days ago.
  */
 header('Content-Type: text/html; charset=utf-8');
-header('Cache-Control: no-cache, must-revalidate');
+// Kinsta's edge cache overrode a plain "no-cache, must-revalidate" with its own
+// s-maxage and served a 54-minute-old build to real visitors, tracking and all
+// missing. This is the full set that results.php sends, which the edge does
+// respect: no-store and private are the parts that make it bypass.
+header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0, private');
+header('Pragma: no-cache');
+header('Expires: 0');
 readfile(__DIR__ . '/app.html');
 `)
 
