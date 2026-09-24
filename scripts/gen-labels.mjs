@@ -89,6 +89,7 @@ const GROUPS = {
   'a,c-zenegy': 'Zenegy-brugere (virksomheder og bureauer)',
 }
 const GROUP_ORDER = [
+  'Hvor kom de fra',
   'Alle respondenter', 'Alle med systemansvar', 'Virksomheder med eget lønsystem',
   'Zenegy-kunder', 'Zenegy-brugere (virksomheder og bureauer)', 'Andet lønsystem',
   'Lønbureauer', 'Lønmodtagere',
@@ -149,13 +150,21 @@ try {
     }
   })
 
-  const headings = { track: { short: 'Spor', question: 'Hvilken vej gik respondenten gennem undersøgelsen?' } }
+  const headings = {
+    track: { short: 'Spor', question: 'Hvilken vej gik respondenten gennem undersøgelsen?' },
+    utm_source: { short: 'Kilde', question: 'Hvilket link kom de ind på? (utm_source)' },
+    utm_medium: { short: 'Kanaltype', question: 'Hvilken slags kanal? (utm_medium)' },
+    utm_campaign: { short: 'Kampagne', question: 'Hvilken kampagne? (utm_campaign)' },
+  }
   const values = { track: TRACK_LABELS, is_employee: GATE_LABELS, a_nps: NPS_LABELS }
   const subLabels = { is_employee: GATE_SUBLABELS }
   const questionToColumn = Object.fromEntries(
     Object.entries(COLUMN_TO_QUESTION).map(([column, id]) => [id, column]),
   )
-  const groups = new Map([['Alle respondenter', ['track']]])
+  const groups = new Map([
+    ['Hvor kom de fra', ['utm_source', 'utm_medium', 'utm_campaign']],
+    ['Alle respondenter', ['track']],
+  ])
   for (const [column, questionId] of Object.entries(COLUMN_TO_QUESTION)) {
     const question = byId.get(questionId)
     if (!question) {

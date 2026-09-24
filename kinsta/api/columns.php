@@ -57,6 +57,10 @@ const SURVEY_COLUMNS = [
     'e_expenses'              => 'text',
     'e_ai_trust'              => 'text',
 
+    'utm_source'              => 'text',
+    'utm_medium'              => 'text',
+    'utm_campaign'            => 'text',
+
     'ai_interest'             => 'text',
     'accounting_system'       => 'text',
     'accounting_other'        => 'text',

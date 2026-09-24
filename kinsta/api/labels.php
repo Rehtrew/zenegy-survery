@@ -15,6 +15,18 @@ const SURVEY_QUESTION_LABELS = [
         'short' => 'Spor',
         'question' => 'Hvilken vej gik respondenten gennem undersøgelsen?',
     ],
+    'utm_source' => [
+        'short' => 'Kilde',
+        'question' => 'Hvilket link kom de ind på? (utm_source)',
+    ],
+    'utm_medium' => [
+        'short' => 'Kanaltype',
+        'question' => 'Hvilken slags kanal? (utm_medium)',
+    ],
+    'utm_campaign' => [
+        'short' => 'Kampagne',
+        'question' => 'Hvilken kampagne? (utm_campaign)',
+    ],
     'is_employee' => [
         'short' => 'Din rolle',
         'question' => 'Hvilken rolle spiller du i håndteringen af løn eller regnskab?',
@@ -409,6 +421,7 @@ const SURVEY_VALUE_SUBLABELS = [
 
 /** Every question the survey can ask, grouped by who sees it, in survey order. */
 const SURVEY_GROUPS = [
+    ['name' => 'Hvor kom de fra', 'columns' => ['utm_source', 'utm_medium', 'utm_campaign']],
     ['name' => 'Alle respondenter', 'columns' => ['track', 'is_employee']],
     ['name' => 'Alle med systemansvar', 'columns' => ['payroll_context', 'ai_interest', 'accounting_system']],
     ['name' => 'Virksomheder med eget lønsystem', 'columns' => ['size']],

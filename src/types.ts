@@ -90,6 +90,10 @@ export interface SurveyAnswers {
   c_frustration_other?: string
   c_priorities?: RankEntry[]
   c_switch_intent?: string
+  // Where they came from: campaign tags off the link, never an identity.
+  utm_source?: string
+  utm_medium?: string
+  utm_campaign?: string
   // Shared
   accounting_system?: string
   accounting_other?: string

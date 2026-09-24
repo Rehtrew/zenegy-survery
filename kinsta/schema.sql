@@ -51,6 +51,10 @@ CREATE TABLE IF NOT EXISTS `survey_submissions` (
   `e_expenses`              VARCHAR(40)  DEFAULT NULL,
   `e_ai_trust`              VARCHAR(40)  DEFAULT NULL,
 
+  `utm_source`              VARCHAR(60)  DEFAULT NULL,
+  `utm_medium`              VARCHAR(60)  DEFAULT NULL,
+  `utm_campaign`            VARCHAR(60)  DEFAULT NULL,
+
   `ai_interest`             VARCHAR(60)  DEFAULT NULL,
   `accounting_system`       VARCHAR(40)  DEFAULT NULL,
   `accounting_other`        VARCHAR(300) DEFAULT NULL,
@@ -58,5 +62,6 @@ CREATE TABLE IF NOT EXISTS `survey_submissions` (
   PRIMARY KEY (`id`),
   KEY `survey_submissions_track` (`track`),
   KEY `survey_submissions_created_at` (`created_at`),
-  KEY `survey_submissions_context` (`payroll_context`)
+  KEY `survey_submissions_context` (`payroll_context`),
+  KEY `survey_submissions_utm_source` (`utm_source`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
