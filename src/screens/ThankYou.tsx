@@ -186,7 +186,9 @@ export function ThankYou({ answers, meta }: { answers: SurveyAnswers; meta: Subm
       setSignupState('sent')
     } catch (err) {
       console.error('Report signup failed:', err)
-      setSignupError('Noget gik galt. Prøv igen.')
+      // Show what actually went wrong. The messages are written for the
+      // respondent, and a generic "noget gik galt" cost us a round of debugging.
+      setSignupError(err instanceof Error ? err.message : 'Noget gik galt. Prøv igen.')
       setSignupState('idle')
     }
   }
