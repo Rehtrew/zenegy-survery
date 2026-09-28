@@ -382,6 +382,11 @@ function survey_results_main(): never
 
     header('Content-Type: text/html; charset=utf-8');
     header('X-Robots-Tag: noindex, nofollow');
+    // Live numbers behind a login: a cached copy is always the wrong answer, and
+    // without this the browser is free to reuse one for as long as it likes.
+    header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0, private');
+    header('Pragma: no-cache');
+    header('Expires: 0');
     ?>
 <!doctype html>
 <html lang="da">
@@ -395,7 +400,7 @@ function survey_results_main(): never
   * { box-sizing:border-box }
   body { margin:0; background:var(--bg); color:var(--ink);
          font:16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  .wrap { max-width:1000px; margin:0 auto; padding:48px 20px 80px; }
+  .wrap { max-width:1340px; margin:0 auto; padding:48px 20px 80px; }
   h1 { font-size:32px; letter-spacing:-.02em; margin:0 0 8px }
   .sub { color:var(--ink-2); margin:0 0 28px }
   .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:36px }
@@ -404,6 +409,7 @@ function survey_results_main(): never
   .card span { color:var(--ink-3); font-size:13px }
   h2 { font-size:13px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-3);
        border-bottom:1px solid var(--line); padding-bottom:10px; margin:36px 0 16px }
+  h2 .count { margin-left:10px; text-transform:none; letter-spacing:0; font-weight:400; color:var(--ink-3) }
   .q { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin-bottom:12px }
   .q h3 { font-size:17px; margin:0 0 2px; letter-spacing:-.01em }
   .q .asked { margin:0; color:var(--ink-2); font-size:14px }
@@ -431,7 +437,7 @@ function survey_results_main(): never
   td { padding:9px 0; border-top:1px solid #f2f0f8; vertical-align:middle }
   td.v { font-size:14.5px }
   td.n { text-align:right; width:104px; font-variant-numeric:tabular-nums; color:var(--ink-2); white-space:nowrap }
-  td.bar { width:45% }
+  td.bar { width:38%; min-width:60px; padding-left:14px }
   .bar span { display:block; height:8px; border-radius:4px; background:var(--accent); opacity:.85 }
   .quote { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--accent);
            border-radius:0 12px 12px 0; padding:12px 16px; margin-bottom:8px }
@@ -441,31 +447,42 @@ function survey_results_main(): never
   .btn { display:inline-block; background:var(--accent); color:#fff; text-decoration:none;
          padding:10px 18px; border-radius:10px; font-size:14.5px; font-weight:500 }
   .btn.ghost { background:var(--accent-soft); color:#5a1fe0 }
-  .filters { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 20px; margin:20px 0 8px }
-  .filters-head { margin:0; font-size:14px; color:var(--ink-2) }
-  .filters-head b { color:var(--ink); margin-right:6px }
-  .filters-head a, .empty a { color:var(--accent) }
-  .filters details { margin-top:12px; border-top:1px solid #f2f0f8; padding-top:10px }
-  .filters summary { color:var(--ink-2); font-size:13.5px }
-  .filters summary b { color:var(--accent); font-weight:600 }
+  .layout { display:grid; grid-template-columns:268px minmax(0,1fr); gap:28px; align-items:start }
+  .main { min-width:0 }
+  .side { position:sticky; top:16px; max-height:calc(100vh - 32px); overflow-y:auto;
+          background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px }
+  .side-head { margin:0 0 4px; font-size:14px }
+  .side-head b { display:block; font-size:15px }
+  .side-head span { color:var(--ink-3); font-size:13px }
+  .side-head a { color:var(--accent); font-size:13px; margin-left:8px }
+  .side-foot { margin:16px 0 0; padding-top:12px; border-top:1px solid #f2f0f8;
+               color:var(--ink-3); font-size:12.5px; line-height:1.5 }
+  .side details { margin-top:8px; border-top:1px solid #f2f0f8; padding-top:8px }
+  .side summary { cursor:pointer; color:var(--ink-2); font-size:13.5px; padding:2px 0 }
+  .side summary i { display:inline-block; width:6px; height:6px; border-radius:50%;
+                    background:var(--accent); vertical-align:middle; margin-left:5px }
+  .opt { display:flex; justify-content:space-between; gap:8px; align-items:baseline;
+         text-decoration:none; color:var(--ink-2); font-size:13.5px;
+         padding:5px 8px; border-radius:7px; margin-top:2px }
+  .opt:hover { background:#f5f3fb; color:var(--ink) }
+  .opt b { color:var(--ink-3); font-variant-numeric:tabular-nums; font-size:12px; font-weight:500 }
+  .opt.on { background:var(--accent); color:#fff }
+  .opt.on b { color:#fff }
   .chips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 0 }
   .chip { display:inline-flex; align-items:center; gap:6px; text-decoration:none;
-          background:#f5f3fb; color:var(--ink-2); border:1px solid transparent;
-          border-radius:999px; padding:4px 11px; font-size:13.5px }
-  .chip span { color:var(--ink-3); font-variant-numeric:tabular-nums; font-size:12px }
-  .chip.on { background:var(--accent); color:#fff }
-  .chip.on b, .chip.on span { color:#fff; font-weight:600 }
-  a.pick { color:inherit; text-decoration:none; border-bottom:1px dashed var(--line) }
+          background:#f5f3fb; color:var(--ink-2); border-radius:999px; padding:4px 11px; font-size:13px }
+  .chip.on { background:var(--accent); color:#fff; font-weight:500 }
+  a.pick { color:inherit; text-decoration:none; border-bottom:1px dashed #d7d2e8 }
   a.pick:hover { color:var(--accent); border-bottom-color:var(--accent) }
   tr.picked td { background:var(--accent-soft) }
   tr.picked a.pick { color:#3f1b9c; font-weight:600; border-bottom:none }
-  .cut { position:sticky; top:0; z-index:5; margin:0 0 12px; padding:10px 0;
-         background:var(--bg); border-bottom:1px solid var(--line) }
-  .cut .chips { margin:0; align-items:center }
-  .cut .label { color:var(--ink-3); font-size:12px; text-transform:uppercase; letter-spacing:.08em }
-  .cut .clear { color:var(--accent); font-size:13.5px; text-decoration:none; margin-left:2px }
-  .warn { margin:12px 0 0; background:#fff6e8; border-radius:10px; padding:9px 13px;
-          font-size:13.5px; color:#8a5a12 }
+  .warn { margin:12px 0 0; background:#fff6e8; border-radius:10px; padding:9px 12px;
+          font-size:12.5px; line-height:1.5; color:#8a5a12 }
+  @media (max-width:1150px) { td.bar { width:22% } }
+  @media (max-width:900px) {
+    .layout { grid-template-columns:1fr; gap:16px }
+    .side { position:static; max-height:none }
+  }
   .empty { background:var(--card); border:1px dashed var(--line); border-radius:14px; padding:32px; text-align:center; color:var(--ink-2) }
 </style>
 </head>
@@ -484,17 +501,35 @@ function survey_results_main(): never
     <a class="btn ghost" href="./">Åbn undersøgelsen</a>
   </div>
 
-  <div class="filters">
-    <p class="filters-head">
-      <b>Skær svarene</b>
+  <div class="layout">
+  <aside class="side">
+    <p class="side-head">
+      <b>Udsnit</b>
       <?php if ($filters === []) : ?>
-        Vælg en gruppe, så genberegnes hvert spørgsmål nedenfor for netop dem.
-        Du kan også klikke et hvilket som helst svar længere nede for at skære efter det.
+        <span>alle <?= $grandTotal ?> svar</span>
       <?php else : ?>
-        Viser <?= $total ?> af <?= $grandTotal ?> svar.
+        <span><?= $total ?> af <?= $grandTotal ?> svar</span>
         <a href="<?= survey_e(survey_filter_url([])) ?>">Ryd alle</a>
       <?php endif; ?>
     </p>
+
+    <?php if ($filters !== []) : ?>
+      <p class="chips active">
+        <?php foreach ($filters as $column => $value) : ?>
+          <a class="chip on" href="<?= survey_e(survey_filter_url($filters, $column, null)) ?>"
+             title="Fjern dette filter">
+            <?= survey_e(survey_label($column, $value)) ?> ✕
+          </a>
+        <?php endforeach; ?>
+      </p>
+    <?php endif; ?>
+
+    <?php if ($filters !== [] && $total > 0 && $total < 10) : ?>
+      <p class="warn">
+        Kun <?= $total ?> svar. Ét svar flytter procenterne meget, så læs tallene
+        som et fingerpeg frem for et resultat.
+      </p>
+    <?php endif; ?>
 
     <?php foreach (SURVEY_FILTERS as $column => $name) :
         $available = survey_count($allRows, $column);
@@ -504,48 +539,26 @@ function survey_results_main(): never
       <details<?= isset($filters[$column]) ? ' open' : '' ?>>
         <summary>
           <?= survey_e($name) ?>
-          <?php if (isset($filters[$column])) : ?>
-            <b><?= survey_e(survey_label($column, $filters[$column])) ?></b>
-          <?php endif; ?>
+          <?php if (isset($filters[$column])) : ?><i></i><?php endif; ?>
         </summary>
-        <p class="chips">
-          <?php foreach ($available as $value => $count) :
-              $active = ($filters[$column] ?? null) === (string) $value; ?>
-            <a class="chip<?= $active ? ' on' : '' ?>"
-               href="<?= survey_e(survey_filter_url($filters, $column, $active ? null : (string) $value)) ?>">
-              <?= survey_e(survey_label($column, (string) $value)) ?>
-              <span><?= $count ?></span>
-            </a>
-          <?php endforeach; ?>
-        </p>
+        <?php foreach ($available as $value => $count) :
+            $active = ($filters[$column] ?? null) === (string) $value; ?>
+          <a class="opt<?= $active ? ' on' : '' ?>"
+             href="<?= survey_e(survey_filter_url($filters, $column, $active ? null : (string) $value)) ?>">
+            <span><?= survey_e(survey_label($column, (string) $value)) ?></span>
+            <b><?= $count ?></b>
+          </a>
+        <?php endforeach; ?>
       </details>
     <?php endforeach; ?>
 
-    <?php if ($filters !== [] && $total > 0 && $total < 10) : ?>
-      <p class="warn">
-        Kun <?= $total ?> svar i udvalget. Ét svar flytter procenterne meget, så læs tallene
-        som et fingerpeg frem for et resultat.
-      </p>
-    <?php endif; ?>
-  </div>
+    <p class="side-foot">
+      Klik et hvilket som helst svar i tabellerne for at skære efter det.
+      Filtre lægges sammen.
+    </p>
+  </aside>
 
-  <?php if ($filters !== []) : ?>
-    <div class="cut">
-      <p class="chips">
-        <span class="label">Udsnit</span>
-        <?php foreach ($filters as $column => $value) : ?>
-          <a class="chip on" href="<?= survey_e(survey_filter_url($filters, $column, null)) ?>"
-             title="Fjern dette filter">
-            <?= survey_e(survey_filter_name($column)) ?>:
-            <b><?= survey_e(survey_label($column, $value)) ?></b> ✕
-          </a>
-        <?php endforeach; ?>
-        <span class="label"><?= $total ?> af <?= $grandTotal ?> svar</span>
-        <a class="clear" href="<?= survey_e(survey_filter_url([])) ?>">Ryd alle</a>
-      </p>
-    </div>
-  <?php endif; ?>
-
+  <main class="main">
   <?php if ($total === 0) : ?>
     <div class="empty" style="margin-top:24px">
       <?php if ($filters === []) : ?>
@@ -708,6 +721,8 @@ function survey_results_main(): never
   <?php endif; ?>
 
   <?php endif; ?>
+  </main>
+  </div>
 </div>
 </body>
 </html>
