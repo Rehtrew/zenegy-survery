@@ -140,6 +140,24 @@ check('fills days with no answers, so the chart keeps an even time axis', functi
         && array_values($series) === [1, 0, 0, 1];
 });
 
+check('splits respondents by role and whether Zenegy is in their setup', function () {
+    $aud = survey_audience([
+        ['track' => 'zenegy', 'c_payroll_systems' => null],
+        ['track' => 'non-zenegy', 'c_payroll_systems' => null],
+        ['track' => 'bureau', 'c_payroll_systems' => '["danloen","zenegy"]'],
+        ['track' => 'bureau', 'c_payroll_systems' => '["danloen"]'],
+        ['track' => 'employee', 'c_payroll_systems' => null],
+    ]);
+    return $aud === [
+        'company' => ['zenegy' => 1, 'other' => 1],
+        'bureau' => ['zenegy' => 1, 'other' => 1],
+        'employee' => ['unknown' => 1],
+    ];
+});
+
+check('Intern eller bureau is searchable but no longer a default facet', fn () =>
+    !isset(SURVEY_FILTERS['payroll_context']) && survey_can_filter('payroll_context'));
+
 check('has no series to draw when nothing has been answered', fn () => survey_by_day([]) === []);
 
 echo "\n{$checks} checks, {$failures} failed\n";

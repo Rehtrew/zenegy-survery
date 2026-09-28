@@ -3,7 +3,7 @@ import type { SurveyAnswers, SubmissionMeta, SubmittedTrack } from '../types'
 import { submitSurvey } from '../lib/api'
 import { signupForReport, NEWSLETTER_ENABLED, SURVEYS_ENABLED } from '../lib/hubspot'
 import { readUtmTags } from '../lib/utm'
-import { isBureau } from '../lib/questions'
+import { isBureau, pruneToPath } from '../lib/questions'
 
 const ACCENT = '#6e30fd'
 
@@ -163,7 +163,9 @@ export function ThankYou({ answers, meta }: { answers: SurveyAnswers; meta: Subm
 
     setSaveState('saving')
     try {
-      await submitSurvey({ ...answers, ...readUtmTags(), track, email: '', newsletter_opt_in: false })
+      // Only what was asked on the final path: backing out of a branch must not
+      // leave its answers behind in the saved row.
+      await submitSurvey({ ...pruneToPath(answers), ...readUtmTags(), track, email: '', newsletter_opt_in: false })
       markCompleted()
       setSaveState('saved')
     } catch (err) {

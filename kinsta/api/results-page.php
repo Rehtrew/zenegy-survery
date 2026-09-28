@@ -55,7 +55,6 @@ const SURVEY_FREE_TEXT = [
  */
 const SURVEY_FILTERS = [
     'track'             => 'Spor',
-    'payroll_context'   => 'Intern eller bureau',
     'size'              => 'Antal medarbejdere',
     'b_payroll_system'  => 'Lønsystem (andet end Zenegy)',
     'c_payroll_systems' => 'Lønsystem (bureau)',
@@ -238,6 +237,38 @@ function survey_by_day(array $rows): array
         $cursor = $cursor->modify('+1 day');
     }
     return $series;
+}
+
+/**
+ * Role against payroll system. The four tracks exclude each other, which hides
+ * the one overlap the data does hold: most bureaus run Zenegy for some clients.
+ * Employees are never asked their employer's system, so that cell stays empty
+ * rather than pretending to know.
+ */
+function survey_audience(array $rows): array
+{
+    $cells = [
+        'company' => ['zenegy' => 0, 'other' => 0],
+        'bureau'  => ['zenegy' => 0, 'other' => 0],
+        'employee' => ['unknown' => 0],
+    ];
+    foreach ($rows as $row) {
+        switch ($row['track'] ?? '') {
+            case 'zenegy':
+                $cells['company']['zenegy']++;
+                break;
+            case 'non-zenegy':
+                $cells['company']['other']++;
+                break;
+            case 'bureau':
+                $cells['bureau'][survey_row_matches($row, 'c_payroll_systems', 'zenegy') ? 'zenegy' : 'other']++;
+                break;
+            case 'employee':
+                $cells['employee']['unknown']++;
+                break;
+        }
+    }
+    return $cells;
 }
 
 /** How many people answered this question at all — the honest denominator. */
@@ -431,7 +462,7 @@ function survey_results_main(): never
   * { box-sizing:border-box }
   body { margin:0; background:var(--bg); color:var(--ink);
          font:16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  .wrap { max-width:1360px; margin:0 auto; padding:36px 20px 80px; }
+  .wrap { max-width:1440px; margin:0 auto; padding:36px 20px 80px; }
   h1 { font-size:32px; letter-spacing:-.02em; margin:0 0 8px }
   .sub { color:var(--ink-2); margin:0 0 28px }
   h2 { font-size:13px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-3);
@@ -470,7 +501,7 @@ function survey_results_main(): never
            border-radius:0 12px 12px 0; padding:12px 16px; margin-bottom:8px }
   .quote p { margin:0 0 4px; font-size:15px }
   .quote span { color:var(--ink-3); font-size:12.5px }
-  .layout { display:grid; grid-template-columns:266px minmax(0,1fr); gap:26px; align-items:start }
+  .layout { display:grid; grid-template-columns:340px minmax(0,1fr); gap:26px; align-items:start }
   .main { min-width:0 }
   .side { position:sticky; top:16px; display:flex; flex-direction:column;
           max-height:calc(100vh - 32px);
@@ -493,18 +524,19 @@ function survey_results_main(): never
   .facets { flex:1; overflow-y:auto; margin-top:8px; padding-right:6px }
   .facets::-webkit-scrollbar { width:8px }
   .facets::-webkit-scrollbar-thumb { background:#e2def0; border-radius:4px }
-  .facet-head { margin:12px 0 3px; color:var(--ink-3); font-size:10.5px;
+  .facet { margin-top:14px }
+  .facet:first-child { margin-top:2px }
+  .facet-head { margin:0 0 6px; color:var(--ink-3); font-size:10.5px;
                 text-transform:uppercase; letter-spacing:.09em }
-  .facet-head:first-child { margin-top:0 }
-  .opt { display:flex; justify-content:space-between; gap:10px; align-items:baseline; text-decoration:none;
-         color:var(--ink-2); font-size:13.5px; padding:5px 8px; border-radius:7px; line-height:1.35 }
-  .opt:hover { background:#f5f3fb; color:var(--ink) }
-  .opt b { color:var(--ink-3); font-size:12px; font-weight:500; font-variant-numeric:tabular-nums }
+  .chipset { display:flex; flex-wrap:wrap; gap:5px }
+  .opt { display:inline-flex; align-items:center; gap:6px; text-decoration:none; color:var(--ink-2);
+         background:#f5f3fb; border:1px solid transparent; border-radius:999px;
+         padding:4px 10px; font-size:13px; line-height:1.3 }
+  .opt:hover { border-color:#d9cffb; color:var(--ink) }
+  .opt b { color:var(--ink-3); font-size:11.5px; font-weight:500; font-variant-numeric:tabular-nums }
   .opt.on { background:var(--accent); color:#fff }
-  .opt.on b { color:#fff }
-  .extra { display:none }
-  .searching .extra { display:flex }
-  .searching .facet-head.extra { display:block }
+  .opt.on b { color:#fff; opacity:.8 }
+  .facet.extra { display:none }
   .facet-none { display:none; margin:14px 8px; color:var(--ink-3); font-size:13px }
   .facets.none-found .facet-none { display:block }
   .side-foot { margin:10px 6px 0 0; padding-top:10px; border-top:1px solid #f2f0f8;
@@ -539,6 +571,20 @@ function survey_results_main(): never
   .key:hover { color:var(--accent) }
   .key i { width:9px; height:9px; border-radius:3px; display:inline-block }
   .key b { color:var(--ink-3); font-weight:500; font-variant-numeric:tabular-nums }
+  table.aud { margin:0; font-variant-numeric:tabular-nums }
+  table.aud td { padding:7px 0; font-size:14px; border-top:1px solid #f2f0f8 }
+  table.aud tr.h td { border-top:none; color:var(--ink-3); font-size:11.5px; padding-top:0; text-align:right }
+  table.aud td.r { color:var(--ink-2); text-align:left }
+  table.aud td.c, table.aud td.t { text-align:right; width:24% }
+  table.aud td.t { color:var(--ink-3) }
+  table.aud td.c a { display:inline-block; min-width:38px; padding:2px 8px; border-radius:6px;
+                     color:var(--ink); font-weight:600; text-decoration:none; background:#f5f3fb }
+  table.aud td.c a:hover { background:#e9e2fd; color:var(--accent) }
+  table.aud td.c.on a { background:var(--accent); color:#fff }
+  table.aud td.span { text-align:center }
+  table.aud td.span a { font-weight:400; color:var(--ink-3); background:none; font-size:13px }
+  table.aud td.nil { color:var(--ink-3) }
+  .panel-foot span { line-height:1.5 }
   .sources { margin:0 0 12px }
   .sources > summary { color:var(--ink-3); font-size:13px }
   .sources table { margin-top:6px }
@@ -604,20 +650,22 @@ function survey_results_main(): never
           if ($available === []) {
               continue;
           }
-          // Only the eight everyday dimensions show up front; the rest of the
+          // Only the everyday dimensions show up front; the rest of the
           // questions stay in the DOM and surface as soon as you search.
           $extra = isset(SURVEY_FILTERS[$column]) ? '' : ' extra';
           $name = survey_filter_name($column); ?>
-        <p class="facet-head<?= $extra ?>"><?= survey_e($name) ?></p>
-        <?php foreach ($available as $value => $count) :
-            $active = ($filters[$column] ?? null) === (string) $value;
-            $label = survey_label($column, (string) $value); ?>
-          <a class="opt<?= $extra ?><?= $active ? ' on' : '' ?>" data-go
-             data-find="<?= survey_e(mb_strtolower($name . ' ' . $label . ' ' . $value)) ?>"
-             href="<?= survey_e(survey_filter_url($filters, $column, $active ? null : (string) $value)) ?>">
-            <span><?= survey_e($label) ?></span><b><?= $count ?></b>
-          </a>
-        <?php endforeach; ?>
+        <div class="facet<?= $extra ?>">
+          <p class="facet-head"><?= survey_e($name) ?></p>
+          <div class="chipset">
+            <?php foreach ($available as $value => $count) :
+                $active = ($filters[$column] ?? null) === (string) $value;
+                $label = survey_label($column, (string) $value); ?>
+              <a class="opt<?= $active ? ' on' : '' ?>" data-go
+                 data-find="<?= survey_e(mb_strtolower($name . ' ' . $label . ' ' . $value)) ?>"
+                 href="<?= survey_e(survey_filter_url($filters, $column, $active ? null : (string) $value)) ?>"><?= survey_e($label) ?><b><?= $count ?></b></a>
+            <?php endforeach; ?>
+          </div>
+        </div>
       <?php endforeach; ?>
       <p class="facet-none">Ingen filtre matcher søgningen.</p>
     </div>
@@ -647,7 +695,6 @@ function survey_results_main(): never
     $showFunnel = $filters === [] && $views > 0;
     $series = survey_by_day($rows);
     $peak = $series === [] ? 0 : max($series);
-    $tracks = survey_count($rows, 'track');
   ?>
 
   <div class="tiles">
@@ -681,28 +728,53 @@ function survey_results_main(): never
       </div>
     <?php endif; ?>
 
-    <?php if ($tracks !== []) : ?>
-      <div class="panel">
-        <h3>Hvem svarer</h3>
-        <div class="stack">
-          <?php foreach ($tracks as $track => $n) : ?>
-            <a data-go class="seg t-<?= survey_e((string) $track) ?>"
-               style="width:<?= $pct($n, $total) ?>%"
-               title="<?= survey_e(survey_label('track', (string) $track)) ?>: <?= $n ?>"
-               href="<?= survey_e(survey_filter_url($filters, 'track', ($filters['track'] ?? null) === (string) $track ? null : (string) $track)) ?>"></a>
-          <?php endforeach; ?>
-        </div>
-        <p class="legend">
-          <?php foreach ($tracks as $track => $n) : ?>
-            <a data-go class="key" href="<?= survey_e(survey_filter_url($filters, 'track', ($filters['track'] ?? null) === (string) $track ? null : (string) $track)) ?>">
-              <i class="t-<?= survey_e((string) $track) ?>"></i>
-              <?= survey_e(survey_label('track', (string) $track)) ?>
-              <b><?= $n ?></b>
-            </a>
-          <?php endforeach; ?>
-        </p>
-      </div>
-    <?php endif; ?>
+    <?php
+      $aud = survey_audience($rows);
+      // A cell links to the filter that reproduces it, where one exists.
+      $cellUrl = static function (array $set) use ($filters): string {
+          return survey_filter_url(array_merge($filters, $set));
+      };
+      $isCell = static fn (array $set): bool => array_intersect_assoc($set, $filters) === $set
+          && count($filters) === count($set);
+      $cell = static function (int $n, ?array $set) use ($cellUrl, $isCell): string {
+          if ($n === 0 || $set === null) {
+              return '<td class="c' . ($n === 0 ? ' nil' : '') . '">' . ($n === 0 ? '–' : $n) . '</td>';
+          }
+          return '<td class="c' . ($isCell($set) ? ' on' : '') . '"><a data-go href="'
+              . survey_e($cellUrl($set)) . '">' . $n . '</a></td>';
+      };
+    ?>
+    <div class="panel">
+      <h3>Hvem er de</h3>
+      <table class="aud">
+        <tr class="h"><td></td><td>Bruger Zenegy</td><td>Bruger ikke Zenegy</td><td>I alt</td></tr>
+        <tr>
+          <td class="r">Virksomheder</td>
+          <?= $cell($aud['company']['zenegy'], ['track' => 'zenegy']) ?>
+          <?= $cell($aud['company']['other'], ['track' => 'non-zenegy']) ?>
+          <td class="t"><?= $aud['company']['zenegy'] + $aud['company']['other'] ?></td>
+        </tr>
+        <tr>
+          <td class="r">Lønbureauer</td>
+          <?= $cell($aud['bureau']['zenegy'], ['track' => 'bureau', 'c_payroll_systems' => 'zenegy']) ?>
+          <?= $cell($aud['bureau']['other'], null) ?>
+          <td class="t"><?= $aud['bureau']['zenegy'] + $aud['bureau']['other'] ?></td>
+        </tr>
+        <tr>
+          <td class="r">Lønmodtagere</td>
+          <td class="c span" colspan="2">
+            <?php if ($aud['employee']['unknown'] > 0) : ?>
+              <a data-go href="<?= survey_e($cellUrl(['track' => 'employee'])) ?>">ikke spurgt</a>
+            <?php else : ?>–<?php endif; ?>
+          </td>
+          <td class="t"><?= $aud['employee']['unknown'] ?></td>
+        </tr>
+      </table>
+      <p class="panel-foot">
+        <span>Bureauer tæller som Zenegy-brugere, når Zenegy er blandt deres systemer.
+        Lønmodtagere bliver ikke spurgt om arbejdsgiverens lønsystem.</span>
+      </p>
+    </div>
   </div>
 
   <?php if ($showFunnel && count($funnel['bySource']) > 1) : ?>
@@ -848,18 +920,16 @@ function survey_results_main(): never
       var q = box.value.trim().toLowerCase();
       facets.classList.toggle('searching', q !== '');
       var shown = 0;
-      facets.querySelectorAll('.opt').forEach(function (opt) {
-        var hit = q === '' ? !opt.classList.contains('extra') : opt.dataset.find.indexOf(q) !== -1;
-        opt.style.display = hit ? '' : 'none';
-        if (hit) shown++;
-      });
-      facets.querySelectorAll('.facet-head').forEach(function (head) {
-        var any = false, node = head.nextElementSibling;
-        while (node && node.classList.contains('opt')) {
-          if (node.style.display !== 'none') any = true;
-          node = node.nextElementSibling;
-        }
-        head.style.display = any ? '' : 'none';
+      facets.querySelectorAll('.facet').forEach(function (facet) {
+        var any = false;
+        facet.querySelectorAll('.opt').forEach(function (opt) {
+          var hit = q === '' || opt.dataset.find.indexOf(q) !== -1;
+          opt.style.display = hit ? '' : 'none';
+          if (hit) any = true;
+        });
+        var show = q === '' ? !facet.classList.contains('extra') : any;
+        facet.style.display = show ? '' : 'none';
+        if (show) shown++;
       });
       facets.classList.toggle('none-found', shown === 0);
     }

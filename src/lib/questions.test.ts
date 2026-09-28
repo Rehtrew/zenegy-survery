@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { getQuestionSequence, OPENING_QUESTION, GATE_QUESTION, CONTEXT_QUESTION, isBureau } from './questions'
+import { getQuestionSequence, OPENING_QUESTION, GATE_QUESTION, CONTEXT_QUESTION, isBureau, ANSWER_FIELDS, pruneToPath } from './questions'
+import type { SurveyAnswers } from '../types'
 
 describe('getQuestionSequence', () => {
   it('returns only gate question when no answers', () => {
@@ -95,5 +96,86 @@ describe('getQuestionSequence', () => {
 
   it('opening question has autoAdvance true', () => {
     expect(OPENING_QUESTION.autoAdvance).toBe(true)
+  })
+})
+
+describe('pruneToPath', () => {
+  // Every route through the survey, so the ownership map can't miss a question.
+  const routes: SurveyAnswers[] = [
+    { is_employee: true },
+    { is_employee: false, payroll_context: 'internal', track: 'zenegy', a_products: ['payroll'] },
+    { is_employee: false, payroll_context: 'internal', track: 'zenegy', a_products: ['payroll', 'numbers'] },
+    { is_employee: false, payroll_context: 'internal', track: 'non-zenegy' },
+    { is_employee: false, payroll_context: 'bureau', c_payroll_systems: ['zenegy'] },
+    { is_employee: false, payroll_context: 'both', c_payroll_systems: ['danloen'] },
+  ]
+
+  it('knows which answer fields every reachable question writes', () => {
+    const ids = new Set(routes.flatMap(r => getQuestionSequence(r).map(q => q.id)))
+    const missing = [...ids].filter(id => !(id in ANSWER_FIELDS))
+    expect(missing).toEqual([])
+  })
+
+  it('gives each answer field exactly one owning question', () => {
+    const fields = Object.values(ANSWER_FIELDS).flat()
+    expect(new Set(fields).size).toBe(fields.length)
+  })
+
+  it('drops bureau answers from a company that backed out of the bureau path', () => {
+    // The shape of rows 14 and 24 in production: bureau answers, then a switch
+    // to "internal" and the Zenegy company path.
+    const pruned = pruneToPath({
+      is_employee: false,
+      payroll_context: 'internal',
+      track: 'zenegy',
+      a_products: ['payroll'],
+      a_nps: 9,
+      c_client_count: '1-5',
+      c_payroll_systems: ['zenegy', 'danloen'],
+      c_payroll_system_other: 'Noget',
+      c_setup: 'we-choose',
+    })
+    expect(pruned.c_client_count).toBeUndefined()
+    expect(pruned.c_payroll_systems).toBeUndefined()
+    expect(pruned.c_payroll_system_other).toBeUndefined()
+    expect(pruned.c_setup).toBeUndefined()
+    expect(pruned.a_nps).toBe(9)
+    expect(pruned.track).toBe('zenegy')
+  })
+
+  it('drops everything but the employee questions once someone settles on employee', () => {
+    const pruned = pruneToPath({
+      is_employee: true,
+      payroll_context: 'internal',
+      track: 'non-zenegy',
+      b_payroll_system: 'danloen',
+      b_payroll_other: 'x',
+      e_payslip: 'app',
+    })
+    expect(pruned).toEqual({ is_employee: true, e_payslip: 'app' })
+  })
+
+  it('keeps a straight path untouched', () => {
+    const answers: SurveyAnswers = {
+      is_employee: false,
+      payroll_context: 'internal',
+      track: 'non-zenegy',
+      size: '10-49',
+      b_payroll_system: 'danloen',
+      b_frustrations: ['ui-old'],
+      b_frustration_other: 'Langsomt',
+      ai_interest: 'anomaly-detection',
+    }
+    expect(pruneToPath(answers)).toEqual(answers)
+  })
+
+  it('keeps the Zenegy follow-ups for a bureau that runs Zenegy, and drops them when it does not', () => {
+    const base = { is_employee: false, payroll_context: 'bureau' as const, a_nps: 8, c_switch_intent: 'maybe' }
+    const withZenegy = pruneToPath({ ...base, c_payroll_systems: ['zenegy'] })
+    const without = pruneToPath({ ...base, c_payroll_systems: ['danloen'] })
+    expect(withZenegy.a_nps).toBe(8)
+    expect(withZenegy.c_switch_intent).toBeUndefined()
+    expect(without.a_nps).toBeUndefined()
+    expect(without.c_switch_intent).toBe('maybe')
   })
 })

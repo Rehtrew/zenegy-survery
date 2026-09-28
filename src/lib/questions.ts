@@ -604,3 +604,52 @@ export function getQuestionSequence(
     ...(usesNumbers ? [] : [NUMBERS_AWARENESS]),
   ]
 }
+
+/**
+ * The answer fields each question writes, its free-text follow-up included.
+ *
+ * Going back and changing a branching answer leaves the abandoned branch's
+ * answers in state. Without pruning they were saved too, so a company that
+ * briefly tried the bureau path reported a client count it doesn't have.
+ */
+export const ANSWER_FIELDS: Record<string, (keyof SurveyAnswers)[]> = {
+  gate: ['is_employee'],
+  context: ['payroll_context'],
+  q0: ['track'],
+  size: ['size'],
+  b1: ['b_payroll_system', 'b_payroll_other'],
+  b2: ['b_frustrations', 'b_frustration_other'],
+  b3: ['b_priorities'],
+  b4: ['b_barriers', 'b_barrier_other'],
+  b5: ['b_switch_intent'],
+  a1: ['a_products'],
+  a1_migration: ['a_migration_from'],
+  a2: ['a_satisfaction', 'a_satisfaction_text'],
+  a3: ['a_best_thing', 'a_best_thing_text'],
+  a4: ['a_nps', 'a_improve_text'],
+  numbers: ['accounting_system', 'accounting_other'],
+  ai: ['ai_interest'],
+  e1: ['e_payslip'],
+  e2: ['e_pain_points'],
+  e3: ['e_expenses'],
+  e4: ['e_ai_trust'],
+  c1: ['c_client_count'],
+  c2: ['c_payroll_systems', 'c_payroll_system_other'],
+  c3: ['c_setup'],
+  c4: ['c_data_collection', 'c_data_collection_other'],
+  c5: ['c_frustrations', 'c_frustration_other'],
+  c6: ['c_priorities'],
+  c7: ['c_switch_intent'],
+}
+
+/** Keep only the answers to questions on the path the respondent finally took. */
+export function pruneToPath(answers: SurveyAnswers): SurveyAnswers {
+  const asked = new Set(getQuestionSequence(answers).map(q => q.id))
+  const kept: SurveyAnswers = { ...answers }
+  for (const [id, fields] of Object.entries(ANSWER_FIELDS)) {
+    if (!asked.has(id)) {
+      for (const field of fields) delete kept[field]
+    }
+  }
+  return kept
+}
