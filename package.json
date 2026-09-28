@@ -12,7 +12,7 @@
     "test:watch": "vitest",
     "build:kinsta": "node scripts/gen-labels.mjs && npm run build && node scripts/build-kinsta.mjs",
     "api": "php -S localhost:8000 -t dist",
-    "test:php": "php kinsta/tests/columns.test.php",
+    "test:php": "php kinsta/tests/columns.test.php && php kinsta/tests/filters.test.php",
     "deploy": "bash scripts/deploy-kinsta.sh",
     "gen:content": "node scripts/gen-survey-content.mjs",
     "gen:cover": "bash scripts/build-cover.sh"

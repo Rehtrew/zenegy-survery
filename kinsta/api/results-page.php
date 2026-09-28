@@ -49,6 +49,91 @@ const SURVEY_FREE_TEXT = [
 ];
 
 /**
+ * Dimensions worth slicing the whole page by, so "what do Danløn users find
+ * frustrating" is one click rather than a CSV export and a pivot table.
+ * Every other question then recomputes against that subset.
+ */
+const SURVEY_FILTERS = [
+    'track'             => 'Spor',
+    'payroll_context'   => 'Intern eller bureau',
+    'size'              => 'Antal medarbejdere',
+    'b_payroll_system'  => 'Lønsystem (andet end Zenegy)',
+    'c_payroll_systems' => 'Lønsystem (bureau)',
+    'c_client_count'    => 'Antal kunder (bureau)',
+    'accounting_system' => 'Regnskabssystem',
+    'utm_source'        => 'Kilde',
+];
+
+/** True when one row answered $column with $value. Handles JSON multi-selects. */
+function survey_row_matches(array $row, string $column, string $value): bool
+{
+    $raw = $row[$column] ?? null;
+    if ($raw === null || $raw === '') {
+        return false;
+    }
+    $decoded = is_string($raw) && str_starts_with($raw, '[') ? json_decode($raw, true) : null;
+    foreach (is_array($decoded) ? $decoded : [$raw] as $item) {
+        if (is_array($item)) {
+            $item = $item['value'] ?? null; // priority rankings
+        }
+        if ($item !== null && (string) $item === $value) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/** Filters from the query string, keyed by column; unknown columns are dropped. */
+function survey_read_filters(): array
+{
+    $raw = $_GET['f'] ?? null;
+    if (!is_array($raw)) {
+        return [];
+    }
+    $filters = [];
+    foreach ($raw as $column => $value) {
+        if (is_string($column) && is_string($value) && $value !== ''
+            && isset(SURVEY_FILTERS[$column]) && strlen($value) <= 60) {
+            $filters[$column] = $value;
+        }
+    }
+    return $filters;
+}
+
+/** Keep only the rows matching every active filter. */
+function survey_apply_filters(array $rows, array $filters): array
+{
+    if ($filters === []) {
+        return $rows;
+    }
+    return array_values(array_filter($rows, static function (array $row) use ($filters): bool {
+        foreach ($filters as $column => $value) {
+            if (!survey_row_matches($row, $column, $value)) {
+                return false;
+            }
+        }
+        return true;
+    }));
+}
+
+/**
+ * A link to this page with $column set to $value, or cleared when $value is
+ * null. Clicking an already-active option therefore removes it.
+ */
+function survey_filter_url(array $filters, ?string $column = null, ?string $value = null, array $extra = []): string
+{
+    if ($column !== null) {
+        if ($value === null) {
+            unset($filters[$column]);
+        } else {
+            $filters[$column] = $value;
+        }
+    }
+    $query = array_merge($filters === [] ? [] : ['f' => $filters], $extra);
+    return $query === [] ? '?' : '?' . http_build_query($query);
+}
+
+/**
  * Funnel counts per event, and per campaign source.
  *
  * The events table holds counts only, so this is the whole picture: how many
@@ -261,11 +346,18 @@ function survey_results_main(): never
         exit('Ingen forbindelse til databasen.');
     }
 
+    // Every number below this line is computed from the filtered set, so one
+    // filter re-cuts the whole page. $allRows stays whole, to build the bar.
+    $allRows = $rows;
+    $filters = survey_read_filters();
+    $rows = survey_apply_filters($allRows, $filters);
+
     if (($_GET['format'] ?? '') === 'csv') {
         survey_send_csv($rows);
     }
 
     $total = count($rows);
+    $grandTotal = count($allRows);
     $nps = survey_nps($rows);
     try {
         $funnel = survey_funnel();
@@ -337,6 +429,22 @@ function survey_results_main(): never
   .btn { display:inline-block; background:var(--accent); color:#fff; text-decoration:none;
          padding:10px 18px; border-radius:10px; font-size:14.5px; font-weight:500 }
   .btn.ghost { background:var(--accent-soft); color:#5a1fe0 }
+  .filters { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 20px; margin:20px 0 8px }
+  .filters-head { margin:0; font-size:14px; color:var(--ink-2) }
+  .filters-head b { color:var(--ink); margin-right:6px }
+  .filters-head a, .empty a { color:var(--accent) }
+  .filters details { margin-top:12px; border-top:1px solid #f2f0f8; padding-top:10px }
+  .filters summary { color:var(--ink-2); font-size:13.5px }
+  .filters summary b { color:var(--accent); font-weight:600 }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 0 }
+  .chip { display:inline-flex; align-items:center; gap:6px; text-decoration:none;
+          background:#f5f3fb; color:var(--ink-2); border:1px solid transparent;
+          border-radius:999px; padding:4px 11px; font-size:13.5px }
+  .chip span { color:var(--ink-3); font-variant-numeric:tabular-nums; font-size:12px }
+  .chip.on { background:var(--accent); color:#fff }
+  .chip.on b, .chip.on span { color:#fff; font-weight:600 }
+  .warn { margin:12px 0 0; background:#fff6e8; border-radius:10px; padding:9px 13px;
+          font-size:13.5px; color:#8a5a12 }
   .empty { background:var(--card); border:1px dashed var(--line); border-radius:14px; padding:32px; text-align:center; color:var(--ink-2) }
 </style>
 </head>
@@ -349,17 +457,80 @@ function survey_results_main(): never
   </p>
 
   <div class="actions">
-    <a class="btn" href="?format=csv">Hent alle svar som CSV</a>
+    <a class="btn" href="<?= survey_e(survey_filter_url($filters, null, null, ['format' => 'csv'])) ?>">
+      <?= $filters === [] ? 'Hent alle svar som CSV' : 'Hent de filtrerede svar som CSV' ?>
+    </a>
     <a class="btn ghost" href="./">Åbn undersøgelsen</a>
+  </div>
+
+  <div class="filters">
+    <p class="filters-head">
+      <b>Skær svarene</b>
+      <?php if ($filters === []) : ?>
+        Vælg en gruppe, så genberegnes hvert spørgsmål nedenfor for netop dem.
+      <?php else : ?>
+        Viser <?= $total ?> af <?= $grandTotal ?> svar.
+        <a href="<?= survey_e(survey_filter_url([])) ?>">Ryd alle</a>
+      <?php endif; ?>
+    </p>
+
+    <?php if ($filters !== []) : ?>
+      <p class="chips">
+        <?php foreach ($filters as $column => $value) : ?>
+          <a class="chip on" href="<?= survey_e(survey_filter_url($filters, $column, null)) ?>"
+             title="Fjern dette filter">
+            <?= survey_e(SURVEY_FILTERS[$column]) ?>:
+            <b><?= survey_e(survey_label($column, $value)) ?></b> ✕
+          </a>
+        <?php endforeach; ?>
+      </p>
+    <?php endif; ?>
+
+    <?php foreach (SURVEY_FILTERS as $column => $name) :
+        $available = survey_count($allRows, $column);
+        if ($available === []) {
+            continue;
+        } ?>
+      <details<?= isset($filters[$column]) ? ' open' : '' ?>>
+        <summary>
+          <?= survey_e($name) ?>
+          <?php if (isset($filters[$column])) : ?>
+            <b><?= survey_e(survey_label($column, $filters[$column])) ?></b>
+          <?php endif; ?>
+        </summary>
+        <p class="chips">
+          <?php foreach ($available as $value => $count) :
+              $active = ($filters[$column] ?? null) === (string) $value; ?>
+            <a class="chip<?= $active ? ' on' : '' ?>"
+               href="<?= survey_e(survey_filter_url($filters, $column, $active ? null : (string) $value)) ?>">
+              <?= survey_e(survey_label($column, (string) $value)) ?>
+              <span><?= $count ?></span>
+            </a>
+          <?php endforeach; ?>
+        </p>
+      </details>
+    <?php endforeach; ?>
+
+    <?php if ($filters !== [] && $total > 0 && $total < 10) : ?>
+      <p class="warn">
+        Kun <?= $total ?> svar i udvalget. Ét svar flytter procenterne meget, så læs tallene
+        som et fingerpeg frem for et resultat.
+      </p>
+    <?php endif; ?>
   </div>
 
   <?php if ($total === 0) : ?>
     <div class="empty" style="margin-top:24px">
-      Ingen svar endnu. Siden opdaterer sig selv, når det første svar lander.
+      <?php if ($filters === []) : ?>
+        Ingen svar endnu. Siden opdaterer sig selv, når det første svar lander.
+      <?php else : ?>
+        Ingen af de <?= $grandTotal ?> svar matcher filteret.
+        <a href="<?= survey_e(survey_filter_url([])) ?>">Ryd filteret</a>.
+      <?php endif; ?>
     </div>
   <?php else : ?>
 
-  <?php if ($funnel['totals']['view'] > 0) :
+  <?php if ($filters === [] && $funnel['totals']['view'] > 0) :
       $views = $funnel['totals']['view'];
       $starts = $funnel['totals']['start'];
       $pct = static fn (int $n, int $of): string => $of > 0 ? round(($n / $of) * 100) . ' %' : '0 %'; ?>
