@@ -12,10 +12,11 @@
  *   dist/api.php      config + validation + database + request handling
  *   dist/results.php  the internal results view (WordPress login required)
  *   dist/share.jpg    link-preview image, referenced absolutely by the meta tags
+ *   dist/PPNeueMontreal-Medium.otf  brand font, loaded by results.php
  *
  * Nothing else is left in dist/, so "upload everything in dist/" is two files.
  */
-import { readFile, writeFile, readdir, rm } from 'node:fs/promises'
+import { readFile, writeFile, readdir, rm, copyFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -87,11 +88,16 @@ await writeFile(indexPath, html.replace(/href="[^"]*favicon\.svg"/, `href="${dat
 // Anything else Vite copied from public/ isn't referenced — drop it so what's
 // left in dist/ is exactly what belongs on the server. share.jpg stays: link
 // previews need a real file at a real URL, they can't read a data URI.
-const KEEP = new Set(['app.html', 'index.php', 'api.php', 'results.php', 'share.jpg'])
+const FONT = 'PPNeueMontreal-Medium.otf'
+const KEEP = new Set(['app.html', 'index.php', 'api.php', 'results.php', 'share.jpg', FONT])
 for (const entry of await readdir(dist, { withFileTypes: true })) {
   if (KEEP.has(entry.name)) continue
   await rm(join(dist, entry.name), { recursive: true, force: true })
 }
+
+// The results page uses the brand font as a plain file next to it, so the
+// browser caches it once instead of every page view carrying it inlined.
+await copyFile(join(root, 'src/assets', FONT), join(dist, FONT))
 
 const size = (await readFile(indexPath)).byteLength
 console.log(`dist/app.html    ${(size / 1024).toFixed(0)} kB (assets inlined, served by index.php)`)
@@ -99,3 +105,4 @@ for (const name of Object.keys(BUNDLES)) {
   console.log(`dist/${name.padEnd(12)} ${((await readFile(join(dist, name))).byteLength / 1024).toFixed(0)} kB`)
 }
 console.log('dist/share.jpg   link-preview image')
+console.log(`dist/${FONT} brand font for the results page`)

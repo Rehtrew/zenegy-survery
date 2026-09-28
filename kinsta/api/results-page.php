@@ -519,6 +519,11 @@ function survey_results_main(): never
 <meta name="robots" content="noindex, nofollow">
 <title>Svar | Lønmarkedsundersøgelsen 2026</title>
 <style>
+  @font-face {
+    font-family:'PP Neue Montreal';
+    src:url('PPNeueMontreal-Medium.otf') format('opentype');
+    font-weight:500; font-style:normal; font-display:swap;
+  }
   /* Grey carries the page. Colour is kept for what it can say at a glance:
      purple marks the most common answer in each card, ink is a filter you
      set, and Zenegy's good/mid/bad appear only on scales with a direction
@@ -531,17 +536,20 @@ function survey_results_main(): never
     --mid:#e2a865;  --mid-soft:#faf3ec;
     --bad:#d5534f;  --bad-soft:#f7e3e3;
     --info:#5b7bf5; --info-soft:#e6ebfd;
-    --bar:var(--gray);
+    --bar:#ddd0fe;
   }
   .t-zenegy, .t-bureau, .t-non-zenegy, .t-employee { --c:var(--ink); --cs:var(--gray-soft) }
 
   * { box-sizing:border-box }
-  body { margin:0; background:var(--bg); color:var(--ink);
-         font:15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif }
+  /* One cut only, Medium, like the survey. Hierarchy comes from size and
+     colour, and the browser must not fake a bold it doesn't have. */
+  body { margin:0; background:var(--bg); color:var(--ink); font-synthesis:none;
+         font:500 15px/1.5 'PP Neue Montreal', Inter, -apple-system, BlinkMacSystemFont, sans-serif }
+  input, button { font-family:inherit }
   .wrap { max-width:1440px; margin:0 auto; padding:32px 24px 80px }
   h1 { font-size:28px; letter-spacing:-.02em; margin:0 0 4px }
   .sub { color:var(--ink-3); margin:0 0 22px; font-size:13.5px }
-  h2 { font-size:16px; letter-spacing:-.01em; color:var(--ink); font-weight:600; margin:30px 0 10px 2px }
+  h2 { font-size:16px; letter-spacing:-.01em; color:var(--ink); font-weight:500; margin:30px 0 10px 2px }
   h2 .count { margin-left:8px; color:var(--ink-3); font-weight:400; font-size:13.5px }
   .is-busy { opacity:.5; transition:opacity .12s }
 
@@ -553,7 +561,7 @@ function survey_results_main(): never
 
   /* sidebar: head, active filters, search */
   .side-head { margin:0 6px 12px 0; color:var(--ink-3); font-size:13px }
-  .side-head b { color:var(--ink); font-size:24px; letter-spacing:-.02em; margin-right:4px; font-variant-numeric:tabular-nums }
+  .side-head b { color:var(--ink); font-size:24px; letter-spacing:-.02em; margin-right:4px }
   .side-head .csv { float:right; margin-top:9px; color:var(--ink-2); font-size:12px; text-decoration:none;
                     border:1px solid var(--line); border-radius:6px; padding:1px 7px }
   .side-head .csv:hover { border-color:var(--ink-3) }
@@ -578,7 +586,7 @@ function survey_results_main(): never
   .facet { margin-top:18px }
   .facet.extra { display:none }
   .searching .facet.extra { display:block }
-  .facet-head { margin:0 0 8px; color:var(--ink-2); font-size:13px; font-weight:600 }
+  .facet-head { margin:0 0 8px; color:var(--ink-2); font-size:13px; font-weight:500 }
   .facet-none { display:none; margin:16px 4px; color:var(--ink-3); font-size:13px }
   .facets.none-found .facet-none { display:block }
   .side-foot { margin:14px 6px 0 0; color:var(--ink-3); font-size:11.5px; line-height:1.5 }
@@ -589,8 +597,7 @@ function survey_results_main(): never
   .who { display:grid; grid-template-columns:1fr 1fr; gap:6px }
   .who .opt { display:block; border-radius:11px; padding:9px 11px 8px; background:var(--cs);
               border:1.5px solid transparent; transition:border-color .12s }
-  .who .opt b { display:block; font-size:21px; line-height:1.15; letter-spacing:-.02em; color:var(--c);
-                font-variant-numeric:tabular-nums }
+  .who .opt b { display:block; font-size:21px; line-height:1.15; letter-spacing:-.02em; color:var(--c) }
   .who .opt span { display:block; font-size:12px; line-height:1.3; color:var(--ink-2) }
   .who .opt:hover { border-color:var(--gray) }
   .who .opt.on { background:var(--ink); border-color:var(--ink) }
@@ -600,56 +607,57 @@ function survey_results_main(): never
   .hist { display:flex; gap:5px; align-items:stretch }
   .hist .opt { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; min-width:0;
                padding:4px 2px 2px; border-radius:8px }
-  .hist .opt b { font-size:11.5px; font-weight:500; color:var(--ink-3); font-variant-numeric:tabular-nums }
+  .hist .opt b { font-size:11.5px; font-weight:500; color:var(--ink-3) }
   .hist .opt em { display:flex; align-items:flex-end; width:100%; height:46px }
-  .hist .opt em i { display:block; width:100%; border-radius:5px 5px 2px 2px; background:var(--gray); transition:background .12s }
+  .hist .opt em i { display:block; width:100%; border-radius:5px 5px 2px 2px; background:#ddd0fe; transition:background .12s }
   .hist .opt span { font-size:11px; color:var(--ink-2); white-space:nowrap }
   .hist .opt:hover { background:var(--gray-soft) }
-  .hist .opt:hover em i { background:var(--ink-3) }
+  .hist .opt:hover em i { background:#8b5cfe }
   .hist .opt.on em i { background:var(--ink) }
-  .hist .opt.on b, .hist .opt.on span { color:var(--ink); font-weight:600 }
+  .hist .opt.on b, .hist .opt.on span { color:var(--ink); font-weight:500 }
 
   /* systems: chips carrying the logo the survey showed */
   .chipset { display:flex; flex-wrap:wrap; gap:5px }
   .chipset .opt { display:inline-flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--line);
                   border-radius:8px; padding:4px 8px 4px 5px; font-size:13px; line-height:1.3 }
   .chipset .opt:not(:has(.lg)) { padding-left:9px }
-  .chipset .opt b { color:var(--ink-3); font-size:11.5px; font-weight:500; font-variant-numeric:tabular-nums }
+  .chipset .opt b { color:var(--ink-3); font-size:11.5px; font-weight:500 }
   .chipset .opt:hover { border-color:var(--ink-3); color:var(--ink) }
   .chipset .opt.on { background:var(--ink); border-color:var(--ink); color:#fff }
   .chipset .opt.on b { color:#fff; opacity:.7 }
   .lg { display:inline-block; flex:none; width:18px; height:18px; border-radius:5px; background:#fff center/contain no-repeat;
         box-shadow:inset 0 0 0 1px rgba(20,19,43,.07) }
   .lg.txt { display:inline-flex; align-items:center; justify-content:center; font-style:normal; font-size:8.5px;
-            font-weight:700; color:#fff; background:var(--ink-3); box-shadow:none; letter-spacing:-.02em }
+            font-weight:500; color:#fff; background:var(--ink-3); box-shadow:none; letter-spacing:-.02em }
 
   /* dashboard */
   .tiles { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px }
   .tile { flex:1 1 130px; max-width:230px; background:var(--card); border-radius:14px; padding:12px 14px }
-  .tile b { display:block; font-size:24px; letter-spacing:-.02em; line-height:1.2; font-variant-numeric:tabular-nums }
+  .tile b { display:block; font-size:24px; letter-spacing:-.02em; line-height:1.2 }
   .tile span { color:var(--ink-3); font-size:12px }
   .panels { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:10px; margin-bottom:10px }
   .panel { display:flex; flex-direction:column; background:var(--card); border-radius:14px; padding:14px 16px }
-  .panel h3 { margin:0 0 10px; font-size:14px; color:var(--ink); font-weight:600 }
+  .panel h3 { margin:0 0 10px; font-size:14px; color:var(--ink); font-weight:500 }
   /* The chart takes whatever height the row gives it, so it never floats in white. */
   .spark { flex:1; display:flex; gap:6px; min-height:96px }
   .spark span { flex:1 1 0; min-width:0; display:flex; flex-direction:column; align-items:center }
-  .spark b { font-size:11.5px; font-weight:500; color:var(--ink-3); font-variant-numeric:tabular-nums; line-height:1.4 }
+  .spark b { font-size:11.5px; font-weight:500; color:var(--ink-3); line-height:1.4 }
   .spark u { flex:1; width:100%; display:flex; align-items:flex-end; text-decoration:none }
-  .spark i { display:block; width:100%; background:var(--gray); border-radius:5px 5px 2px 2px; transition:background .12s }
-  .spark span:hover i { background:var(--ink-3) }
+  .spark i { display:block; width:100%; background:#c9b6fe; border-radius:5px 5px 2px 2px; transition:background .12s }
+  .spark span.peak i { background:var(--brand) }
+  .spark span:hover i { background:#8b5cfe }
   .spark span:hover b { color:var(--ink) }
   .spark em { font-style:normal; font-size:11px; color:var(--ink-3); margin-top:5px; white-space:nowrap }
   .panel-foot { display:flex; justify-content:space-between; gap:10px; margin:8px 0 0; color:var(--ink-3); font-size:12px; line-height:1.5 }
   .panel-foot em { font-style:normal }
-  table.aud { margin:0; font-variant-numeric:tabular-nums }
+  table.aud { margin:0 }
   table.aud td { padding:5px 0; font-size:14px; border-top:none }
   table.aud tr.h td { border-top:none; color:var(--ink-3); font-size:11.5px; padding-top:0; text-align:right }
   table.aud td.r { color:var(--ink-2); text-align:left }
   table.aud td.c, table.aud td.t { text-align:right; width:23% }
   table.aud td.t { color:var(--ink-3) }
   table.aud td.c a, table.aud td.c span { display:inline-block; min-width:40px; padding:2px 9px; border-radius:7px;
-                                          text-align:center; font-weight:600; text-decoration:none }
+                                          text-align:center; font-weight:500; text-decoration:none }
   table.aud td.c a { background:var(--gray-soft); color:var(--ink); border:1.5px solid transparent }
   table.aud td.c a:hover { border-color:var(--gray) }
   table.aud td.c.on a { background:var(--ink); color:#fff }
@@ -667,12 +675,14 @@ function survey_results_main(): never
 
   /* questions */
   .q { background:var(--card); border-radius:14px; padding:16px 18px 12px; margin-bottom:10px }
-  .q h3 { font-size:16px; margin:0 0 1px; letter-spacing:-.01em }
-  .q h3 code { color:var(--ink-3); font-size:11px; font-weight:400; margin-left:6px }
-  .q .asked { margin:0 0 6px; color:var(--ink-2); font-size:13.5px }
+  .q { padding:18px 22px 14px }
+  .q h3 { font-size:13px; font-weight:500; color:var(--ink-3); margin:0 0 4px; letter-spacing:0 }
+  .q h3 code { color:var(--ink-3); font-size:11px; margin-left:6px }
+  .q .asked { margin:0 0 12px; padding-bottom:14px; border-bottom:1px solid var(--line);
+              color:var(--ink); font-size:21px; line-height:1.3; letter-spacing:-.015em }
   table { width:100%; border-collapse:collapse; margin-top:6px }
   td { padding:6px 0; vertical-align:middle }
-  td.v { font-size:14px; padding-right:14px }
+  td.v { font-size:14.5px; padding-right:14px; color:var(--ink-2) }
   td.v .lbl { display:inline-flex; align-items:center; gap:7px }
   td.v i:not(.lg) { display:block; font-style:normal; color:var(--ink-3); font-size:12.5px }
   .most { display:inline-block; margin-left:8px; background:var(--brand-soft); color:#5a24d6; border-radius:5px;
@@ -684,14 +694,15 @@ function survey_results_main(): never
   td.bar span.bad  { background:var(--bad);  opacity:1 }
   /* On a scale the colour already says good or bad; purple would only compete. */
   tr.win td.bar span:not(.good):not(.mid):not(.bad) { background:var(--brand) }
-  tr.win td.v { font-weight:600 }
+  tr.win td.v { color:var(--ink) }
   tr.zero td.v { color:var(--ink-3) }
   tr.zero td.bar span { background:var(--gray-soft) }
-  td.n { text-align:right; width:96px; font-variant-numeric:tabular-nums; color:var(--ink-2); white-space:nowrap }
+  td.n { text-align:right; width:96px; color:var(--ink-2); white-space:nowrap }
   .pct { display:inline-block; min-width:40px; text-align:right; color:var(--ink-3); font-size:12.5px }
   tr.head td { border-top:none; color:var(--ink-3); font-size:12.5px }
   .q-foot { margin:8px 0 0; color:var(--ink-3); font-size:12px }
   .q-foot code { margin-left:6px; font-size:11px; background:var(--bg); border-radius:4px; padding:1px 5px }
+  .q.ft h3 { font-size:19px; color:var(--ink); letter-spacing:-.015em; margin-bottom:6px }
   .quote { background:var(--gray-soft); border-radius:10px; padding:10px 14px; margin-top:8px }
   .quote p { margin:0 0 2px; font-size:14.5px }
   .quote span { color:var(--ink-3); font-size:12px }
@@ -870,7 +881,7 @@ function survey_results_main(): never
         ?>
         <div class="spark">
           <?php foreach ($series as $day => $n) : ?>
-            <span title="<?= survey_e(date('j/n', strtotime($day))) ?>: <?= $n ?> svar">
+            <span class="<?= $n === $peak ? 'peak' : '' ?>" title="<?= survey_e(date('j/n', strtotime($day))) ?>: <?= $n ?> svar">
               <?php if ($labelled) : ?><b><?= $n ?></b><?php endif; ?>
               <u><i style="height:<?= $peak > 0 ? max(2, (int) round(($n / $peak) * 100)) : 2 ?>%"></i></u>
               <?php if ($labelled) : ?><em><?= survey_e(date('j/n', strtotime($day))) ?></em><?php endif; ?>
@@ -1037,7 +1048,7 @@ function survey_results_main(): never
             continue;
         }
         $anyText = true; ?>
-    <div class="q">
+    <div class="q ft">
       <h3><?= survey_e($label) ?> <code><?= survey_e($column) ?></code></h3>
       <?php foreach (array_slice($quotes, 0, 25) as $quote) : ?>
         <div class="quote" style="margin-top:10px">
