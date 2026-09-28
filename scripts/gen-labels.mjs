@@ -11,10 +11,11 @@
  * need Node on the server.
  */
 import { rolldown } from 'rolldown'
-import { mkdtemp, writeFile, rm } from 'node:fs/promises'
+import { mkdtemp, writeFile, rm, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { dirname, join } from 'node:path'
+import { dirname, join, resolve, extname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createHash } from 'node:crypto'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -103,14 +104,40 @@ const TRACK_LABELS = {
   bureau: 'Lønbureau / lønadministrator',
 }
 
+// Node can't import images, so each one becomes its own absolute path. The
+// results page then inlines the logos the survey showed, from the same files.
+const ASSET = /\.(svg|png|jpe?g|otf|woff2?|css)$/
 const stubAssets = {
   name: 'stub-assets',
-  resolveId(id) {
-    return /\.(svg|png|jpe?g|otf|woff2?|css)$/.test(id) ? { id, external: false } : null
+  resolveId(id, importer) {
+    if (!ASSET.test(id)) return null
+    return { id: importer && id.startsWith('.') ? resolve(dirname(importer), id) : id, external: false }
   },
   load(id) {
-    return /\.(svg|png|jpe?g|otf|woff2?|css)$/.test(id) ? 'export default ""' : null
+    return ASSET.test(id) ? `export default ${JSON.stringify('asset:' + id)}` : null
   },
+}
+
+const MIME = { '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg' }
+// One entry per image file, however many questions show it; options refer to
+// it by key, so the page carries each logo once.
+const images = {}
+async function logoFor(option) {
+  if (typeof option.logoSrc === 'string' && option.logoSrc.startsWith('asset:')) {
+    const file = option.logoSrc.slice('asset:'.length)
+    const mime = MIME[extname(file).toLowerCase()]
+    if (mime) {
+      const bytes = await readFile(file)
+      const key = 'l' + createHash('sha1').update(bytes).digest('hex').slice(0, 8)
+      images[key] ??= `data:${mime};base64,${bytes.toString('base64')}`
+      return { img: key }
+    }
+  }
+  if (option.logoInitials) {
+    const bg = option.logoStyle?.background
+    return { initials: option.logoInitials, ...(typeof bg === 'string' ? { bg } : {}) }
+  }
+  return null
 }
 
 const dir = await mkdtemp(join(tmpdir(), 'survey-labels-'))
@@ -170,11 +197,13 @@ try {
   }
   const values = { track: TRACK_LABELS, is_employee: GATE_LABELS, a_nps: NPS_LABELS }
   const subLabels = { is_employee: GATE_SUBLABELS }
+  const logos = {}
   const questionToColumn = Object.fromEntries(
     Object.entries(COLUMN_TO_QUESTION).map(([column, id]) => [id, column]),
   )
+  // Campaign tags stay filterable but are not listed with the answers: they say
+  // how someone arrived, not anything they answered.
   const groups = new Map([
-    ['Hvor kom de fra', ['utm_source', 'utm_medium', 'utm_campaign']],
     ['Alle respondenter', ['track']],
   ])
   for (const [column, questionId] of Object.entries(COLUMN_TO_QUESTION)) {
@@ -186,13 +215,17 @@ try {
     headings[column] = { short: question.shortLabel ?? question.question, question: question.question }
     const map = { ...(values[column] ?? {}) }
     const subs = { ...(subLabels[column] ?? {}) }
+    const marks = {}
     for (const option of question.options ?? []) {
       if (OWN_VALUES.has(column)) break
       map[option.value] = option.label
       if (option.subLabel) subs[option.value] = option.subLabel
+      const logo = await logoFor(option)
+      if (logo) marks[option.value] = logo
     }
     if (Object.keys(map).length) values[column] = map
     if (Object.keys(subs).length) subLabels[column] = subs
+    if (Object.keys(marks).length) logos[column] = marks
   }
 
   // Group every column by who saw it, in the order the survey asks them.
@@ -242,13 +275,23 @@ const SURVEY_VALUE_SUBLABELS = [
 ${php(subLabels, 4)}
 ];
 
+/** Each logo image once, keyed; SURVEY_VALUE_LOGOS refers to these. */
+const SURVEY_LOGO_IMAGES = [
+${php(images, 4)}
+];
+
+/** The logo, or initials on a colour, each option showed in the survey. */
+const SURVEY_VALUE_LOGOS = [
+${php(logos, 4)}
+];
+
 /** Every question the survey can ask, grouped by who sees it, in survey order. */
 const SURVEY_GROUPS = [
 ${orderedGroups.map(([name, columns]) => `    ['name' => '${name.replace(/'/g, "\\'")}', 'columns' => [${columns.map(c => `'${c}'`).join(', ')}]],`).join('\n')}
 ];
 
-/** Columns whose options read in their own order rather than by popularity. */
-const SURVEY_ORDERED_COLUMNS = ['a_nps'];
+/** Scales: their options read in their own order rather than by popularity. */
+const SURVEY_ORDERED_COLUMNS = ['a_nps', 'a_satisfaction', 'size', 'c_client_count'];
 `)
   console.log(`Generated kinsta/api/labels.php (${Object.keys(headings).length} questions)`)
 } finally {

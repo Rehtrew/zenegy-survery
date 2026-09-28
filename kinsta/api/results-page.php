@@ -54,13 +54,20 @@ const SURVEY_FREE_TEXT = [
  * Every other question then recomputes against that subset.
  */
 const SURVEY_FILTERS = [
-    'track'             => 'Spor',
-    'size'              => 'Antal medarbejdere',
-    'b_payroll_system'  => 'Lønsystem (andet end Zenegy)',
-    'c_payroll_systems' => 'Lønsystem (bureau)',
-    'c_client_count'    => 'Antal kunder (bureau)',
+    'track'             => 'Hvem',
+    'size'              => 'Virksomhedens størrelse',
+    'b_payroll_system'  => 'Lønsystem',
+    'c_payroll_systems' => 'Bureauernes lønsystemer',
+    'c_client_count'    => 'Bureauernes antal kunder',
     'accounting_system' => 'Regnskabssystem',
     'utm_source'        => 'Kilde',
+];
+
+/** How each curated facet draws: tiles, a small histogram, or chips. */
+const SURVEY_FACET_KIND = [
+    'track'          => 'tiles',
+    'size'           => 'hist',
+    'c_client_count' => 'hist',
 ];
 
 /** True when one row answered $column with $value. Handles JSON multi-selects. */
@@ -271,6 +278,60 @@ function survey_audience(array $rows): array
     return $cells;
 }
 
+/**
+ * Counts for one facet within the current slice, ignoring that facet's own
+ * filter, so its options still show what picking them would give.
+ */
+function survey_facet_counts(array $allRows, array $filters, string $column): array
+{
+    unset($filters[$column]);
+    return survey_count(survey_apply_filters($allRows, $filters), $column);
+}
+
+/** Options in the order the survey listed them, with counts, zeros included. */
+function survey_scale(array $counts, string $column): array
+{
+    $out = [];
+    foreach (array_keys(SURVEY_VALUE_LABELS[$column] ?? []) as $value) {
+        $out[(string) $value] = $counts[(string) $value] ?? 0;
+    }
+    return $out;
+}
+
+/** The small mark in front of an option: its logo, or initials on a colour. */
+function survey_logo(string $column, string $value): string
+{
+    $logo = SURVEY_VALUE_LOGOS[$column][$value] ?? null;
+    if ($logo === null) {
+        return '';
+    }
+    if (isset($logo['img'])) {
+        return '<i class="lg ' . survey_e($logo['img']) . '"></i>';
+    }
+    $bg = isset($logo['bg']) ? ' style="background:' . survey_e($logo['bg']) . '"' : '';
+    return '<i class="lg txt"' . $bg . '>' . survey_e((string) $logo['initials']) . '</i>';
+}
+
+/**
+ * Bar colour class for an option. Scales with a direction get the system
+ * colours; everything else takes the colour of the slice being read.
+ */
+function survey_tone(string $column, string $value): string
+{
+    if ($column === 'a_nps') {
+        $n = (int) $value;
+        return $n >= 9 ? 'good' : ($n >= 7 ? 'mid' : 'bad');
+    }
+    if ($column === 'a_satisfaction') {
+        return match ($value) {
+            'very-happy', 'happy' => 'good',
+            'meh' => 'mid',
+            default => 'bad',
+        };
+    }
+    return '';
+}
+
 /** How many people answered this question at all — the honest denominator. */
 function survey_respondents(array $rows, string $column): int
 {
@@ -458,149 +519,196 @@ function survey_results_main(): never
 <meta name="robots" content="noindex, nofollow">
 <title>Svar | Lønmarkedsundersøgelsen 2026</title>
 <style>
-  :root { --ink:#14132b; --ink-2:#5b5b66; --ink-3:#8b88a5; --line:#e6e4ef; --bg:#fbfaff; --card:#fff; --accent:#6e30fd; --accent-soft:#efeafe; }
+  /* Zenegy's system colours. Each carries one meaning on this page:
+     a track's colour is that group everywhere, ink is a filter you set,
+     info marks the most common answer, and good/mid/bad only ever mean
+     a scale with a direction (NPS, satisfaction). */
+  :root {
+    --ink:#14132b; --ink-2:#55546a; --ink-3:#8b88a5; --line:#e8e6f0; --bg:#f8f7fc; --card:#fff;
+    --brand:#6e30fd; --brand-soft:#efeafe;
+    --good:#7db875; --good-soft:#eef6ec;
+    --mid:#e2a865;  --mid-soft:#faf3ec;
+    --bad:#d5534f;  --bad-soft:#f7e3e3;
+    --info:#5b7bf5; --info-soft:#e6ebfd;
+    --bar:var(--brand);
+  }
+  .t-zenegy     { --c:var(--brand); --cs:var(--brand-soft) }
+  .t-bureau     { --c:var(--info);  --cs:var(--info-soft) }
+  .t-non-zenegy { --c:var(--mid);   --cs:var(--mid-soft) }
+  .t-employee   { --c:var(--good);  --cs:var(--good-soft) }
+  .slice-zenegy { --bar:var(--brand) } .slice-bureau { --bar:var(--info) }
+  .slice-non-zenegy { --bar:var(--mid) } .slice-employee { --bar:var(--good) }
+
   * { box-sizing:border-box }
   body { margin:0; background:var(--bg); color:var(--ink);
-         font:16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  .wrap { max-width:1440px; margin:0 auto; padding:36px 20px 80px; }
-  h1 { font-size:32px; letter-spacing:-.02em; margin:0 0 8px }
-  .sub { color:var(--ink-2); margin:0 0 28px }
-  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-3);
-       border-bottom:1px solid var(--line); padding-bottom:10px; margin:36px 0 16px }
-  h2 .count { margin-left:10px; text-transform:none; letter-spacing:0; font-weight:400; color:var(--ink-3) }
-  .q { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin-bottom:12px }
-  .q h3 { font-size:17px; margin:0 0 2px; letter-spacing:-.01em }
-  .q .asked { margin:0; color:var(--ink-2); font-size:14px }
-  .q code { color:var(--ink-3); font-size:11.5px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace }
-  .q code.col { display:inline-block; margin-top:12px; background:#f5f3fb; border-radius:5px; padding:2px 7px }
-  .answered { color:var(--ink-3); font-size:12.5px; margin-left:8px }
-  .top { margin:12px 0 0; background:var(--accent-soft); border-radius:10px; padding:9px 13px; font-size:14.5px; color:#3f1b9c }
-  .top span { text-transform:uppercase; letter-spacing:.08em; font-size:11px; color:#7a5bd6; margin-right:8px }
-  .top b { font-weight:600 }
-  .top em { font-style:normal; color:#7a5bd6 }
-  tr.zero td.v { color:var(--ink-3) }
-  tr.zero .bar span { background:var(--line) }
-  tr.win td.v { font-weight:600 }
-  tr.head td { border-top:none; color:var(--ink-3); font-size:13px }
-  .q-empty { background:#fcfbff; border-style:dashed }
-  .none { margin:12px 0 0; color:var(--ink-3); font-size:14px }
-  details { margin-top:10px }
-  summary { cursor:pointer; color:var(--accent); font-size:13.5px }
-  details ul { margin:10px 0 0; padding-left:20px; color:var(--ink-2); font-size:14px }
-  details li { margin-bottom:3px }
-  td.v code { display:block; margin-top:1px; opacity:.65 }
-  td.v i { display:block; font-style:normal; color:var(--ink-3); font-size:13px }
-  .pct { display:inline-block; min-width:42px; text-align:right; color:var(--ink-3); font-size:13px }
-  table { width:100%; border-collapse:collapse; margin-top:12px }
-  td { padding:9px 0; border-top:1px solid #f2f0f8; vertical-align:middle }
-  td.v { font-size:14.5px }
-  td.n { text-align:right; width:104px; font-variant-numeric:tabular-nums; color:var(--ink-2); white-space:nowrap }
-  td.bar { width:38%; min-width:60px; padding-left:14px }
-  .bar span { display:block; height:8px; border-radius:4px; background:var(--accent); opacity:.85 }
-  .quote { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--accent);
-           border-radius:0 12px 12px 0; padding:12px 16px; margin-bottom:8px }
-  .quote p { margin:0 0 4px; font-size:15px }
-  .quote span { color:var(--ink-3); font-size:12.5px }
-  .layout { display:grid; grid-template-columns:340px minmax(0,1fr); gap:26px; align-items:start }
+         font:15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif }
+  .wrap { max-width:1440px; margin:0 auto; padding:32px 24px 80px }
+  h1 { font-size:28px; letter-spacing:-.02em; margin:0 0 4px }
+  .sub { color:var(--ink-3); margin:0 0 22px; font-size:13.5px }
+  h2 { font-size:12px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-3); font-weight:600;
+       margin:30px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--line) }
+  h2 .count { margin-left:10px; text-transform:none; letter-spacing:0; font-weight:400 }
+  .is-busy { opacity:.5; transition:opacity .12s }
+
+  /* layout */
+  .layout { display:grid; grid-template-columns:340px minmax(0,1fr); gap:24px; align-items:start }
   .main { min-width:0 }
-  .side { position:sticky; top:16px; display:flex; flex-direction:column;
-          max-height:calc(100vh - 32px);
-          background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 8px 10px 14px }
-  .side-head { margin:0 4px 10px 0; color:var(--ink-3); font-size:13px }
-  .side-head b { color:var(--ink); font-size:20px; font-variant-numeric:tabular-nums; margin-right:4px;
-                 letter-spacing:-.02em }
-  .side-head .csv { float:right; color:var(--accent); text-decoration:none; font-size:12.5px; margin-top:6px }
-  .pills { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:0 6px 10px 0 }
-  .pill { display:inline-flex; align-items:center; gap:6px; text-decoration:none; background:var(--accent);
-          color:#fff; border-radius:8px; padding:5px 9px; font-size:13px; line-height:1.3 }
-  .pill i { font-style:normal; opacity:.6; font-size:11px }
-  .pill b { opacity:.7; font-weight:400 }
-  .pill:hover b { opacity:1 }
-  .pills .clear { color:var(--ink-3); font-size:12.5px; text-decoration:none }
-  .pills .clear:hover { color:var(--accent) }
-  .find { width:calc(100% - 6px); border:1px solid var(--line); border-radius:9px; padding:8px 11px;
-          font:inherit; font-size:13.5px; color:var(--ink); background:#fbfaff }
-  .find:focus { outline:none; border-color:var(--accent); background:#fff }
-  .facets { flex:1; overflow-y:auto; margin-top:8px; padding-right:6px }
+  .side { position:sticky; top:16px; display:flex; flex-direction:column; max-height:calc(100vh - 32px);
+          background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px 10px 12px 16px }
+
+  /* sidebar: head, active filters, search */
+  .side-head { margin:0 6px 12px 0; color:var(--ink-3); font-size:13px }
+  .side-head b { color:var(--ink); font-size:24px; letter-spacing:-.02em; margin-right:4px; font-variant-numeric:tabular-nums }
+  .side-head .csv { float:right; margin-top:9px; color:var(--ink-2); font-size:12px; text-decoration:none;
+                    border:1px solid var(--line); border-radius:6px; padding:1px 7px }
+  .side-head .csv:hover { border-color:var(--ink-3) }
+  .active { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:0 6px 12px 0 }
+  .act { display:inline-flex; align-items:center; gap:6px; text-decoration:none; background:var(--ink); color:#fff;
+         border-radius:8px; padding:5px 9px; font-size:13px; line-height:1.3 }
+  .act i:not(.lg) { font-style:normal; opacity:.55; font-size:11px }
+  .act b { opacity:.55; font-weight:400; margin-left:2px }
+  .act:hover b { opacity:1 }
+  .clear { color:var(--ink-3); font-size:12.5px; text-decoration:none; padding:0 4px }
+  .clear:hover { color:var(--ink) }
+  .warn { margin:0 6px 12px 0; background:var(--mid-soft); color:#8a5a12; border-radius:9px;
+          padding:8px 10px; font-size:12.5px; line-height:1.45 }
+  .find { width:calc(100% - 6px); border:1px solid var(--line); border-radius:10px; padding:9px 12px;
+          font:inherit; font-size:13.5px; color:var(--ink); background:var(--bg) }
+  .find:focus { outline:none; border-color:var(--ink-3); background:#fff }
+
+  /* sidebar: facets */
+  .facets { flex:1; overflow-y:auto; margin-top:4px; padding-right:6px }
   .facets::-webkit-scrollbar { width:8px }
   .facets::-webkit-scrollbar-thumb { background:#e2def0; border-radius:4px }
-  .facet { margin-top:14px }
-  .facet:first-child { margin-top:2px }
-  .facet-head { margin:0 0 6px; color:var(--ink-3); font-size:10.5px;
-                text-transform:uppercase; letter-spacing:.09em }
-  .chipset { display:flex; flex-wrap:wrap; gap:5px }
-  .opt { display:inline-flex; align-items:center; gap:6px; text-decoration:none; color:var(--ink-2);
-         background:#f5f3fb; border:1px solid transparent; border-radius:999px;
-         padding:4px 10px; font-size:13px; line-height:1.3 }
-  .opt:hover { border-color:#d9cffb; color:var(--ink) }
-  .opt b { color:var(--ink-3); font-size:11.5px; font-weight:500; font-variant-numeric:tabular-nums }
-  .opt.on { background:var(--accent); color:#fff }
-  .opt.on b { color:#fff; opacity:.8 }
+  .facet { margin-top:18px }
   .facet.extra { display:none }
-  .facet-none { display:none; margin:14px 8px; color:var(--ink-3); font-size:13px }
+  .searching .facet.extra { display:block }
+  .facet-head { margin:0 0 8px; color:var(--ink-3); font-size:10.5px; font-weight:600;
+                text-transform:uppercase; letter-spacing:.09em }
+  .facet-none { display:none; margin:16px 4px; color:var(--ink-3); font-size:13px }
   .facets.none-found .facet-none { display:block }
-  .side-foot { margin:10px 6px 0 0; padding-top:10px; border-top:1px solid #f2f0f8;
+  .side-foot { margin:12px 6px 0 0; padding-top:10px; border-top:1px solid var(--line);
                color:var(--ink-3); font-size:11.5px; line-height:1.5 }
-  .warn { margin:0 6px 10px 0; background:#fff6e8; border-radius:9px; padding:8px 10px;
-          font-size:12.5px; line-height:1.45; color:#8a5a12 }
-  .tiles { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px }
-  .tile { flex:1 1 130px; max-width:230px; background:var(--card); border:1px solid var(--line);
-          border-radius:12px; padding:12px 14px }
-  .tile b { display:block; font-size:24px; letter-spacing:-.02em; font-variant-numeric:tabular-nums; line-height:1.2 }
-  .tile span { color:var(--ink-3); font-size:12px }
+  .opt { text-decoration:none; color:var(--ink-2) }
+  .opt.nil { opacity:.4; pointer-events:none }
 
-  .panels { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:10px; margin-bottom:12px }
-  .panel { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px }
-  .panel h3 { margin:0 0 10px; font-size:13px; color:var(--ink-3); font-weight:500;
-              text-transform:uppercase; letter-spacing:.08em }
-  .spark { display:flex; align-items:flex-end; gap:3px; height:62px }
-  .spark span { flex:1 1 0; max-width:48px; height:100%; display:flex; align-items:flex-end; min-width:3px }
-  .spark i { display:block; width:100%; background:var(--accent); opacity:.85; border-radius:3px 3px 0 0 }
-  .spark span:hover i { opacity:1; background:#4d18d8 }
-  .panel-foot { display:flex; justify-content:space-between; gap:10px; margin:8px 0 0;
-                color:var(--ink-3); font-size:12px }
+  /* Hvem: one tile per group, in that group's colour */
+  .who { display:grid; grid-template-columns:1fr 1fr; gap:6px }
+  .who .opt { display:block; border-radius:11px; padding:9px 11px 8px; background:var(--cs);
+              border:1.5px solid transparent; transition:border-color .12s }
+  .who .opt b { display:block; font-size:21px; line-height:1.15; letter-spacing:-.02em; color:var(--c);
+                font-variant-numeric:tabular-nums }
+  .who .opt span { display:block; font-size:12px; line-height:1.3; color:var(--ink-2) }
+  .who .opt:hover { border-color:var(--c) }
+  .who .opt.on { background:var(--c); border-color:var(--c) }
+  .who .opt.on b, .who .opt.on span { color:#fff }
+
+  /* sizes: a histogram you click */
+  .hist { display:flex; gap:5px; align-items:stretch }
+  .hist .opt { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; min-width:0;
+               padding:4px 2px 2px; border-radius:8px }
+  .hist .opt b { font-size:11.5px; font-weight:500; color:var(--ink-3); font-variant-numeric:tabular-nums }
+  .hist .opt em { display:flex; align-items:flex-end; width:100%; height:46px }
+  .hist .opt em i { display:block; width:100%; border-radius:5px 5px 2px 2px; background:#d9d2f3; transition:background .12s }
+  .hist .opt span { font-size:11px; color:var(--ink-2); white-space:nowrap }
+  .hist .opt:hover { background:var(--bg) }
+  .hist .opt:hover em i { background:var(--brand) }
+  .hist .opt.on em i { background:var(--ink) }
+  .hist .opt.on b, .hist .opt.on span { color:var(--ink); font-weight:600 }
+
+  /* systems: chips carrying the logo the survey showed */
+  .chipset { display:flex; flex-wrap:wrap; gap:5px }
+  .chipset .opt { display:inline-flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--line);
+                  border-radius:8px; padding:4px 8px 4px 5px; font-size:13px; line-height:1.3 }
+  .chipset .opt:not(:has(.lg)) { padding-left:9px }
+  .chipset .opt b { color:var(--ink-3); font-size:11.5px; font-weight:500; font-variant-numeric:tabular-nums }
+  .chipset .opt:hover { border-color:var(--ink-3); color:var(--ink) }
+  .chipset .opt.on { background:var(--ink); border-color:var(--ink); color:#fff }
+  .chipset .opt.on b { color:#fff; opacity:.7 }
+  .lg { display:inline-block; flex:none; width:18px; height:18px; border-radius:5px; background:#fff center/contain no-repeat;
+        box-shadow:inset 0 0 0 1px rgba(20,19,43,.07) }
+  .lg.txt { display:inline-flex; align-items:center; justify-content:center; font-style:normal; font-size:8.5px;
+            font-weight:700; color:#fff; background:var(--ink-3); box-shadow:none; letter-spacing:-.02em }
+
+  /* dashboard */
+  .tiles { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px }
+  .tile { flex:1 1 130px; max-width:230px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 14px }
+  .tile b { display:block; font-size:24px; letter-spacing:-.02em; line-height:1.2; font-variant-numeric:tabular-nums }
+  .tile span { color:var(--ink-3); font-size:12px }
+  .panels { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:10px; margin-bottom:10px }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px }
+  .panel h3 { margin:0 0 10px; font-size:11.5px; color:var(--ink-3); font-weight:600; text-transform:uppercase; letter-spacing:.08em }
+  .spark { display:flex; align-items:flex-end; gap:4px; height:64px }
+  .spark span { flex:1 1 0; max-width:48px; height:100%; display:flex; align-items:flex-end }
+  .spark i { display:block; width:100%; background:var(--bar); opacity:.85; border-radius:4px 4px 1px 1px }
+  .spark span:hover i { opacity:1 }
+  .panel-foot { display:flex; justify-content:space-between; gap:10px; margin:8px 0 0; color:var(--ink-3); font-size:12px; line-height:1.5 }
   .panel-foot em { font-style:normal }
-  .stack { display:flex; height:30px; border-radius:8px; overflow:hidden; gap:2px }
-  .seg { display:block; transition:opacity .15s }
-  .seg:hover { opacity:.75 }
-  .t-zenegy { background:#6e30fd } .t-bureau { background:#9a6bff }
-  .t-non-zenegy { background:#c0a5ff } .t-employee { background:#ded2ff }
-  .legend { display:flex; flex-wrap:wrap; gap:6px 14px; margin:10px 0 0 }
-  .key { display:inline-flex; align-items:center; gap:6px; text-decoration:none;
-         color:var(--ink-2); font-size:13px }
-  .key:hover { color:var(--accent) }
-  .key i { width:9px; height:9px; border-radius:3px; display:inline-block }
-  .key b { color:var(--ink-3); font-weight:500; font-variant-numeric:tabular-nums }
   table.aud { margin:0; font-variant-numeric:tabular-nums }
-  table.aud td { padding:7px 0; font-size:14px; border-top:1px solid #f2f0f8 }
+  table.aud td { padding:6px 0; font-size:14px; border-top:1px solid #f1eff6 }
   table.aud tr.h td { border-top:none; color:var(--ink-3); font-size:11.5px; padding-top:0; text-align:right }
   table.aud td.r { color:var(--ink-2); text-align:left }
-  table.aud td.c, table.aud td.t { text-align:right; width:24% }
+  table.aud td.c, table.aud td.t { text-align:right; width:23% }
   table.aud td.t { color:var(--ink-3) }
-  table.aud td.c a { display:inline-block; min-width:38px; padding:2px 8px; border-radius:6px;
-                     color:var(--ink); font-weight:600; text-decoration:none; background:#f5f3fb }
-  table.aud td.c a:hover { background:#e9e2fd; color:var(--accent) }
-  table.aud td.c.on a { background:var(--accent); color:#fff }
+  table.aud td.c a, table.aud td.c span { display:inline-block; min-width:40px; padding:2px 9px; border-radius:7px;
+                                          text-align:center; font-weight:600; text-decoration:none }
+  table.aud td.c a { background:var(--cs); color:var(--c); border:1.5px solid transparent }
+  table.aud td.c a:hover { border-color:var(--c) }
+  table.aud td.c.on a { background:var(--c); color:#fff }
+  table.aud td.c.plain span { color:var(--ink-2); font-weight:500 }
+  table.aud td.nil span { color:var(--ink-3); font-weight:400 }
   table.aud td.span { text-align:center }
-  table.aud td.span a { font-weight:400; color:var(--ink-3); background:none; font-size:13px }
-  table.aud td.nil { color:var(--ink-3) }
-  .panel-foot span { line-height:1.5 }
-  .sources { margin:0 0 12px }
-  .sources > summary { color:var(--ink-3); font-size:13px }
+  table.aud td.span a { font-weight:500; font-size:13px }
+  .sources { margin:0 0 10px }
+  .sources > summary { cursor:pointer; color:var(--ink-3); font-size:13px }
   .sources table { margin-top:6px }
+  .answered { color:var(--ink-3); font-size:12px }
+  .empty { background:var(--card); border:1px dashed var(--line); border-radius:14px; padding:32px;
+           text-align:center; color:var(--ink-2) }
+  .empty a { color:var(--ink) }
 
-  a.pick { color:inherit; text-decoration:none; border-bottom:1px dashed #d7d2e8 }
-  a.pick:hover { color:var(--accent); border-bottom-color:var(--accent) }
-  tr.picked td { background:var(--accent-soft) }
-  tr.picked a.pick { color:#3f1b9c; font-weight:600; border-bottom:none }
-  @media (max-width:1150px) { td.bar { width:22% } }
+  /* questions */
+  .q { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px 12px; margin-bottom:10px }
+  .q h3 { font-size:16px; margin:0 0 1px; letter-spacing:-.01em }
+  .q h3 code { color:var(--ink-3); font-size:11px; font-weight:400; margin-left:6px }
+  .q .asked { margin:0 0 6px; color:var(--ink-2); font-size:13.5px }
+  table { width:100%; border-collapse:collapse; margin-top:6px }
+  td { padding:7px 0; border-top:1px solid #f1eff6; vertical-align:middle }
+  td.v { font-size:14px; padding-right:14px }
+  td.v .lbl { display:inline-flex; align-items:center; gap:7px }
+  td.v i:not(.lg) { display:block; font-style:normal; color:var(--ink-3); font-size:12.5px }
+  .most { display:inline-block; margin-left:8px; background:var(--info-soft); color:#3552c7; border-radius:5px;
+          padding:0 6px; font-size:10.5px; font-weight:600; letter-spacing:.03em; vertical-align:1px }
+  td.bar { width:38%; min-width:60px }
+  td.bar span { display:block; height:8px; border-radius:4px; background:var(--bar); opacity:.8 }
+  td.bar span.good { background:var(--good); opacity:1 }
+  td.bar span.mid  { background:var(--mid);  opacity:1 }
+  td.bar span.bad  { background:var(--bad);  opacity:1 }
+  tr.win td.bar span { opacity:1 }
+  tr.win td.v { font-weight:600 }
+  tr.zero td.v { color:var(--ink-3) }
+  tr.zero td.bar span { background:var(--line) }
+  td.n { text-align:right; width:96px; font-variant-numeric:tabular-nums; color:var(--ink-2); white-space:nowrap }
+  .pct { display:inline-block; min-width:40px; text-align:right; color:var(--ink-3); font-size:12.5px }
+  tr.head td { border-top:none; color:var(--ink-3); font-size:12.5px }
+  .q-foot { margin:8px 0 0; color:var(--ink-3); font-size:12px }
+  .q-foot code { margin-left:6px; font-size:11px; background:var(--bg); border-radius:4px; padding:1px 5px }
+  .quote { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--bar);
+           border-radius:0 10px 10px 0; padding:10px 14px; margin-top:8px }
+  .quote p { margin:0 0 2px; font-size:14.5px }
+  .quote span { color:var(--ink-3); font-size:12px }
+
+  @media (max-width:1150px) { td.bar { width:24% } }
   @media (max-width:980px) {
     .layout { grid-template-columns:1fr; gap:16px }
     .side { position:static; max-height:none }
-    .facets { max-height:320px }
+    .facets { max-height:360px }
   }
-  .is-busy { opacity:.55; transition:opacity .12s }
-  .empty { background:var(--card); border:1px dashed var(--line); border-radius:14px; padding:32px; text-align:center; color:var(--ink-2) }
+</style>
+<style>
+  <?php foreach (SURVEY_LOGO_IMAGES as $key => $uri) : ?>
+  .lg.<?= $key ?> { background-image:url("<?= $uri ?>") }
+  <?php endforeach; ?>
 </style>
 </head>
 <body>
@@ -620,63 +728,108 @@ function survey_results_main(): never
     </p>
 
     <?php if ($filters !== []) : ?>
-      <div class="pills">
+      <div class="active">
         <?php foreach ($filters as $column => $value) : ?>
-          <a class="pill" data-go href="<?= survey_e(survey_filter_url($filters, $column, null)) ?>">
+          <a class="act" data-go href="<?= survey_e(survey_filter_url($filters, $column, null)) ?>" title="Fjern filter">
             <i><?= survey_e(survey_filter_name($column)) ?></i>
-            <?= survey_e(survey_label($column, $value)) ?><b>✕</b>
+            <?= survey_logo($column, $value) ?><?= survey_e(survey_label($column, $value)) ?><b>✕</b>
           </a>
         <?php endforeach; ?>
         <a class="clear" data-go href="<?= survey_e(survey_filter_url([])) ?>">Ryd alle</a>
       </div>
       <?php if ($total > 0 && $total < 10) : ?>
-        <p class="warn">Lille udsnit. Ét svar flytter procenterne meget.</p>
+        <p class="warn">Kun <?= $total ?> svar. Ét svar flytter procenterne meget.</p>
       <?php endif; ?>
     <?php endif; ?>
 
-    <input class="find" type="search" autocomplete="off"
-           placeholder="Søg, fx danløn eller gammeldags">
+    <input class="find" type="search" autocomplete="off" placeholder="Søg i alle svar, fx danløn eller gammeldags">
 
     <div class="facets">
       <?php
-        // Curated dimensions first, in their own order; every other question
-        // follows, hidden until a search brings it forward.
         $facetOrder = array_merge(
             array_keys(SURVEY_FILTERS),
             array_diff(array_keys(SURVEY_QUESTION_LABELS), array_keys(SURVEY_FILTERS))
         );
         foreach ($facetOrder as $column) :
-          $available = survey_count($allRows, $column);
-          if ($available === []) {
+          $counts = survey_facet_counts($allRows, $filters, $column);
+          $isActive = isset($filters[$column]);
+          // Nobody in this slice answered it: the facet has nothing to offer.
+          if ($counts === [] && !$isActive) {
               continue;
           }
-          // Only the everyday dimensions show up front; the rest of the
-          // questions stay in the DOM and surface as soon as you search.
           $extra = isset(SURVEY_FILTERS[$column]) ? '' : ' extra';
-          $name = survey_filter_name($column); ?>
-        <div class="facet<?= $extra ?>">
+          $kind = $extra === '' ? (SURVEY_FACET_KIND[$column] ?? 'chips') : 'chips';
+          $name = survey_filter_name($column);
+          $options = $kind === 'chips' ? $counts : survey_scale($counts, $column);
+          if ($column === 'track') {
+              // Same order as "Hvem er de": companies, then bureaus, then employees.
+              $options = array_replace(array_fill_keys(['zenegy', 'non-zenegy', 'bureau', 'employee'], 0), $options);
+          }
+          if ($isActive && !isset($options[$filters[$column]])) {
+              $options[$filters[$column]] = 0;
+          }
+          $peak = $options === [] ? 0 : max($options);
+          $find = static fn (string $v): string => survey_e(mb_strtolower($name . ' ' . survey_label($column, $v) . ' ' . $v));
+          $href = static fn (string $v, bool $on): string =>
+              survey_e(survey_filter_url($filters, $column, $on ? null : $v)); ?>
+        <section class="facet<?= $extra ?> k-<?= $kind ?>">
           <p class="facet-head"><?= survey_e($name) ?></p>
-          <div class="chipset">
-            <?php foreach ($available as $value => $count) :
-                $active = ($filters[$column] ?? null) === (string) $value;
-                $label = survey_label($column, (string) $value); ?>
-              <a class="opt<?= $active ? ' on' : '' ?>" data-go
-                 data-find="<?= survey_e(mb_strtolower($name . ' ' . $label . ' ' . $value)) ?>"
-                 href="<?= survey_e(survey_filter_url($filters, $column, $active ? null : (string) $value)) ?>"><?= survey_e($label) ?><b><?= $count ?></b></a>
-            <?php endforeach; ?>
-          </div>
-        </div>
+
+          <?php if ($kind === 'tiles') : ?>
+            <div class="who">
+              <?php foreach ($options as $value => $n) :
+                  $value = (string) $value;
+                  $on = ($filters[$column] ?? null) === $value; ?>
+                <a class="opt t-<?= survey_e($value) ?><?= $on ? ' on' : '' ?><?= $n === 0 ? ' nil' : '' ?>" data-go
+                   data-find="<?= $find($value) ?>" href="<?= $href($value, $on) ?>">
+                  <b><?= $n ?></b><span><?= survey_e(survey_label($column, $value)) ?></span>
+                </a>
+              <?php endforeach; ?>
+            </div>
+
+          <?php elseif ($kind === 'hist') : ?>
+            <div class="hist">
+              <?php foreach ($options as $value => $n) :
+                  $value = (string) $value;
+                  $on = ($filters[$column] ?? null) === $value;
+                  $h = $peak > 0 ? max(4, (int) round(($n / $peak) * 100)) : 4; ?>
+                <a class="opt<?= $on ? ' on' : '' ?><?= $n === 0 ? ' nil' : '' ?>" data-go
+                   data-find="<?= $find($value) ?>" href="<?= $href($value, $on) ?>"
+                   title="<?= survey_e(survey_label($column, $value)) ?>: <?= $n ?>">
+                  <b><?= $n ?></b><em><i style="height:<?= $h ?>%"></i></em>
+                  <span><?= survey_e(preg_replace('/ kunder$/', '', survey_label($column, $value))) ?></span>
+                </a>
+              <?php endforeach; ?>
+            </div>
+
+          <?php else : ?>
+            <div class="chipset">
+              <?php foreach ($options as $value => $n) :
+                  $value = (string) $value;
+                  $on = ($filters[$column] ?? null) === $value; ?>
+                <a class="opt<?= $on ? ' on' : '' ?>" data-go data-find="<?= $find($value) ?>" href="<?= $href($value, $on) ?>">
+                  <?= survey_logo($column, $value) ?><span><?= survey_e(survey_label($column, $value)) ?></span><b><?= $n ?></b>
+                </a>
+              <?php endforeach; ?>
+            </div>
+          <?php endif; ?>
+        </section>
       <?php endforeach; ?>
-      <p class="facet-none">Ingen filtre matcher søgningen.</p>
+      <p class="facet-none">Ingen svar matcher søgningen.</p>
     </div>
 
     <p class="side-foot">
-      Søgningen dækker alle spørgsmål, ikke kun dem der står her.
-      Du kan også klikke et svar i tabellerne.
+      Tallene følger dit udsnit: de viser, hvor mange du får, hvis du vælger dem.
+      Søgningen dækker alle spørgsmål.
     </p>
   </aside>
 
-  <main class="main">
+  <?php
+    // Reading one kind of respondent: the bars take that group's colour, so
+    // the whole column says whose answers these are without reading a chip.
+    $slice = isset($filters['track']) ? preg_replace('/[^a-z-]/', '', $filters['track']) : 'all';
+  ?>
+  <main class="main slice-<?= survey_e($slice) ?>">
   <?php if ($total === 0) : ?>
     <div class="empty">
       <?php if ($filters === []) : ?>
@@ -736,11 +889,11 @@ function survey_results_main(): never
       };
       $isCell = static fn (array $set): bool => array_intersect_assoc($set, $filters) === $set
           && count($filters) === count($set);
-      $cell = static function (int $n, ?array $set) use ($cellUrl, $isCell): string {
+      $cell = static function (int $n, ?array $set, string $tone) use ($cellUrl, $isCell): string {
           if ($n === 0 || $set === null) {
-              return '<td class="c' . ($n === 0 ? ' nil' : '') . '">' . ($n === 0 ? '–' : $n) . '</td>';
+              return '<td class="c t-' . $tone . ($n === 0 ? ' nil' : ' plain') . '"><span>' . ($n === 0 ? '–' : $n) . '</span></td>';
           }
-          return '<td class="c' . ($isCell($set) ? ' on' : '') . '"><a data-go href="'
+          return '<td class="c t-' . $tone . ($isCell($set) ? ' on' : '') . '"><a data-go href="'
               . survey_e($cellUrl($set)) . '">' . $n . '</a></td>';
       };
     ?>
@@ -750,22 +903,22 @@ function survey_results_main(): never
         <tr class="h"><td></td><td>Bruger Zenegy</td><td>Bruger ikke Zenegy</td><td>I alt</td></tr>
         <tr>
           <td class="r">Virksomheder</td>
-          <?= $cell($aud['company']['zenegy'], ['track' => 'zenegy']) ?>
-          <?= $cell($aud['company']['other'], ['track' => 'non-zenegy']) ?>
+          <?= $cell($aud['company']['zenegy'], ['track' => 'zenegy'], 'zenegy') ?>
+          <?= $cell($aud['company']['other'], ['track' => 'non-zenegy'], 'non-zenegy') ?>
           <td class="t"><?= $aud['company']['zenegy'] + $aud['company']['other'] ?></td>
         </tr>
         <tr>
           <td class="r">Lønbureauer</td>
-          <?= $cell($aud['bureau']['zenegy'], ['track' => 'bureau', 'c_payroll_systems' => 'zenegy']) ?>
-          <?= $cell($aud['bureau']['other'], null) ?>
+          <?= $cell($aud['bureau']['zenegy'], ['track' => 'bureau', 'c_payroll_systems' => 'zenegy'], 'bureau') ?>
+          <?= $cell($aud['bureau']['other'], null, 'bureau') ?>
           <td class="t"><?= $aud['bureau']['zenegy'] + $aud['bureau']['other'] ?></td>
         </tr>
         <tr>
           <td class="r">Lønmodtagere</td>
-          <td class="c span" colspan="2">
+          <td class="c span t-employee<?= $isCell(['track' => 'employee']) ? ' on' : '' ?>" colspan="2">
             <?php if ($aud['employee']['unknown'] > 0) : ?>
-              <a data-go href="<?= survey_e($cellUrl(['track' => 'employee'])) ?>">ikke spurgt</a>
-            <?php else : ?>–<?php endif; ?>
+              <a data-go href="<?= survey_e($cellUrl(['track' => 'employee'])) ?>"><?= $aud['employee']['unknown'] ?> · ikke spurgt om system</a>
+            <?php else : ?><span>–</span><?php endif; ?>
           </td>
           <td class="t"><?= $aud['employee']['unknown'] ?></td>
         </tr>
@@ -797,74 +950,68 @@ function survey_results_main(): never
     </details>
   <?php endif; ?>
 
-  <?php foreach (SURVEY_GROUPS as $group) : ?>
+  <?php foreach (SURVEY_GROUPS as $group) :
+      // Only the questions this slice actually answered. A card for a column
+      // that is itself the filter, with one answer left, just reads "100 %".
+      $cards = [];
+      foreach ($group['columns'] as $column) {
+          // The route through the survey, not something anyone answered. The
+          // tiles and "Hvem er de" already say it.
+          if ($column === 'track') {
+              continue;
+          }
+          // With a track chosen, these two follow from it and read "100 %".
+          // Bureaus are the exception: "for others" against "both" still says something.
+          if (isset($filters['track']) && ($column === 'is_employee'
+              || ($column === 'payroll_context' && $filters['track'] !== 'bureau'))) {
+              continue;
+          }
+          $counts = survey_count($rows, $column);
+          $answered = survey_respondents($rows, $column);
+          if ($answered === 0 || (isset($filters[$column]) && count($counts) <= 1)) {
+              continue;
+          }
+          $cards[$column] = [$counts, $answered];
+      }
+      if ($cards === []) {
+          continue;
+      } ?>
     <h2>
       <?= survey_e($group['name']) ?>
-      <span class="count"><?= count($group['columns']) ?> spørgsmål</span>
+      <span class="count"><?= count($cards) ?> spørgsmål</span>
     </h2>
 
-    <?php foreach ($group['columns'] as $column) :
-        $counts = survey_count($rows, $column);
-        $answered = survey_respondents($rows, $column);
+    <?php foreach ($cards as $column => [$counts, $answered]) :
         $options = survey_option_rows($counts, $column);
         $max = $options === [] ? 0 : max($options);
-        $top = survey_top_answer($counts); ?>
-      <div class="q<?= $answered === 0 ? ' q-empty' : '' ?>">
+        $top = survey_top_answer($counts);
+        $winners = $top && count($options) > 1 ? array_map('strval', $top['values']) : []; ?>
+      <div class="q">
         <h3><?= survey_e(survey_heading($column, 'short')) ?></h3>
         <p class="asked"><?= survey_e(survey_heading($column, 'question')) ?></p>
 
-        <?php if ($answered === 0) : ?>
-          <p class="none">Ingen svar endnu</p>
-          <?php if ($options !== []) : ?>
-            <details>
-              <summary><?= count($options) ?> svarmuligheder</summary>
-              <ul>
-                <?php foreach (array_keys($options) as $value) : ?>
-                  <li><?= survey_e(survey_label($column, (string) $value)) ?></li>
-                <?php endforeach; ?>
-              </ul>
-            </details>
-          <?php endif; ?>
-        <?php else : ?>
-          <?php if ($top) : ?>
-            <p class="top">
-              <span>Flest svar</span>
-              <?php foreach ($top['values'] as $i => $value) : ?>
-                <?= $i > 0 ? ' <em>og</em> ' : '' ?><b><?= survey_e(survey_label($column, (string) $value)) ?></b>
-              <?php endforeach; ?>
-              <?= count($top['values']) > 1 ? '<em>(delt førsteplads)</em>' : '' ?>
-              · <?= $top['count'] ?> af <?= $answered ?>
-            </p>
-          <?php endif; ?>
-
-          <table>
-            <?php foreach ($options as $value => $count) :
-                $share = $answered > 0 ? round(($count / $answered) * 100) : 0; ?>
-              <?php
-                $picked = ($filters[$column] ?? null) === (string) $value;
-                $canPick = $count > 0 && survey_can_filter($column);
-                $sub = survey_sublabel($column, (string) $value); ?>
-              <tr class="<?= $count === 0 ? 'zero' : '' ?><?= $top && in_array((string) $value, array_map('strval', $top['values']), true) ? ' win' : '' ?><?= $picked ? ' picked' : '' ?>">
-                <td class="v">
-                  <?php if ($canPick) : ?>
-                    <a class="pick" href="<?= survey_e(survey_filter_url($filters, $column, $picked ? null : (string) $value)) ?>"
-                       title="<?= $picked ? 'Fjern dette filter' : 'Vis kun de ' . $count . ', der svarede dette' ?>">
-                      <?= survey_e(survey_label($column, (string) $value)) ?><?= $picked ? ' ✕' : '' ?>
-                    </a>
-                  <?php else : ?>
-                    <?= survey_e(survey_label($column, (string) $value)) ?>
-                  <?php endif; ?>
-                  <?php if ($sub) : ?><i><?= survey_e($sub) ?></i><?php endif; ?>
-                  <code><?= survey_e((string) $value) ?></code>
-                </td>
-                <td class="bar"><span style="width:<?= $max > 0 ? (int) round(($count / $max) * 100) : 0 ?>%"></span></td>
-                <td class="n"><?= $count ?><span class="pct"><?= $share ?>%</span></td>
-              </tr>
-            <?php endforeach; ?>
-          </table>
-          <code class="col"><?= survey_e($column) ?></code>
-          <span class="answered"><?= $answered ?> har svaret på dette spørgsmål</span>
-        <?php endif; ?>
+        <table>
+          <?php foreach ($options as $value => $count) :
+              $value = (string) $value;
+              $share = $answered > 0 ? round(($count / $answered) * 100) : 0;
+              $sub = survey_sublabel($column, $value);
+              $won = in_array($value, $winners, true);
+              $tone = survey_tone($column, $value); ?>
+            <tr class="<?= $count === 0 ? 'zero' : '' ?><?= $won ? ' win' : '' ?>">
+              <td class="v">
+                <span class="lbl"><?= survey_logo($column, $value) ?><?= survey_e(survey_label($column, $value)) ?></span>
+                <?php if ($won) : ?><span class="most"><?= count($winners) > 1 ? 'Delt førsteplads' : 'Flest svar' ?></span><?php endif; ?>
+                <?php if ($sub) : ?><i><?= survey_e($sub) ?></i><?php endif; ?>
+              </td>
+              <td class="bar"><span class="<?= $tone ?>" style="width:<?= $max > 0 ? (int) round(($count / $max) * 100) : 0 ?>%"></span></td>
+              <td class="n"><?= $count ?><span class="pct"><?= $share ?>%</span></td>
+            </tr>
+          <?php endforeach; ?>
+        </table>
+        <p class="q-foot">
+          <?= $answered ?> har svaret<?= $filters === [] ? '' : ' i udsnittet' ?>
+          <code><?= survey_e($column) ?></code>
+        </p>
       </div>
     <?php endforeach; ?>
   <?php endforeach; ?>
@@ -967,7 +1114,7 @@ function survey_results_main(): never
 
   // One listener for every filter link, including the ones swapped in later.
   document.addEventListener('click', function (e) {
-    var link = e.target.closest('a[data-go], a.pick');
+    var link = e.target.closest('a[data-go]');
     if (!link || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
     e.preventDefault();
     go(link.getAttribute('href'), true);

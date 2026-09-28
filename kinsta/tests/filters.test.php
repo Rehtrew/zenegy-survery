@@ -99,7 +99,7 @@ check('any labelled question can be sliced on, not just the curated eight', func
 });
 
 check('names a filter by its curated name, else the question heading', function () {
-    return survey_filter_name('track') === 'Spor'
+    return survey_filter_name('track') === 'Hvem'
         && survey_filter_name('b_frustrations') === survey_heading('b_frustrations', 'short');
 });
 
@@ -157,6 +157,30 @@ check('splits respondents by role and whether Zenegy is in their setup', functio
 
 check('Intern eller bureau is searchable but no longer a default facet', fn () =>
     !isset(SURVEY_FILTERS['payroll_context']) && survey_can_filter('payroll_context'));
+
+check('facet counts follow the slice but ignore the facet\'s own filter', function () use ($rows) {
+    $filters = ['track' => 'non-zenegy', 'b_payroll_system' => 'danlon'];
+    $tracks = survey_facet_counts($rows, $filters, 'track');
+    $systems = survey_facet_counts($rows, $filters, 'b_payroll_system');
+    // Tracks are counted among Danløn users only; systems among non-zenegy only.
+    return $tracks === ['non-zenegy' => 1] && $systems === ['danlon' => 1, 'lessor' => 1];
+});
+
+check('a scale keeps survey order and shows the options nobody picked', function () {
+    $scale = survey_scale(['50-199' => 3, '1-9' => 1], 'size');
+    return array_keys($scale) === ['1-9', '10-49', '50-199', '200+'] && array_values($scale) === [1, 0, 3, 0];
+});
+
+check('only scales with a direction get good, middling or bad colours', fn () =>
+    survey_tone('a_nps', '10') === 'good' && survey_tone('a_nps', '7') === 'mid' && survey_tone('a_nps', '3') === 'bad'
+    && survey_tone('a_satisfaction', 'very-happy') === 'good' && survey_tone('a_satisfaction', 'very-unhappy') === 'bad'
+    && survey_tone('b_payroll_system', 'danloen') === '');
+
+check('draws the survey logo for an option, or its initials when there is none', function () {
+    $img = survey_logo('c_payroll_systems', 'danloen');
+    $initials = survey_logo('c_payroll_systems', 'epos');
+    return str_contains($img, 'class="lg l') && str_contains($initials, '>E</i>') && survey_logo('track', 'zenegy') === '';
+});
 
 check('has no series to draw when nothing has been answered', fn () => survey_by_day([]) === []);
 
