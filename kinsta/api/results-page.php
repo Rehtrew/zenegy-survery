@@ -519,25 +519,21 @@ function survey_results_main(): never
 <meta name="robots" content="noindex, nofollow">
 <title>Svar | Lønmarkedsundersøgelsen 2026</title>
 <style>
-  /* Zenegy's system colours. Each carries one meaning on this page:
-     a track's colour is that group everywhere, ink is a filter you set,
-     info marks the most common answer, and good/mid/bad only ever mean
-     a scale with a direction (NPS, satisfaction). */
+  /* Grey carries the page. Colour is kept for what it can say at a glance:
+     purple marks the most common answer in each card, ink is a filter you
+     set, and Zenegy's good/mid/bad appear only on scales with a direction
+     (NPS, satisfaction). Cards sit on a tinted ground instead of borders. */
   :root {
-    --ink:#14132b; --ink-2:#55546a; --ink-3:#8b88a5; --line:#e8e6f0; --bg:#f8f7fc; --card:#fff;
+    --ink:#14132b; --ink-2:#55546a; --ink-3:#8b88a5; --line:#e8e6f0; --bg:#f3f2f7; --card:#fff;
+    --gray:#dddae5; --gray-soft:#f3f2f7;
     --brand:#6e30fd; --brand-soft:#efeafe;
     --good:#7db875; --good-soft:#eef6ec;
     --mid:#e2a865;  --mid-soft:#faf3ec;
     --bad:#d5534f;  --bad-soft:#f7e3e3;
     --info:#5b7bf5; --info-soft:#e6ebfd;
-    --bar:var(--brand);
+    --bar:var(--gray);
   }
-  .t-zenegy     { --c:var(--brand); --cs:var(--brand-soft) }
-  .t-bureau     { --c:var(--info);  --cs:var(--info-soft) }
-  .t-non-zenegy { --c:var(--mid);   --cs:var(--mid-soft) }
-  .t-employee   { --c:var(--good);  --cs:var(--good-soft) }
-  .slice-zenegy { --bar:var(--brand) } .slice-bureau { --bar:var(--info) }
-  .slice-non-zenegy { --bar:var(--mid) } .slice-employee { --bar:var(--good) }
+  .t-zenegy, .t-bureau, .t-non-zenegy, .t-employee { --c:var(--ink); --cs:var(--gray-soft) }
 
   * { box-sizing:border-box }
   body { margin:0; background:var(--bg); color:var(--ink);
@@ -545,16 +541,15 @@ function survey_results_main(): never
   .wrap { max-width:1440px; margin:0 auto; padding:32px 24px 80px }
   h1 { font-size:28px; letter-spacing:-.02em; margin:0 0 4px }
   .sub { color:var(--ink-3); margin:0 0 22px; font-size:13.5px }
-  h2 { font-size:12px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-3); font-weight:600;
-       margin:30px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--line) }
-  h2 .count { margin-left:10px; text-transform:none; letter-spacing:0; font-weight:400 }
+  h2 { font-size:16px; letter-spacing:-.01em; color:var(--ink); font-weight:600; margin:30px 0 10px 2px }
+  h2 .count { margin-left:8px; color:var(--ink-3); font-weight:400; font-size:13.5px }
   .is-busy { opacity:.5; transition:opacity .12s }
 
   /* layout */
   .layout { display:grid; grid-template-columns:340px minmax(0,1fr); gap:24px; align-items:start }
   .main { min-width:0 }
   .side { position:sticky; top:16px; display:flex; flex-direction:column; max-height:calc(100vh - 32px);
-          background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px 10px 12px 16px }
+          background:var(--card); border-radius:16px; padding:16px 10px 12px 16px }
 
   /* sidebar: head, active filters, search */
   .side-head { margin:0 6px 12px 0; color:var(--ink-3); font-size:13px }
@@ -572,9 +567,9 @@ function survey_results_main(): never
   .clear:hover { color:var(--ink) }
   .warn { margin:0 6px 12px 0; background:var(--mid-soft); color:#8a5a12; border-radius:9px;
           padding:8px 10px; font-size:12.5px; line-height:1.45 }
-  .find { width:calc(100% - 6px); border:1px solid var(--line); border-radius:10px; padding:9px 12px;
-          font:inherit; font-size:13.5px; color:var(--ink); background:var(--bg) }
-  .find:focus { outline:none; border-color:var(--ink-3); background:#fff }
+  .find { width:calc(100% - 6px); border:1px solid transparent; border-radius:10px; padding:9px 12px;
+          font:inherit; font-size:13.5px; color:var(--ink); background:var(--gray-soft) }
+  .find:focus { outline:none; border-color:var(--gray); background:#fff }
 
   /* sidebar: facets */
   .facets { flex:1; overflow-y:auto; margin-top:4px; padding-right:6px }
@@ -583,12 +578,10 @@ function survey_results_main(): never
   .facet { margin-top:18px }
   .facet.extra { display:none }
   .searching .facet.extra { display:block }
-  .facet-head { margin:0 0 8px; color:var(--ink-3); font-size:10.5px; font-weight:600;
-                text-transform:uppercase; letter-spacing:.09em }
+  .facet-head { margin:0 0 8px; color:var(--ink-2); font-size:13px; font-weight:600 }
   .facet-none { display:none; margin:16px 4px; color:var(--ink-3); font-size:13px }
   .facets.none-found .facet-none { display:block }
-  .side-foot { margin:12px 6px 0 0; padding-top:10px; border-top:1px solid var(--line);
-               color:var(--ink-3); font-size:11.5px; line-height:1.5 }
+  .side-foot { margin:14px 6px 0 0; color:var(--ink-3); font-size:11.5px; line-height:1.5 }
   .opt { text-decoration:none; color:var(--ink-2) }
   .opt.nil { opacity:.4; pointer-events:none }
 
@@ -599,8 +592,8 @@ function survey_results_main(): never
   .who .opt b { display:block; font-size:21px; line-height:1.15; letter-spacing:-.02em; color:var(--c);
                 font-variant-numeric:tabular-nums }
   .who .opt span { display:block; font-size:12px; line-height:1.3; color:var(--ink-2) }
-  .who .opt:hover { border-color:var(--c) }
-  .who .opt.on { background:var(--c); border-color:var(--c) }
+  .who .opt:hover { border-color:var(--gray) }
+  .who .opt.on { background:var(--ink); border-color:var(--ink) }
   .who .opt.on b, .who .opt.on span { color:#fff }
 
   /* sizes: a histogram you click */
@@ -609,10 +602,10 @@ function survey_results_main(): never
                padding:4px 2px 2px; border-radius:8px }
   .hist .opt b { font-size:11.5px; font-weight:500; color:var(--ink-3); font-variant-numeric:tabular-nums }
   .hist .opt em { display:flex; align-items:flex-end; width:100%; height:46px }
-  .hist .opt em i { display:block; width:100%; border-radius:5px 5px 2px 2px; background:#d9d2f3; transition:background .12s }
+  .hist .opt em i { display:block; width:100%; border-radius:5px 5px 2px 2px; background:var(--gray); transition:background .12s }
   .hist .opt span { font-size:11px; color:var(--ink-2); white-space:nowrap }
-  .hist .opt:hover { background:var(--bg) }
-  .hist .opt:hover em i { background:var(--brand) }
+  .hist .opt:hover { background:var(--gray-soft) }
+  .hist .opt:hover em i { background:var(--ink-3) }
   .hist .opt.on em i { background:var(--ink) }
   .hist .opt.on b, .hist .opt.on span { color:var(--ink); font-weight:600 }
 
@@ -632,29 +625,34 @@ function survey_results_main(): never
 
   /* dashboard */
   .tiles { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px }
-  .tile { flex:1 1 130px; max-width:230px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 14px }
+  .tile { flex:1 1 130px; max-width:230px; background:var(--card); border-radius:14px; padding:12px 14px }
   .tile b { display:block; font-size:24px; letter-spacing:-.02em; line-height:1.2; font-variant-numeric:tabular-nums }
   .tile span { color:var(--ink-3); font-size:12px }
   .panels { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:10px; margin-bottom:10px }
-  .panel { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px }
-  .panel h3 { margin:0 0 10px; font-size:11.5px; color:var(--ink-3); font-weight:600; text-transform:uppercase; letter-spacing:.08em }
-  .spark { display:flex; align-items:flex-end; gap:4px; height:64px }
-  .spark span { flex:1 1 0; max-width:48px; height:100%; display:flex; align-items:flex-end }
-  .spark i { display:block; width:100%; background:var(--bar); opacity:.85; border-radius:4px 4px 1px 1px }
-  .spark span:hover i { opacity:1 }
+  .panel { display:flex; flex-direction:column; background:var(--card); border-radius:14px; padding:14px 16px }
+  .panel h3 { margin:0 0 10px; font-size:14px; color:var(--ink); font-weight:600 }
+  /* The chart takes whatever height the row gives it, so it never floats in white. */
+  .spark { flex:1; display:flex; gap:6px; min-height:96px }
+  .spark span { flex:1 1 0; min-width:0; display:flex; flex-direction:column; align-items:center }
+  .spark b { font-size:11.5px; font-weight:500; color:var(--ink-3); font-variant-numeric:tabular-nums; line-height:1.4 }
+  .spark u { flex:1; width:100%; display:flex; align-items:flex-end; text-decoration:none }
+  .spark i { display:block; width:100%; background:var(--gray); border-radius:5px 5px 2px 2px; transition:background .12s }
+  .spark span:hover i { background:var(--ink-3) }
+  .spark span:hover b { color:var(--ink) }
+  .spark em { font-style:normal; font-size:11px; color:var(--ink-3); margin-top:5px; white-space:nowrap }
   .panel-foot { display:flex; justify-content:space-between; gap:10px; margin:8px 0 0; color:var(--ink-3); font-size:12px; line-height:1.5 }
   .panel-foot em { font-style:normal }
   table.aud { margin:0; font-variant-numeric:tabular-nums }
-  table.aud td { padding:6px 0; font-size:14px; border-top:1px solid #f1eff6 }
+  table.aud td { padding:5px 0; font-size:14px; border-top:none }
   table.aud tr.h td { border-top:none; color:var(--ink-3); font-size:11.5px; padding-top:0; text-align:right }
   table.aud td.r { color:var(--ink-2); text-align:left }
   table.aud td.c, table.aud td.t { text-align:right; width:23% }
   table.aud td.t { color:var(--ink-3) }
   table.aud td.c a, table.aud td.c span { display:inline-block; min-width:40px; padding:2px 9px; border-radius:7px;
                                           text-align:center; font-weight:600; text-decoration:none }
-  table.aud td.c a { background:var(--cs); color:var(--c); border:1.5px solid transparent }
-  table.aud td.c a:hover { border-color:var(--c) }
-  table.aud td.c.on a { background:var(--c); color:#fff }
+  table.aud td.c a { background:var(--gray-soft); color:var(--ink); border:1.5px solid transparent }
+  table.aud td.c a:hover { border-color:var(--gray) }
+  table.aud td.c.on a { background:var(--ink); color:#fff }
   table.aud td.c.plain span { color:var(--ink-2); font-weight:500 }
   table.aud td.nil span { color:var(--ink-3); font-weight:400 }
   table.aud td.span { text-align:center }
@@ -663,38 +661,38 @@ function survey_results_main(): never
   .sources > summary { cursor:pointer; color:var(--ink-3); font-size:13px }
   .sources table { margin-top:6px }
   .answered { color:var(--ink-3); font-size:12px }
-  .empty { background:var(--card); border:1px dashed var(--line); border-radius:14px; padding:32px;
+  .empty { background:var(--card); border-radius:14px; padding:32px;
            text-align:center; color:var(--ink-2) }
   .empty a { color:var(--ink) }
 
   /* questions */
-  .q { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px 12px; margin-bottom:10px }
+  .q { background:var(--card); border-radius:14px; padding:16px 18px 12px; margin-bottom:10px }
   .q h3 { font-size:16px; margin:0 0 1px; letter-spacing:-.01em }
   .q h3 code { color:var(--ink-3); font-size:11px; font-weight:400; margin-left:6px }
   .q .asked { margin:0 0 6px; color:var(--ink-2); font-size:13.5px }
   table { width:100%; border-collapse:collapse; margin-top:6px }
-  td { padding:7px 0; border-top:1px solid #f1eff6; vertical-align:middle }
+  td { padding:6px 0; vertical-align:middle }
   td.v { font-size:14px; padding-right:14px }
   td.v .lbl { display:inline-flex; align-items:center; gap:7px }
   td.v i:not(.lg) { display:block; font-style:normal; color:var(--ink-3); font-size:12.5px }
-  .most { display:inline-block; margin-left:8px; background:var(--info-soft); color:#3552c7; border-radius:5px;
-          padding:0 6px; font-size:10.5px; font-weight:600; letter-spacing:.03em; vertical-align:1px }
+  .most { display:inline-block; margin-left:8px; background:var(--brand-soft); color:#5a24d6; border-radius:5px;
+          padding:0 6px; font-size:11px; font-weight:500; vertical-align:1px }
   td.bar { width:38%; min-width:60px }
-  td.bar span { display:block; height:8px; border-radius:4px; background:var(--bar); opacity:.8 }
+  td.bar span { display:block; height:8px; border-radius:4px; background:var(--bar) }
   td.bar span.good { background:var(--good); opacity:1 }
   td.bar span.mid  { background:var(--mid);  opacity:1 }
   td.bar span.bad  { background:var(--bad);  opacity:1 }
-  tr.win td.bar span { opacity:1 }
+  /* On a scale the colour already says good or bad; purple would only compete. */
+  tr.win td.bar span:not(.good):not(.mid):not(.bad) { background:var(--brand) }
   tr.win td.v { font-weight:600 }
   tr.zero td.v { color:var(--ink-3) }
-  tr.zero td.bar span { background:var(--line) }
+  tr.zero td.bar span { background:var(--gray-soft) }
   td.n { text-align:right; width:96px; font-variant-numeric:tabular-nums; color:var(--ink-2); white-space:nowrap }
   .pct { display:inline-block; min-width:40px; text-align:right; color:var(--ink-3); font-size:12.5px }
   tr.head td { border-top:none; color:var(--ink-3); font-size:12.5px }
   .q-foot { margin:8px 0 0; color:var(--ink-3); font-size:12px }
   .q-foot code { margin-left:6px; font-size:11px; background:var(--bg); border-radius:4px; padding:1px 5px }
-  .quote { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--bar);
-           border-radius:0 10px 10px 0; padding:10px 14px; margin-top:8px }
+  .quote { background:var(--gray-soft); border-radius:10px; padding:10px 14px; margin-top:8px }
   .quote p { margin:0 0 2px; font-size:14.5px }
   .quote span { color:var(--ink-3); font-size:12px }
 
@@ -866,18 +864,26 @@ function survey_results_main(): never
     <?php if ($series !== []) : ?>
       <div class="panel">
         <h3>Svar per dag</h3>
+        <?php
+          // Label every bar while there's room; past two weeks, only the ends.
+          $labelled = count($series) <= 14;
+        ?>
         <div class="spark">
           <?php foreach ($series as $day => $n) : ?>
-            <span title="<?= survey_e(date('j. M', strtotime($day))) ?>: <?= $n ?> svar">
-              <i style="height:<?= $peak > 0 ? max(2, (int) round(($n / $peak) * 100)) : 2 ?>%"></i>
+            <span title="<?= survey_e(date('j/n', strtotime($day))) ?>: <?= $n ?> svar">
+              <?php if ($labelled) : ?><b><?= $n ?></b><?php endif; ?>
+              <u><i style="height:<?= $peak > 0 ? max(2, (int) round(($n / $peak) * 100)) : 2 ?>%"></i></u>
+              <?php if ($labelled) : ?><em><?= survey_e(date('j/n', strtotime($day))) ?></em><?php endif; ?>
             </span>
           <?php endforeach; ?>
         </div>
-        <p class="panel-foot">
-          <?= survey_e(date('j. M', strtotime((string) array_key_first($series)))) ?>
-          <em>højeste dag <?= $peak ?></em>
-          <?= survey_e(date('j. M', strtotime((string) array_key_last($series)))) ?>
-        </p>
+        <?php if (!$labelled) : ?>
+          <p class="panel-foot">
+            <?= survey_e(date('j/n', strtotime((string) array_key_first($series)))) ?>
+            <em>højeste dag <?= $peak ?></em>
+            <?= survey_e(date('j/n', strtotime((string) array_key_last($series)))) ?>
+          </p>
+        <?php endif; ?>
       </div>
     <?php endif; ?>
 
