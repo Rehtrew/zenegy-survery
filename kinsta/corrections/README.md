@@ -9,6 +9,8 @@ How each one was run:
 1. Full export of `survey_submissions` to `~/survey-backups/` on the server
    (outside the web root) and to `backups/` locally, which git ignores.
 2. A per-row MD5 over every column the correction does not touch, before and after.
+   After both corrections, running the survey's own `pruneToPath` over every row
+   finds nothing left off its path.
 3. A dry-run `SELECT` with the exact guards the `UPDATE` uses.
 4. The correction, where each `UPDATE` must hit exactly one row or the batch
    errors before `COMMIT` and rolls back.
@@ -19,3 +21,4 @@ To reverse one, write the values in `survey_corrections` back into
 | Date       | Rows   | What                                                        |
 |------------|--------|-------------------------------------------------------------|
 | 2026-09-28 | 14, 24 | Bureau answers left behind by companies that left that path |
+| 2026-09-28 | 16     | Payroll context left behind by an employee who left the decision-maker path |
