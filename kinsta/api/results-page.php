@@ -214,6 +214,32 @@ function survey_count(array $rows, string $column): array
     return $counts;
 }
 
+/** Completions per calendar day (Danish time), oldest first, gaps filled in. */
+function survey_by_day(array $rows): array
+{
+    $byDay = [];
+    foreach ($rows as $row) {
+        $day = survey_local_time($row['created_at'] ?? null, 'Y-m-d');
+        if ($day !== '') {
+            $byDay[$day] = ($byDay[$day] ?? 0) + 1;
+        }
+    }
+    if ($byDay === []) {
+        return [];
+    }
+    ksort($byDay);
+    $days = array_keys($byDay);
+    $cursor = new DateTimeImmutable((string) reset($days));
+    $last = new DateTimeImmutable((string) end($days));
+    $series = [];
+    while ($cursor <= $last) {
+        $key = $cursor->format('Y-m-d');
+        $series[$key] = $byDay[$key] ?? 0;
+        $cursor = $cursor->modify('+1 day');
+    }
+    return $series;
+}
+
 /** How many people answered this question at all — the honest denominator. */
 function survey_respondents(array $rows, string $column): int
 {
@@ -380,6 +406,8 @@ function survey_results_main(): never
     $completionsBySource = survey_completions_by_source($rows);
     $latest = $rows[0]['created_at'] ?? null;
 
+    $partial = ($_GET['partial'] ?? '') === '1';
+
     header('Content-Type: text/html; charset=utf-8');
     header('X-Robots-Tag: noindex, nofollow');
     // Live numbers behind a login: a cached copy is always the wrong answer, and
@@ -387,6 +415,9 @@ function survey_results_main(): never
     header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0, private');
     header('Pragma: no-cache');
     header('Expires: 0');
+    if ($partial) {
+        ob_start();
+    }
     ?>
 <!doctype html>
 <html lang="da">
@@ -400,13 +431,9 @@ function survey_results_main(): never
   * { box-sizing:border-box }
   body { margin:0; background:var(--bg); color:var(--ink);
          font:16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  .wrap { max-width:1340px; margin:0 auto; padding:48px 20px 80px; }
+  .wrap { max-width:1180px; margin:0 auto; padding:36px 20px 80px; }
   h1 { font-size:32px; letter-spacing:-.02em; margin:0 0 8px }
   .sub { color:var(--ink-2); margin:0 0 28px }
-  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:36px }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 20px }
-  .card b { display:block; font-size:30px; letter-spacing:-.02em; font-variant-numeric:tabular-nums }
-  .card span { color:var(--ink-3); font-size:13px }
   h2 { font-size:13px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-3);
        border-bottom:1px solid var(--line); padding-bottom:10px; margin:36px 0 16px }
   h2 .count { margin-left:10px; text-transform:none; letter-spacing:0; font-weight:400; color:var(--ink-3) }
@@ -443,46 +470,87 @@ function survey_results_main(): never
            border-radius:0 12px 12px 0; padding:12px 16px; margin-bottom:8px }
   .quote p { margin:0 0 4px; font-size:15px }
   .quote span { color:var(--ink-3); font-size:12.5px }
-  .actions { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:8px }
-  .btn { display:inline-block; background:var(--accent); color:#fff; text-decoration:none;
-         padding:10px 18px; border-radius:10px; font-size:14.5px; font-weight:500 }
-  .btn.ghost { background:var(--accent-soft); color:#5a1fe0 }
-  .layout { display:grid; grid-template-columns:268px minmax(0,1fr); gap:28px; align-items:start }
-  .main { min-width:0 }
-  .side { position:sticky; top:16px; max-height:calc(100vh - 32px); overflow-y:auto;
-          background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px }
-  .side-head { margin:0 0 4px; font-size:14px }
-  .side-head b { display:block; font-size:15px }
-  .side-head span { color:var(--ink-3); font-size:13px }
-  .side-head a { color:var(--accent); font-size:13px; margin-left:8px }
-  .side-foot { margin:16px 0 0; padding-top:12px; border-top:1px solid #f2f0f8;
-               color:var(--ink-3); font-size:12.5px; line-height:1.5 }
-  .side details { margin-top:8px; border-top:1px solid #f2f0f8; padding-top:8px }
-  .side summary { cursor:pointer; color:var(--ink-2); font-size:13.5px; padding:2px 0 }
-  .side summary i { display:inline-block; width:6px; height:6px; border-radius:50%;
-                    background:var(--accent); vertical-align:middle; margin-left:5px }
-  .opt { display:flex; justify-content:space-between; gap:8px; align-items:baseline;
-         text-decoration:none; color:var(--ink-2); font-size:13.5px;
-         padding:5px 8px; border-radius:7px; margin-top:2px }
-  .opt:hover { background:#f5f3fb; color:var(--ink) }
-  .opt b { color:var(--ink-3); font-variant-numeric:tabular-nums; font-size:12px; font-weight:500 }
-  .opt.on { background:var(--accent); color:#fff }
-  .opt.on b { color:#fff }
-  .chips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 0 }
-  .chip { display:inline-flex; align-items:center; gap:6px; text-decoration:none;
-          background:#f5f3fb; color:var(--ink-2); border-radius:999px; padding:4px 11px; font-size:13px }
-  .chip.on { background:var(--accent); color:#fff; font-weight:500 }
+  .fbar { position:sticky; top:0; z-index:10; display:flex; flex-wrap:wrap; gap:10px 16px;
+          align-items:center; justify-content:space-between; margin:0 0 20px; padding:12px 0;
+          background:var(--bg); border-bottom:1px solid var(--line) }
+  .pills { display:flex; flex-wrap:wrap; gap:8px; align-items:center; min-width:0 }
+  .pill { display:inline-flex; align-items:center; gap:7px; text-decoration:none;
+          background:var(--accent); color:#fff; border-radius:9px; padding:6px 10px; font-size:13.5px }
+  .pill i { font-style:normal; opacity:.65; font-size:12px }
+  .pill b { opacity:.7; font-weight:400 }
+  .pill:hover b { opacity:1 }
+  .bar-n { margin:0; color:var(--ink-3); font-size:13.5px; white-space:nowrap }
+  .bar-n b { color:var(--ink); font-size:16px; font-variant-numeric:tabular-nums; margin-right:3px }
+  .bar-n em { font-style:normal; color:#b4761c; margin-left:10px }
+  .bar-n .csv { color:var(--accent); text-decoration:none; margin-left:14px }
+  .fbar .clear { color:var(--ink-3); font-size:13px; text-decoration:none }
+  .fbar .clear:hover { color:var(--accent) }
+
+  .picker { position:relative; margin:0 }
+  .picker > summary { list-style:none; cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+                      background:var(--card); border:1px solid var(--line); color:var(--ink-2);
+                      border-radius:9px; padding:6px 12px; font-size:13.5px }
+  .picker > summary::-webkit-details-marker { display:none }
+  .picker > summary:hover { border-color:var(--accent); color:var(--accent) }
+  .picker > summary span { color:var(--accent); font-size:15px; line-height:1 }
+  .picker[open] > summary { border-color:var(--accent); color:var(--accent) }
+  .pop { position:absolute; top:calc(100% + 6px); left:0; z-index:20; width:340px; max-width:88vw;
+         background:var(--card); border:1px solid var(--line); border-radius:12px;
+         box-shadow:0 12px 32px rgba(20,19,43,.13); padding:8px }
+  .pop input { width:100%; border:1px solid var(--line); border-radius:8px; padding:8px 11px;
+               font:inherit; font-size:14px; color:var(--ink); background:#fbfaff }
+  .pop input:focus { outline:none; border-color:var(--accent) }
+  .pop-list { max-height:min(420px,60vh); overflow-y:auto; margin-top:6px }
+  .pop-group { margin:10px 0 2px; padding:0 8px; color:var(--ink-3); font-size:11px;
+               text-transform:uppercase; letter-spacing:.08em }
+  .pop-opt { display:flex; justify-content:space-between; gap:10px; align-items:baseline;
+             text-decoration:none; color:var(--ink-2); font-size:14px; padding:6px 8px; border-radius:7px }
+  .pop-opt:hover, .pop-opt.hi { background:#f5f3fb; color:var(--ink) }
+  .pop-opt b { color:var(--ink-3); font-size:12px; font-weight:500; font-variant-numeric:tabular-nums }
+  .pop-opt.on { background:var(--accent); color:#fff }
+  .pop-opt.on b { color:#fff }
+  .pop-none { display:none; margin:14px 8px; color:var(--ink-3); font-size:13.5px }
+  .pop-list.none-found .pop-none { display:block }
+
+  .tiles { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px }
+  .tile { flex:1 1 130px; max-width:230px; background:var(--card); border:1px solid var(--line);
+          border-radius:12px; padding:12px 14px }
+  .tile b { display:block; font-size:24px; letter-spacing:-.02em; font-variant-numeric:tabular-nums; line-height:1.2 }
+  .tile span { color:var(--ink-3); font-size:12px }
+
+  .panels { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:10px; margin-bottom:12px }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px }
+  .panel h3 { margin:0 0 10px; font-size:13px; color:var(--ink-3); font-weight:500;
+              text-transform:uppercase; letter-spacing:.08em }
+  .spark { display:flex; align-items:flex-end; gap:3px; height:62px }
+  .spark span { flex:1 1 0; max-width:48px; height:100%; display:flex; align-items:flex-end; min-width:3px }
+  .spark i { display:block; width:100%; background:var(--accent); opacity:.85; border-radius:3px 3px 0 0 }
+  .spark span:hover i { opacity:1; background:#4d18d8 }
+  .panel-foot { display:flex; justify-content:space-between; gap:10px; margin:8px 0 0;
+                color:var(--ink-3); font-size:12px }
+  .panel-foot em { font-style:normal }
+  .stack { display:flex; height:30px; border-radius:8px; overflow:hidden; gap:2px }
+  .seg { display:block; transition:opacity .15s }
+  .seg:hover { opacity:.75 }
+  .t-zenegy { background:#6e30fd } .t-bureau { background:#9a6bff }
+  .t-non-zenegy { background:#c0a5ff } .t-employee { background:#ded2ff }
+  .legend { display:flex; flex-wrap:wrap; gap:6px 14px; margin:10px 0 0 }
+  .key { display:inline-flex; align-items:center; gap:6px; text-decoration:none;
+         color:var(--ink-2); font-size:13px }
+  .key:hover { color:var(--accent) }
+  .key i { width:9px; height:9px; border-radius:3px; display:inline-block }
+  .key b { color:var(--ink-3); font-weight:500; font-variant-numeric:tabular-nums }
+  .sources { margin:0 0 12px }
+  .sources > summary { color:var(--ink-3); font-size:13px }
+  .sources table { margin-top:6px }
+
   a.pick { color:inherit; text-decoration:none; border-bottom:1px dashed #d7d2e8 }
   a.pick:hover { color:var(--accent); border-bottom-color:var(--accent) }
   tr.picked td { background:var(--accent-soft) }
   tr.picked a.pick { color:#3f1b9c; font-weight:600; border-bottom:none }
-  .warn { margin:12px 0 0; background:#fff6e8; border-radius:10px; padding:9px 12px;
-          font-size:12.5px; line-height:1.5; color:#8a5a12 }
   @media (max-width:1150px) { td.bar { width:22% } }
-  @media (max-width:900px) {
-    .layout { grid-template-columns:1fr; gap:16px }
-    .side { position:static; max-height:none }
-  }
+  @media (max-width:640px) { .fbar { position:static } .pop { width:min(340px,92vw) } }
+  .is-busy { opacity:.55; transition:opacity .12s }
   .empty { background:var(--card); border:1px dashed var(--line); border-radius:14px; padding:32px; text-align:center; color:var(--ink-2) }
 </style>
 </head>
@@ -494,130 +562,152 @@ function survey_results_main(): never
     Alle tidspunkter er dansk tid. Kun synlig for indloggede i WordPress.
   </p>
 
-  <div class="actions">
-    <a class="btn" href="<?= survey_e(survey_filter_url($filters, null, null, ['format' => 'csv'])) ?>">
-      <?= $filters === [] ? 'Hent alle svar som CSV' : 'Hent de filtrerede svar som CSV' ?>
-    </a>
-    <a class="btn ghost" href="./">Åbn undersøgelsen</a>
+  <!--live--><div id="live">
+  <div class="fbar">
+    <div class="pills">
+      <?php foreach ($filters as $column => $value) : ?>
+        <a class="pill" data-go href="<?= survey_e(survey_filter_url($filters, $column, null)) ?>">
+          <i><?= survey_e(survey_filter_name($column)) ?></i>
+          <?= survey_e(survey_label($column, $value)) ?><b>✕</b>
+        </a>
+      <?php endforeach; ?>
+
+      <details class="picker">
+        <summary><span>+</span> <?= $filters === [] ? 'Filtrér svarene' : 'Tilføj filter' ?></summary>
+        <div class="pop">
+          <input type="search" placeholder="Søg, fx danløn, bureau eller gammeldags" autocomplete="off">
+          <div class="pop-list">
+            <?php foreach (array_keys(SURVEY_QUESTION_LABELS) as $column) :
+                $available = survey_count($allRows, $column);
+                if ($available === []) {
+                    continue;
+                }
+                $name = survey_filter_name($column); ?>
+              <p class="pop-group"><?= survey_e($name) ?></p>
+              <?php foreach ($available as $value => $count) :
+                  $active = ($filters[$column] ?? null) === (string) $value;
+                  $label = survey_label($column, (string) $value); ?>
+                <a class="pop-opt<?= $active ? ' on' : '' ?>" data-go
+                   data-find="<?= survey_e(mb_strtolower($name . ' ' . $label . ' ' . $value)) ?>"
+                   href="<?= survey_e(survey_filter_url($filters, $column, $active ? null : (string) $value)) ?>">
+                  <span><?= survey_e($label) ?></span><b><?= $count ?></b>
+                </a>
+              <?php endforeach; ?>
+            <?php endforeach; ?>
+            <p class="pop-none">Ingen filtre matcher søgningen.</p>
+          </div>
+        </div>
+      </details>
+
+      <?php if ($filters !== []) : ?>
+        <a class="clear" data-go href="<?= survey_e(survey_filter_url([])) ?>">Ryd alle</a>
+      <?php endif; ?>
+    </div>
+
+    <p class="bar-n">
+      <b><?= $total ?></b><?= $filters === [] ? ' svar' : ' af ' . $grandTotal . ' svar' ?>
+      <?php if ($filters !== [] && $total > 0 && $total < 10) : ?>
+        <em>lille udsnit, ét svar flytter meget</em>
+      <?php endif; ?>
+      <a class="csv" href="<?= survey_e(survey_filter_url($filters, null, null, ['format' => 'csv'])) ?>">CSV</a>
+    </p>
   </div>
 
-  <div class="layout">
-  <aside class="side">
-    <p class="side-head">
-      <b>Udsnit</b>
-      <?php if ($filters === []) : ?>
-        <span>alle <?= $grandTotal ?> svar</span>
-      <?php else : ?>
-        <span><?= $total ?> af <?= $grandTotal ?> svar</span>
-        <a href="<?= survey_e(survey_filter_url([])) ?>">Ryd alle</a>
-      <?php endif; ?>
-    </p>
-
-    <?php if ($filters !== []) : ?>
-      <p class="chips active">
-        <?php foreach ($filters as $column => $value) : ?>
-          <a class="chip on" href="<?= survey_e(survey_filter_url($filters, $column, null)) ?>"
-             title="Fjern dette filter">
-            <?= survey_e(survey_label($column, $value)) ?> ✕
-          </a>
-        <?php endforeach; ?>
-      </p>
-    <?php endif; ?>
-
-    <?php if ($filters !== [] && $total > 0 && $total < 10) : ?>
-      <p class="warn">
-        Kun <?= $total ?> svar. Ét svar flytter procenterne meget, så læs tallene
-        som et fingerpeg frem for et resultat.
-      </p>
-    <?php endif; ?>
-
-    <?php foreach (SURVEY_FILTERS as $column => $name) :
-        $available = survey_count($allRows, $column);
-        if ($available === []) {
-            continue;
-        } ?>
-      <details<?= isset($filters[$column]) ? ' open' : '' ?>>
-        <summary>
-          <?= survey_e($name) ?>
-          <?php if (isset($filters[$column])) : ?><i></i><?php endif; ?>
-        </summary>
-        <?php foreach ($available as $value => $count) :
-            $active = ($filters[$column] ?? null) === (string) $value; ?>
-          <a class="opt<?= $active ? ' on' : '' ?>"
-             href="<?= survey_e(survey_filter_url($filters, $column, $active ? null : (string) $value)) ?>">
-            <span><?= survey_e(survey_label($column, (string) $value)) ?></span>
-            <b><?= $count ?></b>
-          </a>
-        <?php endforeach; ?>
-      </details>
-    <?php endforeach; ?>
-
-    <p class="side-foot">
-      Klik et hvilket som helst svar i tabellerne for at skære efter det.
-      Filtre lægges sammen.
-    </p>
-  </aside>
-
-  <main class="main">
   <?php if ($total === 0) : ?>
-    <div class="empty" style="margin-top:24px">
+    <div class="empty">
       <?php if ($filters === []) : ?>
         Ingen svar endnu. Siden opdaterer sig selv, når det første svar lander.
       <?php else : ?>
         Ingen af de <?= $grandTotal ?> svar matcher filteret.
-        <a href="<?= survey_e(survey_filter_url([])) ?>">Ryd filteret</a>.
+        <a data-go href="<?= survey_e(survey_filter_url([])) ?>">Ryd filteret</a>.
       <?php endif; ?>
     </div>
   <?php else : ?>
 
-  <?php if ($filters === [] && $funnel['totals']['view'] > 0) :
-      $views = $funnel['totals']['view'];
-      $starts = $funnel['totals']['start'];
-      $pct = static fn (int $n, int $of): string => $of > 0 ? round(($n / $of) * 100) . ' %' : '0 %'; ?>
-    <h2>Tragt<span class="count">åbnet → startet → gennemført</span></h2>
-    <div class="cards">
-      <div class="card"><b><?= $views ?></b><span>åbnede undersøgelsen</span></div>
-      <div class="card"><b><?= $starts ?></b><span>trykkede start · <?= $pct($starts, $views) ?> af åbnede</span></div>
-      <div class="card"><b><?= $total ?></b><span>gennemførte · <?= $pct($total, $views) ?> af åbnede</span></div>
-    </div>
+  <?php
+    $pct = static fn (int $n, int $of): int => $of > 0 ? (int) round(($n / $of) * 100) : 0;
+    $views = $funnel['totals']['view'] ?? 0;
+    $starts = $funnel['totals']['start'] ?? 0;
+    $showFunnel = $filters === [] && $views > 0;
+    $series = survey_by_day($rows);
+    $peak = $series === [] ? 0 : max($series);
+    $tracks = survey_count($rows, 'track');
+  ?>
 
-    <?php if (count($funnel['bySource']) > 1 || !isset($funnel['bySource']['direkte'])) : ?>
-      <div class="q">
-        <h3>Per kilde</h3>
-        <p class="asked">Hvilke links giver besvarelser, ikke bare klik.</p>
-        <table>
-          <tr class="head">
-            <td class="v"><b>Kilde</b></td>
-            <td class="n"><b>Åbnet</b></td>
-            <td class="n"><b>Startet</b></td>
-            <td class="n"><b>Gennemført</b></td>
-          </tr>
-          <?php foreach ($funnel['bySource'] as $src => $counts) :
-              $v = $counts['view'] ?? 0;
-              $done = $completionsBySource[$src] ?? 0; ?>
-            <tr>
-              <td class="v"><?= survey_e($src) ?></td>
-              <td class="n"><?= $v ?></td>
-              <td class="n"><?= $counts['start'] ?? 0 ?></td>
-              <td class="n"><?= $done ?><span class="pct"><?= $pct($done, $v) ?></span></td>
-            </tr>
-          <?php endforeach; ?>
-        </table>
-        <span class="answered">Tæller sidevisninger, ikke unikke personer. En genindlæsning tæller igen.</span>
-      </div>
+  <div class="tiles">
+    <?php if ($showFunnel) : ?>
+      <div class="tile"><b><?= $views ?></b><span>åbnede</span></div>
+      <div class="tile"><b><?= $pct($starts, $views) ?>%</b><span>begyndte at svare</span></div>
+      <div class="tile"><b><?= $pct($total, $views) ?>%</b><span>gennemførte</span></div>
     <?php endif; ?>
-  <?php endif; ?>
-
-  <h2>Svar<span class="count"><?= $total ?> i alt</span></h2>
-  <div class="cards">
-    <div class="card"><b><?= $total ?></b><span>svar i alt</span></div>
-    <?php foreach (survey_count($rows, 'track') as $track => $count) : ?>
-      <div class="card"><b><?= $count ?></b><span><?= survey_e(survey_label('track', (string) $track)) ?></span></div>
-    <?php endforeach; ?>
+    <div class="tile"><b><?= $total ?></b><span><?= $filters === [] ? 'svar i alt' : 'svar i udsnittet' ?></span></div>
     <?php if ($nps) : ?>
-      <div class="card"><b><?= $nps['score'] ?></b><span>NPS (<?= $nps['count'] ?> svar, snit <?= $nps['average'] ?>)</span></div>
+      <div class="tile"><b><?= $nps['score'] ?></b><span>NPS · snit <?= $nps['average'] ?> af <?= $nps['count'] ?></span></div>
     <?php endif; ?>
   </div>
+
+  <div class="panels">
+    <?php if ($series !== []) : ?>
+      <div class="panel">
+        <h3>Svar per dag</h3>
+        <div class="spark">
+          <?php foreach ($series as $day => $n) : ?>
+            <span title="<?= survey_e(date('j. M', strtotime($day))) ?>: <?= $n ?> svar">
+              <i style="height:<?= $peak > 0 ? max(2, (int) round(($n / $peak) * 100)) : 2 ?>%"></i>
+            </span>
+          <?php endforeach; ?>
+        </div>
+        <p class="panel-foot">
+          <?= survey_e(date('j. M', strtotime((string) array_key_first($series)))) ?>
+          <em>højeste dag <?= $peak ?></em>
+          <?= survey_e(date('j. M', strtotime((string) array_key_last($series)))) ?>
+        </p>
+      </div>
+    <?php endif; ?>
+
+    <?php if ($tracks !== []) : ?>
+      <div class="panel">
+        <h3>Hvem svarer</h3>
+        <div class="stack">
+          <?php foreach ($tracks as $track => $n) : ?>
+            <a data-go class="seg t-<?= survey_e((string) $track) ?>"
+               style="width:<?= $pct($n, $total) ?>%"
+               title="<?= survey_e(survey_label('track', (string) $track)) ?>: <?= $n ?>"
+               href="<?= survey_e(survey_filter_url($filters, 'track', ($filters['track'] ?? null) === (string) $track ? null : (string) $track)) ?>"></a>
+          <?php endforeach; ?>
+        </div>
+        <p class="legend">
+          <?php foreach ($tracks as $track => $n) : ?>
+            <a data-go class="key" href="<?= survey_e(survey_filter_url($filters, 'track', ($filters['track'] ?? null) === (string) $track ? null : (string) $track)) ?>">
+              <i class="t-<?= survey_e((string) $track) ?>"></i>
+              <?= survey_e(survey_label('track', (string) $track)) ?>
+              <b><?= $n ?></b>
+            </a>
+          <?php endforeach; ?>
+        </p>
+      </div>
+    <?php endif; ?>
+  </div>
+
+  <?php if ($showFunnel && count($funnel['bySource']) > 1) : ?>
+    <details class="sources">
+      <summary>Kilder · hvilke links giver besvarelser, ikke bare klik</summary>
+      <table>
+        <tr class="head"><td class="v"><b>Kilde</b></td><td class="n"><b>Åbnet</b></td><td class="n"><b>Startet</b></td><td class="n"><b>Gennemført</b></td></tr>
+        <?php foreach ($funnel['bySource'] as $src => $c) :
+            $v = $c['view'] ?? 0;
+            $done = $completionsBySource[$src] ?? 0; ?>
+          <tr>
+            <td class="v"><?= survey_e($src) ?></td>
+            <td class="n"><?= $v ?></td>
+            <td class="n"><?= $c['start'] ?? 0 ?></td>
+            <td class="n"><?= $done ?><span class="pct"><?= $pct($done, $v) ?>%</span></td>
+          </tr>
+        <?php endforeach; ?>
+      </table>
+      <span class="answered">Tæller sidevisninger, ikke unikke personer. En genindlæsning tæller igen.</span>
+    </details>
+  <?php endif; ?>
 
   <?php foreach (SURVEY_GROUPS as $group) : ?>
     <h2>
@@ -721,12 +811,91 @@ function survey_results_main(): never
   <?php endif; ?>
 
   <?php endif; ?>
-  </main>
-  </div>
+  </div><!--/live-->
 </div>
+<script>
+(function () {
+  var live = document.getElementById('live');
+  if (!live || !window.fetch || !window.history.pushState) return;
+
+  // Type to narrow the filter list. Matching is on the dimension name, the
+  // answer label and the stored value, so "gammeldags" and "ui-old" both land.
+  function wireSearch(scope) {
+    var box = scope.querySelector('.pop input');
+    if (!box) return;
+    var list = scope.querySelector('.pop-list');
+    box.addEventListener('input', function () {
+      var q = box.value.trim().toLowerCase();
+      var shown = 0;
+      list.querySelectorAll('.pop-opt').forEach(function (opt) {
+        var hit = q === '' || opt.dataset.find.indexOf(q) !== -1;
+        opt.style.display = hit ? '' : 'none';
+        if (hit) shown++;
+      });
+      list.querySelectorAll('.pop-group').forEach(function (group) {
+        var any = false, node = group.nextElementSibling;
+        while (node && node.classList.contains('pop-opt')) {
+          if (node.style.display !== 'none') any = true;
+          node = node.nextElementSibling;
+        }
+        group.style.display = any ? '' : 'none';
+      });
+      list.classList.toggle('none-found', shown === 0);
+    });
+    scope.querySelector('.picker').addEventListener('toggle', function (e) {
+      if (e.target.open) box.focus();
+    });
+  }
+
+  var busy = false;
+  function go(url, push) {
+    if (busy) return;
+    busy = true;
+    live.classList.add('is-busy');
+    fetch(url + (url.indexOf('?') === -1 ? '?' : '&') + 'partial=1', { credentials: 'same-origin' })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(function (html) {
+        var holder = document.createElement('div');
+        holder.innerHTML = html;
+        var fresh = holder.firstElementChild;
+        if (!fresh) throw new Error('empty');
+        live.innerHTML = fresh.innerHTML;
+        if (push) history.pushState({}, '', url);
+        wireSearch(live);
+        busy = false;
+        live.classList.remove('is-busy');
+      })
+      .catch(function () { window.location.href = url; });
+  }
+
+  // One listener for every filter link, including the ones swapped in later.
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest('a[data-go], a.pick');
+    if (!link || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+    e.preventDefault();
+    go(link.getAttribute('href'), true);
+  });
+
+  window.addEventListener('popstate', function () { go(location.search || '?', false); });
+  document.addEventListener('click', function (e) {
+    var picker = document.querySelector('.picker[open]');
+    if (picker && !picker.contains(e.target)) picker.open = false;
+  });
+  wireSearch(live);
+})();
+</script>
 </body>
 </html>
     <?php
+    if ($partial) {
+        $html = ob_get_clean();
+        // Explicit markers, so the slice never depends on counting </div>s.
+        $open = strpos($html, '<!--live-->');
+        $close = strpos($html, '<!--/live-->');
+        echo ($open === false || $close === false)
+            ? $html
+            : substr($html, $open + 11, $close - $open - 11);
+    }
     exit;
 }
 

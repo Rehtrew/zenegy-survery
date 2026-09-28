@@ -122,5 +122,25 @@ check('builds a url that adds, replaces and clears', function () {
         && str_contains($csv, 'format=csv') && str_contains($csv, 'bureau');
 });
 
+check('groups completions by Danish calendar day, newest last', function () {
+    $series = survey_by_day([
+        ['created_at' => '2026-09-24 22:30:00'], // 00:30 on the 25th in Denmark
+        ['created_at' => '2026-09-24 06:00:00'],
+        ['created_at' => '2026-09-24 07:00:00'],
+    ]);
+    return $series === ['2026-09-24' => 2, '2026-09-25' => 1];
+});
+
+check('fills days with no answers, so the chart keeps an even time axis', function () {
+    $series = survey_by_day([
+        ['created_at' => '2026-09-21 09:00:00'],
+        ['created_at' => '2026-09-24 09:00:00'],
+    ]);
+    return array_keys($series) === ['2026-09-21', '2026-09-22', '2026-09-23', '2026-09-24']
+        && array_values($series) === [1, 0, 0, 1];
+});
+
+check('has no series to draw when nothing has been answered', fn () => survey_by_day([]) === []);
+
 echo "\n{$checks} checks, {$failures} failed\n";
 exit($failures === 0 ? 0 : 1);
