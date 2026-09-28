@@ -91,6 +91,28 @@ check('ignores a malformed or empty filter', function () {
     return $a === [] && survey_read_filters() === [];
 });
 
+check('any labelled question can be sliced on, not just the curated eight', function () {
+    return survey_can_filter('b_frustrations')
+        && survey_can_filter('b_payroll_system')
+        && survey_can_filter('a_improve_text') === false
+        && survey_can_filter('id') === false;
+});
+
+check('names a filter by its curated name, else the question heading', function () {
+    return survey_filter_name('track') === 'Spor'
+        && survey_filter_name('b_frustrations') === survey_heading('b_frustrations', 'short');
+});
+
+check('accepts a question column clicked from an answer row', function () {
+    $_GET = ['f' => ['b_frustrations' => 'ui-old']];
+    return survey_read_filters() === ['b_frustrations' => 'ui-old'];
+});
+
+check('slicing on a multi-select answer keeps the people who picked it', function () use ($rows) {
+    $slice = survey_apply_filters($rows, ['b_frustrations' => 'ui-old']);
+    return count($slice) === 1 && $slice[0]['b_payroll_system'] === 'danlon';
+});
+
 check('builds a url that adds, replaces and clears', function () {
     $add = survey_filter_url([], 'track', 'bureau');
     $clear = survey_filter_url(['track' => 'bureau'], 'track', null);

@@ -83,6 +83,18 @@ function survey_row_matches(array $row, string $column, string $value): bool
     return false;
 }
 
+/** True when this column may be sliced on. Every labelled question qualifies. */
+function survey_can_filter(string $column): bool
+{
+    return isset(SURVEY_FILTERS[$column]) || isset(SURVEY_QUESTION_LABELS[$column]);
+}
+
+/** What to call a filter: the curated name, else the question's own heading. */
+function survey_filter_name(string $column): string
+{
+    return SURVEY_FILTERS[$column] ?? survey_heading($column, 'short');
+}
+
 /** Filters from the query string, keyed by column; unknown columns are dropped. */
 function survey_read_filters(): array
 {
@@ -93,7 +105,7 @@ function survey_read_filters(): array
     $filters = [];
     foreach ($raw as $column => $value) {
         if (is_string($column) && is_string($value) && $value !== ''
-            && isset(SURVEY_FILTERS[$column]) && strlen($value) <= 60) {
+            && survey_can_filter($column) && strlen($value) <= 60) {
             $filters[$column] = $value;
         }
     }
@@ -443,6 +455,15 @@ function survey_results_main(): never
   .chip span { color:var(--ink-3); font-variant-numeric:tabular-nums; font-size:12px }
   .chip.on { background:var(--accent); color:#fff }
   .chip.on b, .chip.on span { color:#fff; font-weight:600 }
+  a.pick { color:inherit; text-decoration:none; border-bottom:1px dashed var(--line) }
+  a.pick:hover { color:var(--accent); border-bottom-color:var(--accent) }
+  tr.picked td { background:var(--accent-soft) }
+  tr.picked a.pick { color:#3f1b9c; font-weight:600; border-bottom:none }
+  .cut { position:sticky; top:0; z-index:5; margin:0 0 12px; padding:10px 0;
+         background:var(--bg); border-bottom:1px solid var(--line) }
+  .cut .chips { margin:0; align-items:center }
+  .cut .label { color:var(--ink-3); font-size:12px; text-transform:uppercase; letter-spacing:.08em }
+  .cut .clear { color:var(--accent); font-size:13.5px; text-decoration:none; margin-left:2px }
   .warn { margin:12px 0 0; background:#fff6e8; border-radius:10px; padding:9px 13px;
           font-size:13.5px; color:#8a5a12 }
   .empty { background:var(--card); border:1px dashed var(--line); border-radius:14px; padding:32px; text-align:center; color:var(--ink-2) }
@@ -468,23 +489,12 @@ function survey_results_main(): never
       <b>Skær svarene</b>
       <?php if ($filters === []) : ?>
         Vælg en gruppe, så genberegnes hvert spørgsmål nedenfor for netop dem.
+        Du kan også klikke et hvilket som helst svar længere nede for at skære efter det.
       <?php else : ?>
         Viser <?= $total ?> af <?= $grandTotal ?> svar.
         <a href="<?= survey_e(survey_filter_url([])) ?>">Ryd alle</a>
       <?php endif; ?>
     </p>
-
-    <?php if ($filters !== []) : ?>
-      <p class="chips">
-        <?php foreach ($filters as $column => $value) : ?>
-          <a class="chip on" href="<?= survey_e(survey_filter_url($filters, $column, null)) ?>"
-             title="Fjern dette filter">
-            <?= survey_e(SURVEY_FILTERS[$column]) ?>:
-            <b><?= survey_e(survey_label($column, $value)) ?></b> ✕
-          </a>
-        <?php endforeach; ?>
-      </p>
-    <?php endif; ?>
 
     <?php foreach (SURVEY_FILTERS as $column => $name) :
         $available = survey_count($allRows, $column);
@@ -518,6 +528,23 @@ function survey_results_main(): never
       </p>
     <?php endif; ?>
   </div>
+
+  <?php if ($filters !== []) : ?>
+    <div class="cut">
+      <p class="chips">
+        <span class="label">Udsnit</span>
+        <?php foreach ($filters as $column => $value) : ?>
+          <a class="chip on" href="<?= survey_e(survey_filter_url($filters, $column, null)) ?>"
+             title="Fjern dette filter">
+            <?= survey_e(survey_filter_name($column)) ?>:
+            <b><?= survey_e(survey_label($column, $value)) ?></b> ✕
+          </a>
+        <?php endforeach; ?>
+        <span class="label"><?= $total ?> af <?= $grandTotal ?> svar</span>
+        <a class="clear" href="<?= survey_e(survey_filter_url([])) ?>">Ryd alle</a>
+      </p>
+    </div>
+  <?php endif; ?>
 
   <?php if ($total === 0) : ?>
     <div class="empty" style="margin-top:24px">
@@ -622,10 +649,20 @@ function survey_results_main(): never
           <table>
             <?php foreach ($options as $value => $count) :
                 $share = $answered > 0 ? round(($count / $answered) * 100) : 0; ?>
-              <tr class="<?= $count === 0 ? 'zero' : '' ?><?= $top && in_array((string) $value, array_map('strval', $top['values']), true) ? ' win' : '' ?>">
+              <?php
+                $picked = ($filters[$column] ?? null) === (string) $value;
+                $canPick = $count > 0 && survey_can_filter($column);
+                $sub = survey_sublabel($column, (string) $value); ?>
+              <tr class="<?= $count === 0 ? 'zero' : '' ?><?= $top && in_array((string) $value, array_map('strval', $top['values']), true) ? ' win' : '' ?><?= $picked ? ' picked' : '' ?>">
                 <td class="v">
-                  <?= survey_e(survey_label($column, (string) $value)) ?>
-                  <?php $sub = survey_sublabel($column, (string) $value); ?>
+                  <?php if ($canPick) : ?>
+                    <a class="pick" href="<?= survey_e(survey_filter_url($filters, $column, $picked ? null : (string) $value)) ?>"
+                       title="<?= $picked ? 'Fjern dette filter' : 'Vis kun de ' . $count . ', der svarede dette' ?>">
+                      <?= survey_e(survey_label($column, (string) $value)) ?><?= $picked ? ' ✕' : '' ?>
+                    </a>
+                  <?php else : ?>
+                    <?= survey_e(survey_label($column, (string) $value)) ?>
+                  <?php endif; ?>
                   <?php if ($sub) : ?><i><?= survey_e($sub) ?></i><?php endif; ?>
                   <code><?= survey_e((string) $value) ?></code>
                 </td>
