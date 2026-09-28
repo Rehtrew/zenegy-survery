@@ -85,3 +85,16 @@ CREATE TABLE IF NOT EXISTS `survey_events` (
   KEY `survey_events_created_at` (`created_at`),
   KEY `survey_events_utm_source` (`utm_source`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Every hand correction to a submitted answer. The old value moves here rather
+-- than disappearing, so any correction can be read back or reversed.
+CREATE TABLE IF NOT EXISTS `survey_corrections` (
+  `id`            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `created_at`    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `submission_id` BIGINT UNSIGNED NOT NULL,
+  `column_name`   VARCHAR(64) NOT NULL,
+  `old_value`     TEXT NULL,
+  `reason`        VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `survey_corrections_submission` (`submission_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

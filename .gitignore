@@ -31,3 +31,4 @@ src/assets/*.pdf
 *.njsproj
 *.sln
 *.sw?
+backups/
