@@ -431,7 +431,7 @@ function survey_results_main(): never
   * { box-sizing:border-box }
   body { margin:0; background:var(--bg); color:var(--ink);
          font:16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  .wrap { max-width:1180px; margin:0 auto; padding:36px 20px 80px; }
+  .wrap { max-width:1360px; margin:0 auto; padding:36px 20px 80px; }
   h1 { font-size:32px; letter-spacing:-.02em; margin:0 0 8px }
   .sub { color:var(--ink-2); margin:0 0 28px }
   h2 { font-size:13px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-3);
@@ -470,48 +470,47 @@ function survey_results_main(): never
            border-radius:0 12px 12px 0; padding:12px 16px; margin-bottom:8px }
   .quote p { margin:0 0 4px; font-size:15px }
   .quote span { color:var(--ink-3); font-size:12.5px }
-  .fbar { position:sticky; top:0; z-index:10; display:flex; flex-wrap:wrap; gap:10px 16px;
-          align-items:center; justify-content:space-between; margin:0 0 20px; padding:12px 0;
-          background:var(--bg); border-bottom:1px solid var(--line) }
-  .pills { display:flex; flex-wrap:wrap; gap:8px; align-items:center; min-width:0 }
-  .pill { display:inline-flex; align-items:center; gap:7px; text-decoration:none;
-          background:var(--accent); color:#fff; border-radius:9px; padding:6px 10px; font-size:13.5px }
-  .pill i { font-style:normal; opacity:.65; font-size:12px }
+  .layout { display:grid; grid-template-columns:266px minmax(0,1fr); gap:26px; align-items:start }
+  .main { min-width:0 }
+  .side { position:sticky; top:16px; display:flex; flex-direction:column;
+          max-height:calc(100vh - 32px);
+          background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 8px 10px 14px }
+  .side-head { margin:0 4px 10px 0; color:var(--ink-3); font-size:13px }
+  .side-head b { color:var(--ink); font-size:20px; font-variant-numeric:tabular-nums; margin-right:4px;
+                 letter-spacing:-.02em }
+  .side-head .csv { float:right; color:var(--accent); text-decoration:none; font-size:12.5px; margin-top:6px }
+  .pills { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:0 6px 10px 0 }
+  .pill { display:inline-flex; align-items:center; gap:6px; text-decoration:none; background:var(--accent);
+          color:#fff; border-radius:8px; padding:5px 9px; font-size:13px; line-height:1.3 }
+  .pill i { font-style:normal; opacity:.6; font-size:11px }
   .pill b { opacity:.7; font-weight:400 }
   .pill:hover b { opacity:1 }
-  .bar-n { margin:0; color:var(--ink-3); font-size:13.5px; white-space:nowrap }
-  .bar-n b { color:var(--ink); font-size:16px; font-variant-numeric:tabular-nums; margin-right:3px }
-  .bar-n em { font-style:normal; color:#b4761c; margin-left:10px }
-  .bar-n .csv { color:var(--accent); text-decoration:none; margin-left:14px }
-  .fbar .clear { color:var(--ink-3); font-size:13px; text-decoration:none }
-  .fbar .clear:hover { color:var(--accent) }
-
-  .picker { position:relative; margin:0 }
-  .picker > summary { list-style:none; cursor:pointer; display:inline-flex; align-items:center; gap:6px;
-                      background:var(--card); border:1px solid var(--line); color:var(--ink-2);
-                      border-radius:9px; padding:6px 12px; font-size:13.5px }
-  .picker > summary::-webkit-details-marker { display:none }
-  .picker > summary:hover { border-color:var(--accent); color:var(--accent) }
-  .picker > summary span { color:var(--accent); font-size:15px; line-height:1 }
-  .picker[open] > summary { border-color:var(--accent); color:var(--accent) }
-  .pop { position:absolute; top:calc(100% + 6px); left:0; z-index:20; width:340px; max-width:88vw;
-         background:var(--card); border:1px solid var(--line); border-radius:12px;
-         box-shadow:0 12px 32px rgba(20,19,43,.13); padding:8px }
-  .pop input { width:100%; border:1px solid var(--line); border-radius:8px; padding:8px 11px;
-               font:inherit; font-size:14px; color:var(--ink); background:#fbfaff }
-  .pop input:focus { outline:none; border-color:var(--accent) }
-  .pop-list { max-height:min(420px,60vh); overflow-y:auto; margin-top:6px }
-  .pop-group { margin:10px 0 2px; padding:0 8px; color:var(--ink-3); font-size:11px;
-               text-transform:uppercase; letter-spacing:.08em }
-  .pop-opt { display:flex; justify-content:space-between; gap:10px; align-items:baseline;
-             text-decoration:none; color:var(--ink-2); font-size:14px; padding:6px 8px; border-radius:7px }
-  .pop-opt:hover, .pop-opt.hi { background:#f5f3fb; color:var(--ink) }
-  .pop-opt b { color:var(--ink-3); font-size:12px; font-weight:500; font-variant-numeric:tabular-nums }
-  .pop-opt.on { background:var(--accent); color:#fff }
-  .pop-opt.on b { color:#fff }
-  .pop-none { display:none; margin:14px 8px; color:var(--ink-3); font-size:13.5px }
-  .pop-list.none-found .pop-none { display:block }
-
+  .pills .clear { color:var(--ink-3); font-size:12.5px; text-decoration:none }
+  .pills .clear:hover { color:var(--accent) }
+  .find { width:calc(100% - 6px); border:1px solid var(--line); border-radius:9px; padding:8px 11px;
+          font:inherit; font-size:13.5px; color:var(--ink); background:#fbfaff }
+  .find:focus { outline:none; border-color:var(--accent); background:#fff }
+  .facets { flex:1; overflow-y:auto; margin-top:8px; padding-right:6px }
+  .facets::-webkit-scrollbar { width:8px }
+  .facets::-webkit-scrollbar-thumb { background:#e2def0; border-radius:4px }
+  .facet-head { margin:12px 0 3px; color:var(--ink-3); font-size:10.5px;
+                text-transform:uppercase; letter-spacing:.09em }
+  .facet-head:first-child { margin-top:0 }
+  .opt { display:flex; justify-content:space-between; gap:10px; align-items:baseline; text-decoration:none;
+         color:var(--ink-2); font-size:13.5px; padding:5px 8px; border-radius:7px; line-height:1.35 }
+  .opt:hover { background:#f5f3fb; color:var(--ink) }
+  .opt b { color:var(--ink-3); font-size:12px; font-weight:500; font-variant-numeric:tabular-nums }
+  .opt.on { background:var(--accent); color:#fff }
+  .opt.on b { color:#fff }
+  .extra { display:none }
+  .searching .extra { display:flex }
+  .searching .facet-head.extra { display:block }
+  .facet-none { display:none; margin:14px 8px; color:var(--ink-3); font-size:13px }
+  .facets.none-found .facet-none { display:block }
+  .side-foot { margin:10px 6px 0 0; padding-top:10px; border-top:1px solid #f2f0f8;
+               color:var(--ink-3); font-size:11.5px; line-height:1.5 }
+  .warn { margin:0 6px 10px 0; background:#fff6e8; border-radius:9px; padding:8px 10px;
+          font-size:12.5px; line-height:1.45; color:#8a5a12 }
   .tiles { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px }
   .tile { flex:1 1 130px; max-width:230px; background:var(--card); border:1px solid var(--line);
           border-radius:12px; padding:12px 14px }
@@ -549,7 +548,11 @@ function survey_results_main(): never
   tr.picked td { background:var(--accent-soft) }
   tr.picked a.pick { color:#3f1b9c; font-weight:600; border-bottom:none }
   @media (max-width:1150px) { td.bar { width:22% } }
-  @media (max-width:640px) { .fbar { position:static } .pop { width:min(340px,92vw) } }
+  @media (max-width:980px) {
+    .layout { grid-template-columns:1fr; gap:16px }
+    .side { position:static; max-height:none }
+    .facets { max-height:320px }
+  }
   .is-busy { opacity:.55; transition:opacity .12s }
   .empty { background:var(--card); border:1px dashed var(--line); border-radius:14px; padding:32px; text-align:center; color:var(--ink-2) }
 </style>
@@ -563,56 +566,69 @@ function survey_results_main(): never
   </p>
 
   <!--live--><div id="live">
-  <div class="fbar">
-    <div class="pills">
-      <?php foreach ($filters as $column => $value) : ?>
-        <a class="pill" data-go href="<?= survey_e(survey_filter_url($filters, $column, null)) ?>">
-          <i><?= survey_e(survey_filter_name($column)) ?></i>
-          <?= survey_e(survey_label($column, $value)) ?><b>✕</b>
-        </a>
-      <?php endforeach; ?>
-
-      <details class="picker">
-        <summary><span>+</span> <?= $filters === [] ? 'Filtrér svarene' : 'Tilføj filter' ?></summary>
-        <div class="pop">
-          <input type="search" placeholder="Søg, fx danløn, bureau eller gammeldags" autocomplete="off">
-          <div class="pop-list">
-            <?php foreach (array_keys(SURVEY_QUESTION_LABELS) as $column) :
-                $available = survey_count($allRows, $column);
-                if ($available === []) {
-                    continue;
-                }
-                $name = survey_filter_name($column); ?>
-              <p class="pop-group"><?= survey_e($name) ?></p>
-              <?php foreach ($available as $value => $count) :
-                  $active = ($filters[$column] ?? null) === (string) $value;
-                  $label = survey_label($column, (string) $value); ?>
-                <a class="pop-opt<?= $active ? ' on' : '' ?>" data-go
-                   data-find="<?= survey_e(mb_strtolower($name . ' ' . $label . ' ' . $value)) ?>"
-                   href="<?= survey_e(survey_filter_url($filters, $column, $active ? null : (string) $value)) ?>">
-                  <span><?= survey_e($label) ?></span><b><?= $count ?></b>
-                </a>
-              <?php endforeach; ?>
-            <?php endforeach; ?>
-            <p class="pop-none">Ingen filtre matcher søgningen.</p>
-          </div>
-        </div>
-      </details>
-
-      <?php if ($filters !== []) : ?>
-        <a class="clear" data-go href="<?= survey_e(survey_filter_url([])) ?>">Ryd alle</a>
-      <?php endif; ?>
-    </div>
-
-    <p class="bar-n">
-      <b><?= $total ?></b><?= $filters === [] ? ' svar' : ' af ' . $grandTotal . ' svar' ?>
-      <?php if ($filters !== [] && $total > 0 && $total < 10) : ?>
-        <em>lille udsnit, ét svar flytter meget</em>
-      <?php endif; ?>
+  <div class="layout">
+  <aside class="side">
+    <p class="side-head">
+      <b><?= $total ?></b><?= $filters === [] ? ' svar i alt' : ' af ' . $grandTotal . ' svar' ?>
       <a class="csv" href="<?= survey_e(survey_filter_url($filters, null, null, ['format' => 'csv'])) ?>">CSV</a>
     </p>
-  </div>
 
+    <?php if ($filters !== []) : ?>
+      <div class="pills">
+        <?php foreach ($filters as $column => $value) : ?>
+          <a class="pill" data-go href="<?= survey_e(survey_filter_url($filters, $column, null)) ?>">
+            <i><?= survey_e(survey_filter_name($column)) ?></i>
+            <?= survey_e(survey_label($column, $value)) ?><b>✕</b>
+          </a>
+        <?php endforeach; ?>
+        <a class="clear" data-go href="<?= survey_e(survey_filter_url([])) ?>">Ryd alle</a>
+      </div>
+      <?php if ($total > 0 && $total < 10) : ?>
+        <p class="warn">Lille udsnit. Ét svar flytter procenterne meget.</p>
+      <?php endif; ?>
+    <?php endif; ?>
+
+    <input class="find" type="search" autocomplete="off"
+           placeholder="Søg, fx danløn eller gammeldags">
+
+    <div class="facets">
+      <?php
+        // Curated dimensions first, in their own order; every other question
+        // follows, hidden until a search brings it forward.
+        $facetOrder = array_merge(
+            array_keys(SURVEY_FILTERS),
+            array_diff(array_keys(SURVEY_QUESTION_LABELS), array_keys(SURVEY_FILTERS))
+        );
+        foreach ($facetOrder as $column) :
+          $available = survey_count($allRows, $column);
+          if ($available === []) {
+              continue;
+          }
+          // Only the eight everyday dimensions show up front; the rest of the
+          // questions stay in the DOM and surface as soon as you search.
+          $extra = isset(SURVEY_FILTERS[$column]) ? '' : ' extra';
+          $name = survey_filter_name($column); ?>
+        <p class="facet-head<?= $extra ?>"><?= survey_e($name) ?></p>
+        <?php foreach ($available as $value => $count) :
+            $active = ($filters[$column] ?? null) === (string) $value;
+            $label = survey_label($column, (string) $value); ?>
+          <a class="opt<?= $extra ?><?= $active ? ' on' : '' ?>" data-go
+             data-find="<?= survey_e(mb_strtolower($name . ' ' . $label . ' ' . $value)) ?>"
+             href="<?= survey_e(survey_filter_url($filters, $column, $active ? null : (string) $value)) ?>">
+            <span><?= survey_e($label) ?></span><b><?= $count ?></b>
+          </a>
+        <?php endforeach; ?>
+      <?php endforeach; ?>
+      <p class="facet-none">Ingen filtre matcher søgningen.</p>
+    </div>
+
+    <p class="side-foot">
+      Søgningen dækker alle spørgsmål, ikke kun dem der står her.
+      Du kan også klikke et svar i tabellerne.
+    </p>
+  </aside>
+
+  <main class="main">
   <?php if ($total === 0) : ?>
     <div class="empty">
       <?php if ($filters === []) : ?>
@@ -811,6 +827,8 @@ function survey_results_main(): never
   <?php endif; ?>
 
   <?php endif; ?>
+  </main>
+  </div>
   </div><!--/live-->
 </div>
 <script>
@@ -820,31 +838,35 @@ function survey_results_main(): never
 
   // Type to narrow the filter list. Matching is on the dimension name, the
   // answer label and the stored value, so "gammeldags" and "ui-old" both land.
+  // While searching, the questions hidden from the default list join in.
   function wireSearch(scope) {
-    var box = scope.querySelector('.pop input');
+    var box = scope.querySelector('.find');
     if (!box) return;
-    var list = scope.querySelector('.pop-list');
-    box.addEventListener('input', function () {
+    var facets = scope.querySelector('.facets');
+
+    function run() {
       var q = box.value.trim().toLowerCase();
+      facets.classList.toggle('searching', q !== '');
       var shown = 0;
-      list.querySelectorAll('.pop-opt').forEach(function (opt) {
-        var hit = q === '' || opt.dataset.find.indexOf(q) !== -1;
+      facets.querySelectorAll('.opt').forEach(function (opt) {
+        var hit = q === '' ? !opt.classList.contains('extra') : opt.dataset.find.indexOf(q) !== -1;
         opt.style.display = hit ? '' : 'none';
         if (hit) shown++;
       });
-      list.querySelectorAll('.pop-group').forEach(function (group) {
-        var any = false, node = group.nextElementSibling;
-        while (node && node.classList.contains('pop-opt')) {
+      facets.querySelectorAll('.facet-head').forEach(function (head) {
+        var any = false, node = head.nextElementSibling;
+        while (node && node.classList.contains('opt')) {
           if (node.style.display !== 'none') any = true;
           node = node.nextElementSibling;
         }
-        group.style.display = any ? '' : 'none';
+        head.style.display = any ? '' : 'none';
       });
-      list.classList.toggle('none-found', shown === 0);
-    });
-    scope.querySelector('.picker').addEventListener('toggle', function (e) {
-      if (e.target.open) box.focus();
-    });
+      facets.classList.toggle('none-found', shown === 0);
+    }
+
+    box.addEventListener('input', run);
+    box.addEventListener('search', run);
+    if (box.value.trim() !== '') run();
   }
 
   var busy = false;
@@ -859,9 +881,14 @@ function survey_results_main(): never
         holder.innerHTML = html;
         var fresh = holder.firstElementChild;
         if (!fresh) throw new Error('empty');
+        var typed = live.querySelector('.find');
+        var carry = typed ? typed.value : '';
         live.innerHTML = fresh.innerHTML;
+        var box = live.querySelector('.find');
+        if (box && carry) box.value = carry;
         if (push) history.pushState({}, '', url);
         wireSearch(live);
+        if (box && carry) box.focus();
         busy = false;
         live.classList.remove('is-busy');
       })
@@ -877,10 +904,6 @@ function survey_results_main(): never
   });
 
   window.addEventListener('popstate', function () { go(location.search || '?', false); });
-  document.addEventListener('click', function (e) {
-    var picker = document.querySelector('.picker[open]');
-    if (picker && !picker.contains(e.target)) picker.open = false;
-  });
   wireSearch(live);
 })();
 </script>
