@@ -319,8 +319,11 @@ function survey_logo(string $column, string $value): string
 function survey_tone(string $column, string $value): string
 {
     if ($column === 'a_nps') {
+        // How the answer reads, not the NPS formula: 7 and 8 look like a yes to
+        // the people reading this. The NPS tile keeps the standard 9-10 / 0-6
+        // split so the score stays comparable with anyone else's.
         $n = (int) $value;
-        return $n >= 9 ? 'good' : ($n >= 7 ? 'mid' : 'bad');
+        return $n >= 7 ? 'good' : ($n >= 4 ? 'mid' : 'bad');
     }
     if ($column === 'a_satisfaction') {
         return match ($value) {

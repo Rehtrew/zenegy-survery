@@ -172,7 +172,9 @@ check('a scale keeps survey order and shows the options nobody picked', function
 });
 
 check('only scales with a direction get good, middling or bad colours', fn () =>
-    survey_tone('a_nps', '10') === 'good' && survey_tone('a_nps', '7') === 'mid' && survey_tone('a_nps', '3') === 'bad'
+    survey_tone('a_nps', '10') === 'good' && survey_tone('a_nps', '7') === 'good'
+    && survey_tone('a_nps', '6') === 'mid' && survey_tone('a_nps', '4') === 'mid'
+    && survey_tone('a_nps', '3') === 'bad' && survey_tone('a_nps', '0') === 'bad'
     && survey_tone('a_satisfaction', 'very-happy') === 'good' && survey_tone('a_satisfaction', 'very-unhappy') === 'bad'
     && survey_tone('b_payroll_system', 'danloen') === '');
 
