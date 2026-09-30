@@ -562,21 +562,28 @@ function survey_results_main(): never
   .side { position:sticky; top:16px; display:flex; flex-direction:column; max-height:calc(100vh - 32px);
           background:var(--card); border-radius:16px; padding:16px 10px 12px 16px }
 
-  /* sidebar: head, active filters, search */
+  /* sidebar: head, active filters, search. Only the list may give way when
+     the column is full; if these shrank, the list under them would move. */
+  .side-head, .active, .find, .warn, .side-foot { flex:none }
   .side-head { margin:0 6px 12px 0; color:var(--ink-3); font-size:13px }
   .side-head b { color:var(--ink); font-size:24px; letter-spacing:-.02em; margin-right:4px }
   .side-head .csv { float:right; margin-top:9px; color:var(--ink-2); font-size:12px; text-decoration:none;
                     border:1px solid var(--line); border-radius:6px; padding:1px 7px }
   .side-head .csv:hover { border-color:var(--ink-3) }
-  .active { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:0 6px 12px 0 }
+  /* One row of fixed height: more filters scroll sideways instead of wrapping. */
+  .active { display:flex; flex-wrap:nowrap; gap:6px; align-items:center; margin:0 6px 12px 0; height:29px;
+            overflow-x:auto; scrollbar-width:none }
+  .active::-webkit-scrollbar { display:none }
+  .act { flex:none; white-space:nowrap }
+  .active .hint { color:var(--ink-3); font-size:12.5px }
   .act { display:inline-flex; align-items:center; gap:6px; text-decoration:none; background:var(--ink); color:#fff;
          border-radius:8px; padding:5px 9px; font-size:13px; line-height:1.3 }
   .act i:not(.lg) { font-style:normal; opacity:.55; font-size:11px }
   .act b { opacity:.55; font-weight:400; margin-left:2px }
   .act:hover b { opacity:1 }
-  .clear { color:var(--ink-3); font-size:12.5px; text-decoration:none; padding:0 4px }
+  .clear { float:right; margin:9px 8px 0 0; color:var(--ink-3); font-size:12.5px; text-decoration:none }
   .clear:hover { color:var(--ink) }
-  .warn { margin:0 6px 12px 0; background:var(--mid-soft); color:#8a5a12; border-radius:9px;
+  .warn { margin:12px 6px 0 0; background:var(--mid-soft); color:#8a5a12; border-radius:9px;
           padding:8px 10px; font-size:12.5px; line-height:1.45 }
   .find { width:calc(100% - 6px); border:1px solid transparent; border-radius:10px; padding:9px 12px;
           font:inherit; font-size:13.5px; color:var(--ink); background:var(--gray-soft) }
@@ -737,22 +744,24 @@ function survey_results_main(): never
     <p class="side-head">
       <b><?= $total ?></b><?= $filters === [] ? ' svar i alt' : ' af ' . $grandTotal . ' svar' ?>
       <a class="csv" href="<?= survey_e(survey_filter_url($filters, null, null, ['format' => 'csv'])) ?>">CSV</a>
+      <?php if ($filters !== []) : ?>
+        <a class="clear" data-go href="<?= survey_e(survey_filter_url([])) ?>">Ryd alle</a>
+      <?php endif; ?>
     </p>
 
-    <?php if ($filters !== []) : ?>
-      <div class="active">
+    <?php // Always present and one line high, so no filter ever pushes the list down. ?>
+    <div class="active">
+      <?php if ($filters === []) : ?>
+        <span class="hint">Ingen filtre valgt</span>
+      <?php else : ?>
         <?php foreach ($filters as $column => $value) : ?>
           <a class="act" data-go href="<?= survey_e(survey_filter_url($filters, $column, null)) ?>" title="Fjern filter">
             <i><?= survey_e(survey_filter_name($column)) ?></i>
             <?= survey_logo($column, $value) ?><?= survey_e(survey_label($column, $value)) ?><b>✕</b>
           </a>
         <?php endforeach; ?>
-        <a class="clear" data-go href="<?= survey_e(survey_filter_url([])) ?>">Ryd alle</a>
-      </div>
-      <?php if ($total > 0 && $total < 10) : ?>
-        <p class="warn">Kun <?= $total ?> svar. Ét svar flytter procenterne meget.</p>
       <?php endif; ?>
-    <?php endif; ?>
+    </div>
 
     <input class="find" type="search" autocomplete="off" placeholder="Søg i alle svar, fx danløn eller gammeldags">
 
@@ -784,7 +793,7 @@ function survey_results_main(): never
           $find = static fn (string $v): string => survey_e(mb_strtolower($name . ' ' . survey_label($column, $v) . ' ' . $v));
           $href = static fn (string $v, bool $on): string =>
               survey_e(survey_filter_url($filters, $column, $on ? null : $v)); ?>
-        <section class="facet<?= $extra ?> k-<?= $kind ?>">
+        <section class="facet<?= $extra ?> k-<?= $kind ?>" data-col="<?= survey_e($column) ?>">
           <p class="facet-head"><?= survey_e($name) ?></p>
 
           <?php if ($kind === 'tiles') : ?>
@@ -830,6 +839,10 @@ function survey_results_main(): never
       <p class="facet-none">Ingen svar matcher søgningen.</p>
     </div>
 
+    <?php // Below the list, where appearing and disappearing moves nothing. ?>
+    <?php if ($filters !== [] && $total > 0 && $total < 10) : ?>
+      <p class="warn">Kun <?= $total ?> svar. Ét svar flytter procenterne meget.</p>
+    <?php endif; ?>
     <p class="side-foot">
       Tallene følger dit udsnit: de viser, hvor mange du får, hvis du vælger dem.
       Søgningen dækker alle spørgsmål.
@@ -1006,7 +1019,7 @@ function survey_results_main(): never
         $max = $options === [] ? 0 : max($options);
         $top = survey_top_answer($counts);
         $winners = $top && count($options) > 1 ? array_map('strval', $top['values']) : []; ?>
-      <div class="q">
+      <div class="q" data-col="<?= survey_e($column) ?>">
         <h3><?= survey_e(survey_heading($column, 'short')) ?></h3>
         <p class="asked"><?= survey_e(survey_heading($column, 'question')) ?></p>
 
@@ -1051,7 +1064,7 @@ function survey_results_main(): never
             continue;
         }
         $anyText = true; ?>
-    <div class="q ft">
+    <div class="q ft" data-col="<?= survey_e($column) ?>">
       <h3><?= survey_e($label) ?> <code><?= survey_e($column) ?></code></h3>
       <?php foreach (array_slice($quotes, 0, 25) as $quote) : ?>
         <div class="quote" style="margin-top:10px">
@@ -1106,8 +1119,66 @@ function survey_results_main(): never
     if (box.value.trim() !== '') run();
   }
 
+  // A filter swaps the whole block, and cards the slice didn't answer drop out,
+  // so everything below them moves. Remember which card is being read and where
+  // it sits on screen, then put that same card back in that same place.
+  function readingSpot() {
+    if (window.scrollY < 1) return null; // at the top: stay at the top
+    var cards = [].slice.call(live.querySelectorAll('.q[data-col]'));
+    var pick = -1;
+    for (var i = 0; i < cards.length; i++) {
+      var r = cards[i].getBoundingClientRect();
+      // The first card whose heading is on screen; failing that, the one
+      // running off the top edge.
+      if (r.top >= 0 && r.top < window.innerHeight * 0.6) { pick = i; break; }
+      if (r.top < 0 && r.bottom > 80 && pick === -1) pick = i;
+    }
+    if (pick === -1) return null;
+    // If that card isn't in the new slice, fall back to its nearest neighbours.
+    var order = cards.slice(pick).concat(cards.slice(0, pick).reverse());
+    return {
+      top: cards[pick].getBoundingClientRect().top,
+      keys: order.map(function (c) { return c.dataset.col; })
+    };
+  }
+  function restoreSpot(spot) {
+    if (!spot) return;
+    for (var i = 0; i < spot.keys.length; i++) {
+      var card = live.querySelector('.q[data-col="' + spot.keys[i] + '"]');
+      if (card) {
+        window.scrollBy(0, card.getBoundingClientRect().top - spot.top);
+        return;
+      }
+    }
+  }
+
+  // Same idea for the filter list: the group just clicked in stays under the
+  // cursor, even though the active-filter chips above it come and go.
+  function filterSpot(link) {
+    var list = live.querySelector('.facets');
+    if (!list) return null;
+    var facet = link && link.closest ? link.closest('.facet') : null;
+    if (!facet) {
+      var edge = list.getBoundingClientRect().top;
+      facet = [].slice.call(list.querySelectorAll('.facet')).filter(function (f) {
+        return f.offsetParent !== null && f.getBoundingClientRect().bottom > edge;
+      })[0];
+    }
+    return facet ? { key: facet.dataset.col, top: facet.getBoundingClientRect().top, scroll: list.scrollTop }
+                 : { key: null, top: 0, scroll: list.scrollTop };
+  }
+  function restoreFilterSpot(spot) {
+    var list = live.querySelector('.facets');
+    if (!list || !spot) return;
+    list.scrollTop = spot.scroll;
+    var facet = spot.key ? list.querySelector('.facet[data-col="' + spot.key + '"]') : null;
+    if (facet && facet.offsetParent !== null) {
+      list.scrollTop += facet.getBoundingClientRect().top - spot.top;
+    }
+  }
+
   var busy = false;
-  function go(url, push) {
+  function go(url, push, link) {
     if (busy) return;
     busy = true;
     live.classList.add('is-busy');
@@ -1120,12 +1191,16 @@ function survey_results_main(): never
         if (!fresh) throw new Error('empty');
         var typed = live.querySelector('.find');
         var carry = typed ? typed.value : '';
+        var spot = readingSpot();
+        var side = filterSpot(link);
         live.innerHTML = fresh.innerHTML;
         var box = live.querySelector('.find');
         if (box && carry) box.value = carry;
         if (push) history.pushState({}, '', url);
         wireSearch(live);
-        if (box && carry) box.focus();
+        restoreFilterSpot(side);
+        restoreSpot(spot);
+        if (box && carry) box.focus({ preventScroll: true });
         busy = false;
         live.classList.remove('is-busy');
       })
@@ -1137,9 +1212,12 @@ function survey_results_main(): never
     var link = e.target.closest('a[data-go]');
     if (!link || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
     e.preventDefault();
-    go(link.getAttribute('href'), true);
+    go(link.getAttribute('href'), true, link);
   });
 
+  // The page places the card itself after a swap; the browser's own scroll
+  // restoration on back and forward would fight it.
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   window.addEventListener('popstate', function () { go(location.search || '?', false); });
   wireSearch(live);
 })();
