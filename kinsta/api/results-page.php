@@ -631,7 +631,11 @@ function survey_results_main(): never
   .chipset .opt { display:inline-flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--line);
                   border-radius:8px; padding:4px 8px 4px 5px; font-size:13px; line-height:1.3 }
   .chipset .opt:not(:has(.lg)) { padding-left:9px }
-  .chipset .opt b { color:var(--ink-3); font-size:11.5px; font-weight:500 }
+  /* The count sits over an invisible copy of the largest it can show, in
+     equal-width digits, so the chip is the same size whatever the slice. */
+  .chipset .opt b { display:inline-block; text-align:right; color:var(--ink-3); font-size:11.5px;
+                    font-weight:500; font-variant-numeric:tabular-nums }
+  .chipset .opt b::before { content:attr(data-max); display:block; height:0; overflow:hidden; visibility:hidden }
   .chipset .opt:hover { border-color:var(--ink-3); color:var(--ink) }
   .chipset .opt.on { background:var(--ink); border-color:var(--ink); color:#fff }
   .chipset .opt.on b { color:#fff; opacity:.7 }
@@ -661,14 +665,16 @@ function survey_results_main(): never
   .panel-foot { display:flex; justify-content:space-between; gap:10px; margin:8px 0 0; color:var(--ink-3); font-size:12px; line-height:1.5 }
   .panel-foot em { font-style:normal }
   table.aud { margin:0 }
-  table.aud td { padding:5px 0; font-size:14px; border-top:none }
-  table.aud tr.h td { border-top:none; color:var(--ink-3); font-size:11.5px; padding-top:0; text-align:right }
+  /* Fixed row height: a dash and a number must not differ by a pixel. */
+  table.aud td { height:35px; padding:0; font-size:14px; border-top:none }
+  table.aud tr.h td { height:22px; border-top:none; color:var(--ink-3); font-size:11.5px; text-align:right; vertical-align:top }
   table.aud td.r { color:var(--ink-2); text-align:left }
   table.aud td.c, table.aud td.t { text-align:right; width:23% }
   table.aud td.t { color:var(--ink-3) }
   table.aud td.c a, table.aud td.c span { display:inline-block; min-width:40px; padding:2px 9px; border-radius:7px;
                                           text-align:center; font-weight:500; text-decoration:none }
-  table.aud td.c a { background:var(--gray-soft); color:var(--ink); border:1.5px solid transparent }
+  table.aud td.c a { background:var(--gray-soft); color:var(--ink) }
+  table.aud td.c a, table.aud td.c span { border:1.5px solid transparent }
   table.aud td.c a:hover { border-color:var(--gray) }
   table.aud td.c.on a { background:var(--ink); color:#fff }
   table.aud td.c.plain span { color:var(--ink-2); font-weight:500 }
@@ -677,6 +683,7 @@ function survey_results_main(): never
   table.aud td.span a { font-weight:500; font-size:13px }
   .sources { margin:0 0 10px }
   .sources > summary { cursor:pointer; color:var(--ink-3); font-size:13px }
+  .sources.off { opacity:.5; pointer-events:none }
   .sources table { margin-top:6px }
   .answered { color:var(--ink-3); font-size:12px }
   .empty { background:var(--card); border-radius:14px; padding:32px;
@@ -686,6 +693,8 @@ function survey_results_main(): never
   /* questions */
   .q { background:var(--card); border-radius:14px; padding:16px 18px 12px; margin-bottom:10px }
   .q { padding:18px 22px 14px }
+  /* Not part of this slice: still there, in its place, just stepped back. */
+  .q.off { opacity:.38 }
   .q h3 { font-size:13px; font-weight:500; color:var(--ink-3); margin:0 0 4px; letter-spacing:0 }
   .q h3 code { color:var(--ink-3); font-size:11px; margin-left:6px }
   .q .asked { margin:0 0 12px; padding-bottom:14px; border-bottom:1px solid var(--line);
@@ -774,14 +783,18 @@ function survey_results_main(): never
         foreach ($facetOrder as $column) :
           $counts = survey_facet_counts($allRows, $filters, $column);
           $isActive = isset($filters[$column]);
-          // Nobody in this slice answered it: the facet has nothing to offer.
-          if ($counts === [] && !$isActive) {
+          // Options and their order come from all answers, so the list never
+          // reshuffles or loses a chip; only the numbers follow the slice.
+          $everyone = survey_count($allRows, $column);
+          if ($everyone === []) {
               continue;
           }
           $extra = isset(SURVEY_FILTERS[$column]) ? '' : ' extra';
           $kind = $extra === '' ? (SURVEY_FACET_KIND[$column] ?? 'chips') : 'chips';
           $name = survey_filter_name($column);
-          $options = $kind === 'chips' ? $counts : survey_scale($counts, $column);
+          $options = $kind === 'chips'
+              ? array_replace(array_fill_keys(array_map('strval', array_keys($everyone)), 0), $counts)
+              : survey_scale($counts, $column);
           if ($column === 'track') {
               // Same order as "Hvem er de": companies, then bureaus, then employees.
               $options = array_replace(array_fill_keys(['zenegy', 'non-zenegy', 'bureau', 'employee'], 0), $options);
@@ -828,8 +841,8 @@ function survey_results_main(): never
               <?php foreach ($options as $value => $n) :
                   $value = (string) $value;
                   $on = ($filters[$column] ?? null) === $value; ?>
-                <a class="opt<?= $on ? ' on' : '' ?>" data-go data-find="<?= $find($value) ?>" href="<?= $href($value, $on) ?>">
-                  <?= survey_logo($column, $value) ?><span><?= survey_e(survey_label($column, $value)) ?></span><b><?= $n ?></b>
+                <a class="opt<?= $on ? ' on' : '' ?><?= $n === 0 && !$on ? ' nil' : '' ?>" data-go data-find="<?= $find($value) ?>" href="<?= $href($value, $on) ?>">
+                  <?= survey_logo($column, $value) ?><span><?= survey_e(survey_label($column, $value)) ?></span><b data-max="<?= (int) ($everyone[$value] ?? $n) ?>"><?= $n ?></b>
                 </a>
               <?php endforeach; ?>
             </div>
@@ -855,14 +868,9 @@ function survey_results_main(): never
     $slice = isset($filters['track']) ? preg_replace('/[^a-z-]/', '', $filters['track']) : 'all';
   ?>
   <main class="main slice-<?= survey_e($slice) ?>">
-  <?php if ($total === 0) : ?>
+  <?php if ($grandTotal === 0) : ?>
     <div class="empty">
-      <?php if ($filters === []) : ?>
-        Ingen svar endnu. Siden opdaterer sig selv, når det første svar lander.
-      <?php else : ?>
-        Ingen af de <?= $grandTotal ?> svar matcher filteret.
-        <a data-go href="<?= survey_e(survey_filter_url([])) ?>">Ryd filteret</a>.
-      <?php endif; ?>
+      Ingen svar endnu. Siden opdaterer sig selv, når det første svar lander.
     </div>
   <?php else : ?>
 
@@ -963,6 +971,9 @@ function survey_results_main(): never
     </div>
   </div>
 
+  <?php if (!$showFunnel && $views > 0) : ?>
+    <details class="sources off"><summary>Kilder · vises, når ingen filtre er valgt</summary></details>
+  <?php endif; ?>
   <?php if ($showFunnel && count($funnel['bySource']) > 1) : ?>
     <details class="sources">
       <summary>Kilder · hvilke links giver besvarelser, ikke bare klik</summary>
@@ -984,8 +995,9 @@ function survey_results_main(): never
   <?php endif; ?>
 
   <?php foreach (SURVEY_GROUPS as $group) :
-      // Only the questions this slice actually answered. A card for a column
-      // that is itself the filter, with one answer left, just reads "100 %".
+      // Every card is always on the page, in the same place. A filter never
+      // removes one; a card the slice didn't answer greys out instead, so
+      // nothing below it moves while you read.
       $cards = [];
       foreach ($group['columns'] as $column) {
           // The route through the survey, not something anyone answered. The
@@ -993,18 +1005,7 @@ function survey_results_main(): never
           if ($column === 'track') {
               continue;
           }
-          // With a track chosen, these two follow from it and read "100 %".
-          // Bureaus are the exception: "for others" against "both" still says something.
-          if (isset($filters['track']) && ($column === 'is_employee'
-              || ($column === 'payroll_context' && $filters['track'] !== 'bureau'))) {
-              continue;
-          }
-          $counts = survey_count($rows, $column);
-          $answered = survey_respondents($rows, $column);
-          if ($answered === 0 || (isset($filters[$column]) && count($counts) <= 1)) {
-              continue;
-          }
-          $cards[$column] = [$counts, $answered];
+          $cards[$column] = [survey_count($rows, $column), survey_respondents($rows, $column)];
       }
       if ($cards === []) {
           continue;
@@ -1019,7 +1020,7 @@ function survey_results_main(): never
         $max = $options === [] ? 0 : max($options);
         $top = survey_top_answer($counts);
         $winners = $top && count($options) > 1 ? array_map('strval', $top['values']) : []; ?>
-      <div class="q" data-col="<?= survey_e($column) ?>">
+      <div class="q<?= $answered === 0 ? ' off' : '' ?>" data-col="<?= survey_e($column) ?>">
         <h3><?= survey_e(survey_heading($column, 'short')) ?></h3>
         <p class="asked"><?= survey_e(survey_heading($column, 'question')) ?></p>
 
@@ -1042,7 +1043,11 @@ function survey_results_main(): never
           <?php endforeach; ?>
         </table>
         <p class="q-foot">
-          <?= $answered ?> har svaret<?= $filters === [] ? '' : ' i udsnittet' ?>
+          <?php if ($answered === 0) : ?>
+            Ingen i udsnittet har fået dette spørgsmål
+          <?php else : ?>
+            <?= $answered ?> har svaret<?= $filters === [] ? '' : ' i udsnittet' ?>
+          <?php endif; ?>
           <code><?= survey_e($column) ?></code>
         </p>
       </div>
