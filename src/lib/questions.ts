@@ -48,6 +48,9 @@ const PAYROLL_SYSTEMS: Option[] = [
   { value: 'epos', label: 'Epos', subLabel: 'Azets', logoInitials: 'E', logoStyle: NO_LOGO },
 ]
 
+const ZENEGY_OPTION: Option = { value: 'zenegy', label: 'Zenegy', logoSrc: zenegyLogo }
+/** For people who receive a payslip and may never have seen the system's name. */
+const DONT_KNOW_OPTION: Option = { value: 'ved-ikke', label: 'Ved ikke', logoInitials: '–', logoStyle: NO_LOGO }
 const EXCEL_OPTION: Option = { value: 'excel', label: 'Excel / manuelt', logoSrc: excelLogo }
 const OTHER_OPTION: Option = {
   value: 'andet', label: 'Andet',
@@ -344,6 +347,18 @@ export const EMPLOYEE_QUESTIONS: Question[] = [
       { value: 'none', label: 'Jeg vil ikke have AI i mine løn- eller fraværsdata' },
     ],
   },
+  {
+    // Added 2026-09-30, after the first 49 employees had answered; they have no
+    // value here. Last in the track, so the earlier questions are asked exactly
+    // as they were and stay comparable.
+    id: 'e5',
+    type: 'logo-grid',
+    question: 'Hvilket lønsystem bruger din arbejdsgiver?',
+    shortLabel: 'Arbejdsgiverens lønsystem',
+    subText: 'Navnet står ofte på lønsedlen eller i den app, du får den i. Vælg "Ved ikke", hvis du er i tvivl.',
+    autoAdvance: true,
+    options: [...PAYROLL_SYSTEMS, ZENEGY_OPTION, OTHER_OPTION, DONT_KNOW_OPTION],
+  },
 ]
 
 const AI_QUESTION: Question = {
@@ -401,7 +416,7 @@ export const TRACK_C_QUESTIONS: Question[] = [
     subText: 'Vælg alle, du bruger i dag, også dem du kun har en enkelt kunde i.',
     options: [
       ...PAYROLL_SYSTEMS,
-      { value: 'zenegy', label: 'Zenegy', logoSrc: zenegyLogo },
+      ZENEGY_OPTION,
       EXCEL_OPTION,
       OTHER_OPTION,
     ],
@@ -633,6 +648,7 @@ export const ANSWER_FIELDS: Record<string, (keyof SurveyAnswers)[]> = {
   e2: ['e_pain_points'],
   e3: ['e_expenses'],
   e4: ['e_ai_trust'],
+  e5: ['e_payroll_system', 'e_payroll_other'],
   c1: ['c_client_count'],
   c2: ['c_payroll_systems', 'c_payroll_system_other'],
   c3: ['c_setup'],

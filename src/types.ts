@@ -103,6 +103,8 @@ export interface SurveyAnswers {
   e_pain_points?: string[]
   e_expenses?: string
   e_ai_trust?: string
+  e_payroll_system?: string
+  e_payroll_other?: string
   // AI question (decision-maker track)
   ai_interest?: string
 }

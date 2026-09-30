@@ -45,6 +45,7 @@ const SURVEY_FREE_TEXT = [
     'c_frustration_other'     => 'Andre tidsrøvere (bureau)',
     'c_data_collection_other' => 'Anden dataindsamling',
     'c_payroll_system_other'  => 'Andet lønsystem (bureau)',
+    'e_payroll_other'         => 'Andet lønsystem (lønmodtagers arbejdsgiver)',
     'accounting_other'        => 'Andet regnskabssystem',
 ];
 
@@ -59,6 +60,7 @@ const SURVEY_FILTERS = [
     'b_payroll_system'  => 'Lønsystem',
     'c_payroll_systems' => 'Bureauernes lønsystemer',
     'c_client_count'    => 'Bureauernes antal kunder',
+    'e_payroll_system'  => 'Lønmodtagernes arbejdsgiver bruger',
     'accounting_system' => 'Regnskabssystem',
     'utm_source'        => 'Kilde',
 ];
@@ -248,16 +250,17 @@ function survey_by_day(array $rows): array
 
 /**
  * Role against payroll system. The four tracks exclude each other, which hides
- * the one overlap the data does hold: most bureaus run Zenegy for some clients.
- * Employees are never asked their employer's system, so that cell stays empty
- * rather than pretending to know.
+ * the overlap the data does hold: most bureaus run Zenegy for some clients.
+ * Employees have been asked their employer's system since 2026-09-30; the ones
+ * who answered before that, or who don't know, are counted as unknown rather
+ * than guessed at.
  */
 function survey_audience(array $rows): array
 {
     $cells = [
         'company' => ['zenegy' => 0, 'other' => 0],
         'bureau'  => ['zenegy' => 0, 'other' => 0],
-        'employee' => ['unknown' => 0],
+        'employee' => ['zenegy' => 0, 'other' => 0, 'unknown' => 0],
     ];
     foreach ($rows as $row) {
         switch ($row['track'] ?? '') {
@@ -271,7 +274,12 @@ function survey_audience(array $rows): array
                 $cells['bureau'][survey_row_matches($row, 'c_payroll_systems', 'zenegy') ? 'zenegy' : 'other']++;
                 break;
             case 'employee':
-                $cells['employee']['unknown']++;
+                $system = $row['e_payroll_system'] ?? null;
+                $cells['employee'][match (true) {
+                    $system === null || $system === '' || $system === 'ved-ikke' => 'unknown',
+                    $system === 'zenegy' => 'zenegy',
+                    default => 'other',
+                }]++;
                 break;
         }
     }
@@ -956,17 +964,17 @@ function survey_results_main(): never
         </tr>
         <tr>
           <td class="r">Lønmodtagere</td>
-          <td class="c span t-employee<?= $isCell(['track' => 'employee']) ? ' on' : '' ?>" colspan="2">
-            <?php if ($aud['employee']['unknown'] > 0) : ?>
-              <a data-go href="<?= survey_e($cellUrl(['track' => 'employee'])) ?>"><?= $aud['employee']['unknown'] ?> · ikke spurgt om system</a>
-            <?php else : ?><span>–</span><?php endif; ?>
-          </td>
-          <td class="t"><?= $aud['employee']['unknown'] ?></td>
+          <?= $cell($aud['employee']['zenegy'], ['track' => 'employee', 'e_payroll_system' => 'zenegy'], 'employee') ?>
+          <?= $cell($aud['employee']['other'], null, 'employee') ?>
+          <td class="t"><?= array_sum($aud['employee']) ?></td>
         </tr>
       </table>
       <p class="panel-foot">
         <span>Bureauer tæller som Zenegy-brugere, når Zenegy er blandt deres systemer.
-        Lønmodtagere bliver ikke spurgt om arbejdsgiverens lønsystem.</span>
+        <?php if ($aud['employee']['unknown'] > 0) : ?>
+          <?= $aud['employee']['unknown'] ?> lønmodtagere står uden system: de ved det ikke,
+          eller de svarede, før spørgsmålet kom med den 30/9.
+        <?php endif; ?></span>
       </p>
     </div>
   </div>

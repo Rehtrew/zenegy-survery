@@ -21,7 +21,17 @@ describe('getQuestionSequence', () => {
 
   it('returns employee track when is_employee is true', () => {
     const seq = getQuestionSequence({ is_employee: true })
-    expect(seq.map(q => q.id)).toEqual(['gate', 'e1', 'e2', 'e3', 'e4'])
+    expect(seq.map(q => q.id)).toEqual(['gate', 'e1', 'e2', 'e3', 'e4', 'e5'])
+  })
+
+  it('asks employees their employer\'s payroll system last, with a way to say they don\'t know', () => {
+    const seq = getQuestionSequence({ is_employee: true })
+    const last = seq[seq.length - 1]
+    const values = (last.options ?? []).map(o => o.value)
+    expect(last.id).toBe('e5')
+    expect(values).toContain('zenegy')
+    expect(values).toContain('andet')
+    expect(values[values.length - 1]).toBe('ved-ikke')
   })
 
   it('returns 11 questions for non-zenegy track (gate, context, q0, size, b1-b5, ai, numbers)', () => {
@@ -153,6 +163,17 @@ describe('pruneToPath', () => {
       e_payslip: 'app',
     })
     expect(pruned).toEqual({ is_employee: true, e_payslip: 'app' })
+  })
+
+  it('keeps an employee\'s employer system, and drops it from anyone who left that path', () => {
+    const employee = pruneToPath({ is_employee: true, e_payroll_system: 'andet', e_payroll_other: 'Proløn' })
+    const company = pruneToPath({
+      is_employee: false, payroll_context: 'internal', track: 'zenegy',
+      e_payroll_system: 'danloen', e_payroll_other: 'x',
+    })
+    expect(employee).toEqual({ is_employee: true, e_payroll_system: 'andet', e_payroll_other: 'Proløn' })
+    expect(company.e_payroll_system).toBeUndefined()
+    expect(company.e_payroll_other).toBeUndefined()
   })
 
   it('keeps a straight path untouched', () => {

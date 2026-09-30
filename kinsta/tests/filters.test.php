@@ -147,11 +147,16 @@ check('splits respondents by role and whether Zenegy is in their setup', functio
         ['track' => 'bureau', 'c_payroll_systems' => '["danloen","zenegy"]'],
         ['track' => 'bureau', 'c_payroll_systems' => '["danloen"]'],
         ['track' => 'employee', 'c_payroll_systems' => null],
+        ['track' => 'employee', 'e_payroll_system' => 'zenegy'],
+        ['track' => 'employee', 'e_payroll_system' => 'danloen'],
+        ['track' => 'employee', 'e_payroll_system' => 'ved-ikke'],
     ]);
+    // An employee from before the question existed and one who doesn't know
+    // are both unknown; neither is guessed into a column.
     return $aud === [
         'company' => ['zenegy' => 1, 'other' => 1],
         'bureau' => ['zenegy' => 1, 'other' => 1],
-        'employee' => ['unknown' => 1],
+        'employee' => ['zenegy' => 1, 'other' => 1, 'unknown' => 2],
     ];
 });
 

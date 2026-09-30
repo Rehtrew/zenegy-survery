@@ -56,6 +56,8 @@ const SURVEY_COLUMNS = [
     'e_pain_points'           => 'json_list',
     'e_expenses'              => 'text',
     'e_ai_trust'              => 'text',
+    'e_payroll_system'        => 'text',
+    'e_payroll_other'         => 'text',
 
     'utm_source'              => 'text',
     'utm_medium'              => 'text',

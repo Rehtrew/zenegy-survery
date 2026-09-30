@@ -40,6 +40,7 @@ function getAnswer(answers: SurveyAnswers, id: string): unknown {
     e2: answers.e_pain_points ?? [],
     e3: answers.e_expenses,
     e4: answers.e_ai_trust,
+    e5: answers.e_payroll_system,
     ai: answers.ai_interest,
     c1: answers.c_client_count,
     c2: answers.c_payroll_systems ?? [],
@@ -64,6 +65,7 @@ function otherFieldFor(id: string, answers: SurveyAnswers): { value: string; key
     case 'b4': return { value: answers.b_barrier_other ?? '', key: 'b4_other' }
     case 'c4': return { value: answers.c_data_collection_other ?? '', key: 'c4_other' }
     case 'c5': return { value: answers.c_frustration_other ?? '', key: 'c5_other' }
+    case 'e5': return { value: answers.e_payroll_other ?? '', key: 'e5_other' }
     default: return { value: answers.accounting_other ?? '', key: 'accounting_other' }
   }
 }

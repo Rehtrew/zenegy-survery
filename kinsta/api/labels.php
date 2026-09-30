@@ -123,6 +123,10 @@ const SURVEY_QUESTION_LABELS = [
         'short' => 'AI i løn',
         'question' => 'Hvor ville du være mest tryg ved, at en AI hjalp dig med dine løn- og arbejdsdata?',
     ],
+    'e_payroll_system' => [
+        'short' => 'Arbejdsgiverens lønsystem',
+        'question' => 'Hvilket lønsystem bruger din arbejdsgiver?',
+    ],
     'ai_interest' => [
         'short' => 'AI-potentiale',
         'question' => 'Hvor ser du det største potentiale for AI i jeres administrative processer?',
@@ -346,6 +350,22 @@ const SURVEY_VALUE_LABELS = [
         'assistant' => 'Som assistent, der forklarer regler om ferie eller barsel',
         'none' => 'Jeg vil ikke have AI i mine løn- eller fraværsdata',
     ],
+    'e_payroll_system' => [
+        'dataloen' => 'Visma Dataløn',
+        'danloen' => 'Danløn',
+        'lessor' => 'Lessor',
+        'intect' => 'Intect',
+        'salary' => 'Salary',
+        'dataloen-branche' => 'Dataløn Branche',
+        'letloen' => 'LetLøn',
+        'eg-loen' => 'EG Løn',
+        'intega' => 'Intega Løn',
+        'kmd' => 'KMD Løn',
+        'epos' => 'Epos',
+        'zenegy' => 'Zenegy',
+        'andet' => 'Andet',
+        'ved-ikke' => 'Ved ikke',
+    ],
     'ai_interest' => [
         'anomaly-detection' => 'Automatisk fejlsøgning og kontrol inden lønnen godkendes',
         'data-entry' => 'Automatisk bogføring og matchning af udlæg/kvitteringer',
@@ -418,6 +438,15 @@ const SURVEY_VALUE_SUBLABELS = [
         'we-choose-client-pays' => 'Kunden betaler selv, men følger vores anbefaling',
         'client-chose' => 'Vi arbejder i det, kunden allerede har',
         'mixed' => 'Ingen fast model',
+    ],
+    'e_payroll_system' => [
+        'dataloen' => 'tidl. Bluegarden',
+        'lessor' => 'by Paychex',
+        'salary' => 'nu Shine Salary',
+        'dataloen-branche' => 'tidl. ProLøn',
+        'eg-loen' => 'EG Lønservice',
+        'intega' => 'tidl. Visma Løn',
+        'epos' => 'Azets',
     ],
     'accounting_system' => [
         'billy' => 'nu Shine',
@@ -602,6 +631,54 @@ const SURVEY_VALUE_LOGOS = [
             'bg' => 'linear-gradient(135deg,#616161,#323232)',
         ],
     ],
+    'e_payroll_system' => [
+        'dataloen' => [
+            'img' => 'l83d2282a',
+        ],
+        'danloen' => [
+            'img' => 'le8c1e846',
+        ],
+        'lessor' => [
+            'img' => 'l1a74389f',
+        ],
+        'intect' => [
+            'img' => 'l940a90a6',
+        ],
+        'salary' => [
+            'img' => 'l3c49e4e0',
+        ],
+        'dataloen-branche' => [
+            'img' => 'led9cb834',
+        ],
+        'letloen' => [
+            'initials' => 'LL',
+            'bg' => 'linear-gradient(135deg,#5b6270,#343a45)',
+        ],
+        'eg-loen' => [
+            'img' => 'l1b46e0fb',
+        ],
+        'intega' => [
+            'img' => 'l503e96f4',
+        ],
+        'kmd' => [
+            'img' => 'l3d06e843',
+        ],
+        'epos' => [
+            'initials' => 'E',
+            'bg' => 'linear-gradient(135deg,#5b6270,#343a45)',
+        ],
+        'zenegy' => [
+            'img' => 'l329febf1',
+        ],
+        'andet' => [
+            'initials' => '?',
+            'bg' => 'linear-gradient(135deg,#616161,#323232)',
+        ],
+        'ved-ikke' => [
+            'initials' => '–',
+            'bg' => 'linear-gradient(135deg,#5b6270,#343a45)',
+        ],
+    ],
     'accounting_system' => [
         'e-conomic' => [
             'img' => 'lcb85d8f6',
@@ -641,7 +718,7 @@ const SURVEY_GROUPS = [
     ['name' => 'Zenegy-brugere (virksomheder og bureauer)', 'columns' => ['a_satisfaction', 'a_nps']],
     ['name' => 'Andet lønsystem', 'columns' => ['b_payroll_system', 'b_frustrations', 'b_priorities', 'b_barriers', 'b_switch_intent']],
     ['name' => 'Lønbureauer', 'columns' => ['c_client_count', 'c_payroll_systems', 'c_setup', 'c_data_collection', 'c_frustrations', 'c_priorities', 'c_switch_intent']],
-    ['name' => 'Lønmodtagere', 'columns' => ['e_payslip', 'e_pain_points', 'e_expenses', 'e_ai_trust']],
+    ['name' => 'Lønmodtagere', 'columns' => ['e_payslip', 'e_pain_points', 'e_expenses', 'e_ai_trust', 'e_payroll_system']],
 ];
 
 /** Scales: their options read in their own order rather than by popularity. */

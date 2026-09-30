@@ -122,5 +122,18 @@ check('keeps booleans typed and rejects string lookalikes', function () {
     return in_array(true, $values, true) && $columns === ['track'];
 });
 
+check('accepts the employer payroll system an employee reports', function () {
+    [$columns, $values] = survey_build_submission([
+        'track' => 'employee', 'e_payroll_system' => 'andet', 'e_payroll_other' => 'Proløn',
+    ]);
+    return $values[array_search('e_payroll_system', $columns, true)] === 'andet'
+        && $values[array_search('e_payroll_other', $columns, true)] === 'Proløn';
+});
+
+check('an answer without the new question still saves, as every earlier one did', function () {
+    [$columns] = survey_build_submission(['track' => 'employee', 'e_payslip' => 'app']);
+    return $columns === ['track', 'e_payslip'];
+});
+
 echo "\n{$checks} checks, {$failures} failed\n";
 exit($failures === 0 ? 0 : 1);

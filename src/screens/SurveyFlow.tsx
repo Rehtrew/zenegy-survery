@@ -13,12 +13,17 @@ interface SurveyFlowProps {
   renderThankYou: (answers: SurveyAnswers, meta: SubmissionMeta) => React.ReactNode
 }
 
-function getStepGroups(answers: SurveyAnswers): StepGroup[] {
+/**
+ * The steps in the side rail. Every question on a route has to sit in one of
+ * them: one that doesn't falls back to the first step and resets the progress.
+ */
+export function getStepGroups(answers: SurveyAnswers): StepGroup[] {
   if (answers.is_employee) {
     return [
       { label: 'Om dig', questionIds: ['gate'] },
       { label: 'Din lønseddel', questionIds: ['e1', 'e2'] },
       { label: 'Udgifter & AI', questionIds: ['e3', 'e4'] },
+      { label: 'Din arbejdsgiver', questionIds: ['e5'] },
     ]
   }
   if (isBureau(answers.payroll_context)) {
@@ -78,6 +83,7 @@ function isAnswered(question: Question, answers: SurveyAnswers): boolean {
     e2: answers.e_pain_points,
     e3: answers.e_expenses,
     e4: answers.e_ai_trust,
+    e5: answers.e_payroll_system,
     c1: answers.c_client_count,
     c2: answers.c_payroll_systems,
     c3: answers.c_setup,
@@ -169,6 +175,8 @@ export function SurveyFlow({ renderLanding, renderThankYou }: SurveyFlowProps) {
         e2: 'e_pain_points',
         e3: 'e_expenses',
         e4: 'e_ai_trust',
+        e5: 'e_payroll_system',
+        e5_other: 'e_payroll_other',
         ai: 'ai_interest',
         c1: 'c_client_count',
         c2: 'c_payroll_systems',

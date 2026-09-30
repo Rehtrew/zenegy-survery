@@ -52,6 +52,7 @@ const COLUMN_TO_QUESTION = {
   e_pain_points: 'e2',
   e_expenses: 'e3',
   e_ai_trust: 'e4',
+  e_payroll_system: 'e5',
   ai_interest: 'ai',
   accounting_system: 'numbers',
 }

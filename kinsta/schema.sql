@@ -50,6 +50,8 @@ CREATE TABLE IF NOT EXISTS `survey_submissions` (
   `e_pain_points`           JSON         DEFAULT NULL,
   `e_expenses`              VARCHAR(40)  DEFAULT NULL,
   `e_ai_trust`              VARCHAR(40)  DEFAULT NULL,
+  `e_payroll_system`        VARCHAR(40)  DEFAULT NULL,
+  `e_payroll_other`         VARCHAR(300) DEFAULT NULL,
 
   `utm_source`              VARCHAR(60)  DEFAULT NULL,
   `utm_medium`              VARCHAR(60)  DEFAULT NULL,
