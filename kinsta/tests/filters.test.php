@@ -200,14 +200,21 @@ check('finds the payroll system from whichever question the route asked', functi
 
 check('tags a satisfaction comment with how satisfied they were, their NPS and their system', function () {
     $html = survey_quote_tags(['track' => 'zenegy', 'a_satisfaction' => 'unhappy', 'a_nps' => '3'], 'a_satisfaction_text');
-    return str_contains($html, 'class="tag bad">' . SURVEY_VALUE_LABELS['a_satisfaction']['unhappy'])
-        && str_contains($html, 'class="tag bad">NPS 3')
+    $bad = preg_match_all('/class="tag bad"[^>]*>([^<]+)</', $html, $m);
+    return $bad === 2
+        && $m[1] === [SURVEY_VALUE_LABELS['a_satisfaction']['unhappy'], 'NPS 3']
         && str_contains($html, 'Zenegy</span>');
 });
 
 check('tags an "other frustration" with the system the company uses', function () {
     $html = survey_quote_tags(['track' => 'non-zenegy', 'b_payroll_system' => 'danloen', 'size' => '10-49'], 'b_frustration_other');
     return str_contains($html, 'Danløn</span>') && str_contains($html, ' ansatte</span>');
+});
+
+check('names the question in front of an answer that does not say it', function () {
+    $html = survey_quote_tags(['track' => 'non-zenegy', 'b_payroll_system' => 'lessor', 'b_switch_intent' => 'maybe'], 'b_barrier_other');
+    return str_contains($html, '<i>Skifteplaner</i>' . SURVEY_VALUE_LABELS['b_switch_intent']['maybe'])
+        && str_contains($html, 'title="' . SURVEY_QUESTION_LABELS['b_switch_intent']['question'] . '"');
 });
 
 check('leaves out context nobody gave, rather than printing an empty tag', fn () =>

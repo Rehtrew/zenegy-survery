@@ -93,15 +93,23 @@ function survey_row_systems(array $row): array
     return array_map(static fn ($v) => [$column, (string) $v], $values);
 }
 
+/**
+ * Context whose answer doesn't name its question ("Måske, det er ikke
+ * udelukket" could answer anything) carries the question's short name in front.
+ */
+const SURVEY_TAG_PREFIXED = ['b_switch_intent', 'a_best_thing'];
+
 /** Small tags giving one free-text answer its context. */
 function survey_quote_tags(array $row, string $textColumn): string
 {
+    // Hovering any tag shows the full question it answers.
+    $asked = static fn (string $column): string => ' title="' . survey_e(survey_heading($column, 'question')) . '"';
     $html = '';
     foreach (SURVEY_FREE_TEXT_CONTEXT[$textColumn] ?? [] as $context) {
         if ($context === 'system') {
             $systems = survey_row_systems($row);
             foreach (array_slice($systems, 0, 4) as [$column, $value]) {
-                $html .= '<span class="tag">' . survey_logo($column, $value) . survey_e(survey_label($column, $value)) . '</span>';
+                $html .= '<span class="tag"' . $asked($column) . '>' . survey_logo($column, $value) . survey_e(survey_label($column, $value)) . '</span>';
             }
             if (count($systems) > 4) {
                 $html .= '<span class="tag">+' . (count($systems) - 4) . '</span>';
@@ -119,7 +127,11 @@ function survey_quote_tags(array $row, string $textColumn): string
             default => survey_label($context, $value),
         };
         $tone = survey_tone($context, $value);
-        $html .= '<span class="tag' . ($tone !== '' ? ' ' . $tone : '') . '">' . survey_e($text) . '</span>';
+        $prefix = in_array($context, SURVEY_TAG_PREFIXED, true)
+            ? '<i>' . survey_e(survey_heading($context, 'short')) . '</i>'
+            : '';
+        $html .= '<span class="tag' . ($tone !== '' ? ' ' . $tone : '') . '"' . $asked($context) . '>'
+            . $prefix . survey_e($text) . '</span>';
     }
     return $html;
 }
@@ -812,6 +824,9 @@ function survey_results_main(): never
   .ctx .tag { display:inline-flex; align-items:center; gap:5px; background:var(--card); color:var(--ink-2);
               border-radius:6px; padding:2px 7px; font-size:12px; line-height:1.4 }
   .ctx .tag .lg { width:14px; height:14px; border-radius:4px }
+  .ctx .tag i:not(.lg) { font-style:normal; color:var(--ink-3) }
+  .ctx .tag i:not(.lg)::after { content:":" }
+  .ctx .tag[title] { cursor:help }
   .ctx .tag .lg.txt { font-size:7px }
   .ctx .tag.good { background:var(--good-soft); color:#3f7a37 }
   .ctx .tag.mid  { background:var(--mid-soft);  color:#94621f }
