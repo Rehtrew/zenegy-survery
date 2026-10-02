@@ -189,6 +189,30 @@ check('draws the survey logo for an option, or its initials when there is none',
     return str_contains($img, 'class="lg l') && str_contains($initials, '>E</i>') && survey_logo('track', 'zenegy') === '';
 });
 
+check('finds the payroll system from whichever question the route asked', function () {
+    return survey_row_systems(['track' => 'zenegy']) === [['c_payroll_systems', 'zenegy']]
+        && survey_row_systems(['track' => 'non-zenegy', 'b_payroll_system' => 'danloen']) === [['b_payroll_system', 'danloen']]
+        && survey_row_systems(['track' => 'bureau', 'c_payroll_systems' => '["zenegy","salary"]'])
+            === [['c_payroll_systems', 'zenegy'], ['c_payroll_systems', 'salary']]
+        && survey_row_systems(['track' => 'employee', 'e_payroll_system' => 'ved-ikke']) === []
+        && survey_row_systems(['track' => 'employee']) === [];
+});
+
+check('tags a satisfaction comment with how satisfied they were, their NPS and their system', function () {
+    $html = survey_quote_tags(['track' => 'zenegy', 'a_satisfaction' => 'unhappy', 'a_nps' => '3'], 'a_satisfaction_text');
+    return str_contains($html, 'class="tag bad">' . SURVEY_VALUE_LABELS['a_satisfaction']['unhappy'])
+        && str_contains($html, 'class="tag bad">NPS 3')
+        && str_contains($html, 'Zenegy</span>');
+});
+
+check('tags an "other frustration" with the system the company uses', function () {
+    $html = survey_quote_tags(['track' => 'non-zenegy', 'b_payroll_system' => 'danloen', 'size' => '10-49'], 'b_frustration_other');
+    return str_contains($html, 'Danløn</span>') && str_contains($html, ' ansatte</span>');
+});
+
+check('leaves out context nobody gave, rather than printing an empty tag', fn () =>
+    survey_quote_tags(['track' => 'zenegy'], 'a_improve_text') === survey_quote_tags(['track' => 'zenegy'], 'accounting_other'));
+
 check('has no series to draw when nothing has been answered', fn () => survey_by_day([]) === []);
 
 echo "\n{$checks} checks, {$failures} failed\n";

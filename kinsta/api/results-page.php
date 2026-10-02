@@ -50,6 +50,81 @@ const SURVEY_FREE_TEXT = [
 ];
 
 /**
+ * What to show beside each free-text answer so it can be read in context: the
+ * answer it elaborates on, and the system the person uses. 'system' means
+ * whichever payroll system their route asked about.
+ */
+const SURVEY_FREE_TEXT_CONTEXT = [
+    'a_satisfaction_text'     => ['a_satisfaction', 'a_nps', 'system'],
+    'a_best_thing_text'       => ['a_best_thing', 'a_nps', 'system'],
+    'a_improve_text'          => ['a_nps', 'a_satisfaction', 'system'],
+    'b_frustration_other'     => ['system', 'size'],
+    'b_barrier_other'         => ['system', 'b_switch_intent'],
+    'b_payroll_other'         => ['size'],
+    'c_frustration_other'     => ['system', 'c_client_count'],
+    'c_data_collection_other' => ['system', 'c_client_count'],
+    'c_payroll_system_other'  => ['c_client_count'],
+    'e_payroll_other'         => [],
+    'accounting_other'        => ['system'],
+];
+
+/**
+ * The payroll system(s) a respondent uses, as [column, value] pairs, from
+ * whichever question their route asked. Zenegy customers weren't asked, since
+ * the route itself says it.
+ */
+function survey_row_systems(array $row): array
+{
+    $track = $row['track'] ?? '';
+    if ($track === 'zenegy') {
+        return [['c_payroll_systems', 'zenegy']];
+    }
+    $column = match ($track) {
+        'non-zenegy' => 'b_payroll_system',
+        'bureau'     => 'c_payroll_systems',
+        'employee'   => 'e_payroll_system',
+        default      => null,
+    };
+    $raw = $column === null ? null : ($row[$column] ?? null);
+    if ($raw === null || $raw === '' || $raw === 'ved-ikke') {
+        return [];
+    }
+    $values = str_starts_with((string) $raw, '[') ? (json_decode((string) $raw, true) ?: []) : [$raw];
+    return array_map(static fn ($v) => [$column, (string) $v], $values);
+}
+
+/** Small tags giving one free-text answer its context. */
+function survey_quote_tags(array $row, string $textColumn): string
+{
+    $html = '';
+    foreach (SURVEY_FREE_TEXT_CONTEXT[$textColumn] ?? [] as $context) {
+        if ($context === 'system') {
+            $systems = survey_row_systems($row);
+            foreach (array_slice($systems, 0, 4) as [$column, $value]) {
+                $html .= '<span class="tag">' . survey_logo($column, $value) . survey_e(survey_label($column, $value)) . '</span>';
+            }
+            if (count($systems) > 4) {
+                $html .= '<span class="tag">+' . (count($systems) - 4) . '</span>';
+            }
+            continue;
+        }
+        $value = $row[$context] ?? null;
+        if ($value === null || $value === '') {
+            continue;
+        }
+        $value = (string) $value;
+        $text = match ($context) {
+            'a_nps' => 'NPS ' . $value,
+            'size'  => survey_label($context, $value) . ' ansatte',
+            default => survey_label($context, $value),
+        };
+        $tone = survey_tone($context, $value);
+        $html .= '<span class="tag' . ($tone !== '' ? ' ' . $tone : '') . '">' . survey_e($text) . '</span>';
+    }
+    return $html;
+}
+
+/**
  * Dimensions worth slicing the whole page by, so "what do Danløn users find
  * frustrating" is one click rather than a CSV export and a pivot table.
  * Every other question then recomputes against that subset.
@@ -730,9 +805,20 @@ function survey_results_main(): never
   .q-foot { margin:8px 0 0; color:var(--ink-3); font-size:12px }
   .q-foot code { margin-left:6px; font-size:11px; background:var(--bg); border-radius:4px; padding:1px 5px }
   .q.ft h3 { font-size:19px; color:var(--ink); letter-spacing:-.015em; margin-bottom:6px }
-  .quote { background:var(--gray-soft); border-radius:10px; padding:10px 14px; margin-top:8px }
-  .quote p { margin:0 0 2px; font-size:14.5px }
-  .quote span { color:var(--ink-3); font-size:12px }
+  .quote { background:var(--gray-soft); border-radius:10px; padding:11px 14px; margin-top:8px }
+  .quote p { margin:0 0 7px; font-size:14.5px }
+  /* The answer behind the words: what they chose, and what they run. */
+  .ctx { display:flex; flex-wrap:wrap; gap:5px; align-items:center }
+  .ctx .tag { display:inline-flex; align-items:center; gap:5px; background:var(--card); color:var(--ink-2);
+              border-radius:6px; padding:2px 7px; font-size:12px; line-height:1.4 }
+  .ctx .tag .lg { width:14px; height:14px; border-radius:4px }
+  .ctx .tag .lg.txt { font-size:7px }
+  .ctx .tag.good { background:var(--good-soft); color:#3f7a37 }
+  .ctx .tag.mid  { background:var(--mid-soft);  color:#94621f }
+  .ctx .tag.bad  { background:var(--bad-soft);  color:#a8322e }
+  .ctx .meta { color:var(--ink-3); font-size:12px; margin-left:3px }
+  .more { margin-top:8px }
+  .more > summary { cursor:pointer; color:var(--ink-2); font-size:13px; padding:4px 0 }
 
   @media (max-width:1150px) { td.bar { width:24% } }
   @media (max-width:980px) {
@@ -1069,8 +1155,9 @@ function survey_results_main(): never
         $quotes = [];
         foreach ($rows as $row) {
             $value = trim((string) ($row[$column] ?? ''));
-            if ($value !== '') {
-                $quotes[] = ['text' => $value, 'when' => $row['created_at'], 'track' => $row['track']];
+            // "." or "-" says nothing; anything with a letter or digit is kept.
+            if (preg_match('/[\p{L}\p{N}]/u', $value) === 1) {
+                $quotes[] = ['text' => $value, 'row' => $row];
             }
         }
         if ($quotes === []) {
@@ -1079,12 +1166,26 @@ function survey_results_main(): never
         $anyText = true; ?>
     <div class="q ft" data-col="<?= survey_e($column) ?>">
       <h3><?= survey_e($label) ?> <code><?= survey_e($column) ?></code></h3>
-      <?php foreach (array_slice($quotes, 0, 25) as $quote) : ?>
-        <div class="quote" style="margin-top:10px">
-          <p><?= survey_e($quote['text']) ?></p>
-          <span><?= survey_e(survey_label('track', (string) $quote['track'])) ?> · <?= survey_e(survey_local_time($quote['when'])) ?></span>
-        </div>
-      <?php endforeach; ?>
+      <?php
+        // Every answer is shown; the first ten open, the rest one click away.
+        $quoteHtml = static function (array $quote) use ($column): string {
+            $row = $quote['row'];
+            return '<div class="quote"><p>' . survey_e($quote['text']) . '</p><div class="ctx">'
+                . survey_quote_tags($row, $column)
+                . '<span class="meta">' . survey_e(survey_label('track', (string) $row['track']))
+                . ' · ' . survey_e(survey_local_time($row['created_at'] ?? null)) . '</span></div></div>';
+        };
+        foreach (array_slice($quotes, 0, 10) as $quote) {
+            echo $quoteHtml($quote);
+        }
+        if (count($quotes) > 10) : ?>
+          <details class="more">
+            <summary>Vis <?= count($quotes) - 10 ?> flere</summary>
+            <?php foreach (array_slice($quotes, 10) as $quote) {
+                echo $quoteHtml($quote);
+            } ?>
+          </details>
+        <?php endif; ?>
     </div>
   <?php endforeach; ?>
   <?php if (!$anyText) : ?>
