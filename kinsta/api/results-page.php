@@ -713,7 +713,7 @@ function survey_results_main(): never
   .hist .opt { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; min-width:0;
                padding:4px 2px 2px; border-radius:8px }
   .hist .opt b { font-size:11.5px; font-weight:500; color:var(--ink-3) }
-  .hist .opt em { display:flex; align-items:flex-end; width:100%; height:46px }
+  .hist .opt em { display:flex; align-items:flex-end; width:100%; height:46px; border-bottom:1px solid var(--line) }
   .hist .opt em i { display:block; width:100%; border-radius:5px 5px 2px 2px; background:#ddd0fe; transition:background .12s }
   .hist .opt span { font-size:11px; color:var(--ink-2); white-space:nowrap }
   .hist .opt:hover { background:var(--gray-soft) }
@@ -751,7 +751,8 @@ function survey_results_main(): never
   .spark { flex:1; display:flex; gap:6px; min-height:96px }
   .spark span { flex:1 1 0; min-width:0; display:flex; flex-direction:column; align-items:center }
   .spark b { font-size:11.5px; font-weight:500; color:var(--ink-3); line-height:1.4 }
-  .spark u { flex:1; width:100%; display:flex; align-items:flex-end; text-decoration:none }
+  .spark u { flex:1; width:100%; display:flex; align-items:flex-end; text-decoration:none;
+             border-bottom:1px solid var(--line) }
   .spark i { display:block; width:100%; background:#c9b6fe; border-radius:5px 5px 2px 2px; transition:background .12s }
   .spark span.peak i { background:var(--brand) }
   .spark span:hover i { background:#8b5cfe }
@@ -935,11 +936,12 @@ function survey_results_main(): never
               <?php foreach ($options as $value => $n) :
                   $value = (string) $value;
                   $on = ($filters[$column] ?? null) === $value;
-                  $h = $peak > 0 ? max(4, (int) round(($n / $peak) * 100)) : 4; ?>
+                  // A floor keeps a single answer visible; zero gets no bar at all.
+                  $h = $n > 0 && $peak > 0 ? max(4, (int) round(($n / $peak) * 100)) : 0; ?>
                 <a class="opt<?= $on ? ' on' : '' ?><?= $n === 0 ? ' nil' : '' ?>" data-go
                    data-find="<?= $find($value) ?>" href="<?= $href($value, $on) ?>"
                    title="<?= survey_e(survey_label($column, $value)) ?>: <?= $n ?>">
-                  <b><?= $n ?></b><em><i style="height:<?= $h ?>%"></i></em>
+                  <b><?= $n ?></b><em><?php if ($h > 0) : ?><i style="height:<?= $h ?>%"></i><?php endif; ?></em>
                   <span><?= survey_e(preg_replace('/ kunder$/', '', survey_label($column, $value))) ?></span>
                 </a>
               <?php endforeach; ?>
@@ -1016,7 +1018,7 @@ function survey_results_main(): never
           <?php foreach ($series as $day => $n) : ?>
             <span class="<?= $n === $peak ? 'peak' : '' ?>" title="<?= survey_e(date('j/n', strtotime($day))) ?>: <?= $n ?> svar">
               <?php if ($labelled) : ?><b><?= $n ?></b><?php endif; ?>
-              <u><i style="height:<?= $peak > 0 ? max(2, (int) round(($n / $peak) * 100)) : 2 ?>%"></i></u>
+              <u><?php if ($n > 0) : ?><i style="height:<?= max(3, (int) round(($n / $peak) * 100)) ?>%"></i><?php endif; ?></u>
               <?php if ($labelled) : ?><em><?= survey_e(date('j/n', strtotime($day))) ?></em><?php endif; ?>
             </span>
           <?php endforeach; ?>
