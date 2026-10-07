@@ -5,7 +5,8 @@ Two inside pages of the fictive report, for mockups of the open magazine.
     npm run gen:spread
 
 Writes design/spread-left.svg and design/spread-right.svg (A4, same canvas as
-the cover) and renders each to PNG with rsvg-convert. The numbers are the
+the cover), plus design/spread.svg with both side by side, and renders each to
+PNG with rsvg-convert. The numbers are the
 preliminary survey results as of the date in FOOTNOTE; update them here and
 rebuild when the survey closes.
 
@@ -221,13 +222,28 @@ FOOTNOTE_RIGHT = ('Foreløbige tal fra Lønmarkedsundersøgelsen 2026, 7. oktobe
                   '46 lønbureauer. Flere svar mulige.')
 
 
+def spread(left_svg, right_svg):
+    """Both pages side by side on one canvas, as the open magazine reads."""
+    def inner(svg):
+        return svg.split('fill="none">', 1)[1].rsplit('</svg>', 1)[0]
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="420mm" height="297mm" '
+            f'viewBox="0 0 {W * 2} {H}" fill="none">\n'
+            f'<svg x="0" y="0" width="{W}" height="{H}" viewBox="0 0 {W} {H}">{inner(left_svg)}</svg>\n'
+            f'<svg x="{W}" y="0" width="{W}" height="{H}" viewBox="0 0 {W} {H}">{inner(right_svg)}</svg>\n'
+            f'</svg>\n')
+
+
 def main():
     design = os.path.join(ROOT, 'design')
-    for name, svg in (('spread-left', left()), ('spread-right', right())):
+    pages = {'spread-left': left(), 'spread-right': right()}
+    pages['spread'] = spread(pages['spread-left'], pages['spread-right'])
+    for name, svg in pages.items():
         path = os.path.join(design, f'{name}.svg')
         with open(path, 'w', encoding='utf-8') as f:
             f.write(svg)
-        for width, suffix in ((1240, ''), (2480, '@2x')):
+        # A spread is two pages wide, so it gets twice the pixels for the same dpi.
+        base = 2480 if name == 'spread' else 1240
+        for width, suffix in ((base, ''), (base * 2, '@2x')):
             subprocess.run(['rsvg-convert', '-w', str(width), path,
                             '-o', os.path.join(design, f'{name}{suffix}.png')], check=True)
         print(f'design/{name}.svg, .png and @2x.png')

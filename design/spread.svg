@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420mm" height="297mm" viewBox="0 0 4200 2970" fill="none">
+<svg x="0" y="0" width="2100" height="2970" viewBox="0 0 2100 2970">
+
+  <defs>
+    <linearGradient id="purple" x1="0" y1="0" x2="2100" y2="2970" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7a3dff"/>
+      <stop offset="1" stop-color="#5216d6"/>
+    </linearGradient>
+    <clipPath id="pg"><rect width="2100" height="2970"/></clipPath>
+  </defs>
+  <g clip-path="url(#pg)">
+    <rect width="2100" height="2970" fill="url(#purple)"/>
+    <circle cx="2060" cy="260" r="520" fill="#ffffff" opacity="0.06"/>
+    <circle cx="80" cy="2900" r="380" fill="#ffffff" opacity="0.05"/>
+
+    <text x="150" y="170" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="30" fill="#ffffff" text-anchor="start" opacity="0.7" letter-spacing="0">Lønmarkedsrapporten 2026</text>
+    <text x="1950" y="170" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="30" fill="#ffffff" text-anchor="end" opacity="0.7" letter-spacing="0">Kapitel 2 · AI i lønnen</text>
+    <rect x="150" y="205" width="1800" height="2" fill="#ffffff" opacity="0.25"/>
+
+    <text x="138" y="840" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="520" fill="#ffffff" text-anchor="start" opacity="1.0" letter-spacing="-18">41 %</text>
+    <text x="150" y="1000" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="92" fill="#ffffff" text-anchor="start" opacity="1.0" letter-spacing="-2">vil have AI til at kontrollere lønnen,</text>
+    <text x="150" y="1108" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="92" fill="#ffffff" text-anchor="start" opacity="1.0" letter-spacing="-2">ikke til at køre den.</text>
+    <text x="150" y="1250" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="40" fill="#ffffff" text-anchor="start" opacity="1.0" letter-spacing="0">Spurgt, hvor AI ville gøre den største forskel i lønarbejdet, peger flest på</text>
+<text x="150" y="1308" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="40" fill="#ffffff" text-anchor="start" opacity="1.0" letter-spacing="0">en kontrol, der fanger fejl, før lønnen bliver godkendt. Selve</text>
+<text x="150" y="1366" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="40" fill="#ffffff" text-anchor="start" opacity="1.0" letter-spacing="0">automatiseringen af arbejdet kommer langt efter.</text>
+
+    <rect x="150" y="1500" width="1800" height="1040" rx="40" fill="#ffffff"/>
+    <text x="230" y="1610" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="46" fill="#14132b" text-anchor="start" opacity="1.0" letter-spacing="-1">Hvor ville AI hjælpe mest?</text>
+    <text x="230" y="1662" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="28" fill="#8b88a5" text-anchor="start" opacity="1.0" letter-spacing="0">Respondenter med ansvar for løn. Ét svar hver.</text>
+    <text x="230" y="1760" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="34" fill="#14132b" text-anchor="start" opacity="1.0" letter-spacing="0">Kontrol af lønkørslen, før den godkendes</text>
+<rect x="230" y="1784" width="1400" height="26" rx="13" fill="#efeafe"/>
+<rect x="230" y="1784" width="1148" height="26" rx="13" fill="#6e30fd"/>
+<text x="1870" y="1810" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="58" fill="#14132b" text-anchor="end" opacity="1.0" letter-spacing="-1">41 %</text>
+<text x="230" y="1910" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="34" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">Svar på spørgsmål om løn, ferie og regler</text>
+<rect x="230" y="1934" width="1400" height="26" rx="13" fill="#efeafe"/>
+<rect x="230" y="1934" width="560" height="26" rx="13" fill="#d9ccfd"/>
+<text x="1870" y="1960" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="58" fill="#55546a" text-anchor="end" opacity="1.0" letter-spacing="-1">20 %</text>
+<text x="230" y="2060" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="34" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">Ikke klar til AI endnu</text>
+<rect x="230" y="2084" width="1400" height="26" rx="13" fill="#efeafe"/>
+<rect x="230" y="2084" width="532" height="26" rx="13" fill="#d9ccfd"/>
+<text x="1870" y="2110" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="58" fill="#55546a" text-anchor="end" opacity="1.0" letter-spacing="-1">19 %</text>
+<text x="230" y="2210" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="34" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">Indlæsning og bogføring af bilag</text>
+<rect x="230" y="2234" width="1400" height="26" rx="13" fill="#efeafe"/>
+<rect x="230" y="2234" width="476" height="26" rx="13" fill="#d9ccfd"/>
+<text x="1870" y="2260" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="58" fill="#55546a" text-anchor="end" opacity="1.0" letter-spacing="-1">17 %</text>
+<text x="230" y="2360" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="34" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">Opsætning af nye kunder</text>
+<rect x="230" y="2384" width="1400" height="26" rx="13" fill="#efeafe"/>
+<rect x="230" y="2384" width="84" height="26" rx="13" fill="#d9ccfd"/>
+<text x="1870" y="2410" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="58" fill="#55546a" text-anchor="end" opacity="1.0" letter-spacing="-1">3 %</text>
+
+    <text x="150" y="2730" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="132" fill="#ffffff" text-anchor="start" opacity="1.0" letter-spacing="-4">47 %</text>
+    <text x="560" y="2680" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="38" fill="#ffffff" text-anchor="start" opacity="0.92" letter-spacing="0">af lønmodtagerne vil selv bruge AI til at tjekke</text>
+    <text x="560" y="2734" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="38" fill="#ffffff" text-anchor="start" opacity="0.92" letter-spacing="0">deres lønseddel for fejl, fx et manglende tillæg.</text>
+
+    <text x="150" y="2880" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="26" fill="#ffffff" text-anchor="start" opacity="0.7" letter-spacing="0">14</text>
+    <text x="230" y="2880" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="24" fill="#ffffff" text-anchor="start" opacity="0.6" letter-spacing="0">Foreløbige tal fra Lønmarkedsundersøgelsen 2026, 7. oktober. 150 svar med systemansvar, 58 lønmodtagere.</text>
+  </g>
+</svg>
+<svg x="2100" y="0" width="2100" height="2970" viewBox="0 0 2100 2970">
+
+  <rect width="2100" height="2970" fill="#ffffff"/>
+
+  <text x="150" y="170" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="30" fill="#8b88a5" text-anchor="start" opacity="1.0" letter-spacing="0">Kapitel 3 · Lønbureauerne</text>
+  <text x="1950" y="170" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="30" fill="#8b88a5" text-anchor="end" opacity="1.0" letter-spacing="0">Lønmarkedsrapporten 2026</text>
+  <rect x="150" y="205" width="1800" height="2" fill="#e8e6f0"/>
+
+  <text x="150" y="370" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="40" fill="#6e30fd" text-anchor="start" opacity="1.0" letter-spacing="0">Lønbureauerne</text>
+  <text x="144" y="510" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="120" fill="#14132b" text-anchor="start" opacity="1.0" letter-spacing="-4">Flaskehalsen er kunden,</text>
+  <text x="144" y="636" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="120" fill="#14132b" text-anchor="start" opacity="1.0" letter-spacing="-4">ikke systemet.</text>
+  <text x="150" y="800" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="46" fill="#14132b" text-anchor="start" opacity="1.0" letter-spacing="0">Lønbureauerne bruger ikke mest tid på selve lønkørslen. De bruger den på</text>
+<text x="150" y="864" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="46" fill="#14132b" text-anchor="start" opacity="1.0" letter-spacing="0">at få fat i det, der skal ind i den.</text>
+
+  <text x="150" y="1040" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">Syv ud af ti lønbureauer peger på den samme</text>
+<text x="150" y="1087" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">tidsrøver: at jage løndata og svar hos kunderne,</text>
+<text x="150" y="1134" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">inden deadline. Ingen anden udfordring kommer i</text>
+<text x="150" y="1181" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">nærheden.</text>
+<text x="150" y="1258" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">Problemet starter allerede ved indsamlingen. 70 %</text>
+<text x="150" y="1305" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">får stadig løndata på mail, typisk som et Excel-ark</text>
+<text x="150" y="1352" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">eller en kort besked, og hvert fjerde bureau</text>
+<text x="150" y="1399" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">modtager papir, scannede sedler eller PDF'er.</text>
+  <text x="1110" y="1040" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">Til gengæld er flere lønsystemer næsten ikke et</text>
+<text x="1110" y="1087" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">problem. Kun 4 % nævner det, selvom to ud af tre</text>
+<text x="1110" y="1134" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">bureauer kører løn i mindst to systemer.</text>
+<text x="1110" y="1211" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">Når bureauerne selv rangerer, hvad der betyder</text>
+<text x="1110" y="1258" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">mest, ligger integration til regnskabet øverst, tæt</text>
+<text x="1110" y="1305" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">fulgt af kunder, der selv leverer og godkender</text>
+<text x="1110" y="1352" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">deres data.</text>
+
+  <text x="150" y="1500" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="34" fill="#14132b" text-anchor="start" opacity="1.0" letter-spacing="0">Sådan kommer løndata ind hos bureauerne</text>
+<rect x="150" y="1545" width="560" height="4" rx="2" fill="#6e30fd"/>
+<text x="144" y="1690" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="120" fill="#6e30fd" text-anchor="start" opacity="1.0" letter-spacing="-4">70 %</text>
+<text x="150" y="1750" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">på mail eller i et Excel-ark</text>
+<rect x="770" y="1545" width="560" height="4" rx="2" fill="#d9ccfd"/>
+<text x="764" y="1690" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="120" fill="#14132b" text-anchor="start" opacity="1.0" letter-spacing="-4">48 %</text>
+<text x="770" y="1750" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">via en kundeportal</text>
+<rect x="1390" y="1545" width="560" height="4" rx="2" fill="#d9ccfd"/>
+<text x="1384" y="1690" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="120" fill="#14132b" text-anchor="start" opacity="1.0" letter-spacing="-4">46 %</text>
+<text x="1390" y="1750" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">fra et tidsregistreringssystem</text>
+
+  <rect x="150" y="1830" width="1800" height="900" rx="40" fill="#f3f2f7"/>
+  <text x="230" y="1940" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="46" fill="#14132b" text-anchor="start" opacity="1.0" letter-spacing="-1">Største tidsrøvere</text>
+  <text x="230" y="1992" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="28" fill="#8b88a5" text-anchor="start" opacity="1.0" letter-spacing="0">Lønbureauer. Flere svar mulige.</text>
+  <text x="230" y="2080" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">At jage løndata og svar hos kunderne</text>
+<rect x="990" y="2058" width="680" height="24" rx="12" fill="#ffffff"/>
+<rect x="990" y="2058" width="680" height="24" rx="12" fill="#6e30fd"/>
+<text x="1860" y="2084" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="44" fill="#14132b" text-anchor="end" opacity="1.0" letter-spacing="0">70 %</text>
+<text x="230" y="2176" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">Spørgsmål fra kundernes medarbejdere</text>
+<rect x="990" y="2154" width="680" height="24" rx="12" fill="#ffffff"/>
+<rect x="990" y="2154" width="272" height="24" rx="12" fill="#d9ccfd"/>
+<text x="1860" y="2180" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="44" fill="#14132b" text-anchor="end" opacity="1.0" letter-spacing="0">28 %</text>
+<text x="230" y="2272" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">Godkendelse og dokumentation</text>
+<rect x="990" y="2250" width="680" height="24" rx="12" fill="#ffffff"/>
+<rect x="990" y="2250" width="272" height="24" rx="12" fill="#d9ccfd"/>
+<text x="1860" y="2276" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="44" fill="#14132b" text-anchor="end" opacity="1.0" letter-spacing="0">28 %</text>
+<text x="230" y="2368" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">Manglende massehandlinger</text>
+<rect x="990" y="2346" width="680" height="24" rx="12" fill="#ffffff"/>
+<rect x="990" y="2346" width="165" height="24" rx="12" fill="#d9ccfd"/>
+<text x="1860" y="2372" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="44" fill="#14132b" text-anchor="end" opacity="1.0" letter-spacing="0">17 %</text>
+<text x="230" y="2464" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">Opsætning af nye kunder</text>
+<rect x="990" y="2442" width="680" height="24" rx="12" fill="#ffffff"/>
+<rect x="990" y="2442" width="146" height="24" rx="12" fill="#d9ccfd"/>
+<text x="1860" y="2468" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="44" fill="#14132b" text-anchor="end" opacity="1.0" letter-spacing="0">15 %</text>
+<text x="230" y="2560" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">Skift mellem kunder og logins</text>
+<rect x="990" y="2538" width="680" height="24" rx="12" fill="#ffffff"/>
+<rect x="990" y="2538" width="107" height="24" rx="12" fill="#d9ccfd"/>
+<text x="1860" y="2564" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="44" fill="#14132b" text-anchor="end" opacity="1.0" letter-spacing="0">11 %</text>
+<text x="230" y="2656" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="31" fill="#55546a" text-anchor="start" opacity="1.0" letter-spacing="0">At arbejde i flere lønsystemer</text>
+<rect x="990" y="2634" width="680" height="24" rx="12" fill="#ffffff"/>
+<rect x="990" y="2634" width="39" height="24" rx="12" fill="#d9ccfd"/>
+<text x="1860" y="2660" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="44" fill="#14132b" text-anchor="end" opacity="1.0" letter-spacing="0">4 %</text>
+
+  <text x="150" y="2880" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="24" fill="#8b88a5" text-anchor="start" opacity="1.0" letter-spacing="0">Foreløbige tal fra Lønmarkedsundersøgelsen 2026, 7. oktober. 46 lønbureauer. Flere svar mulige.</text>
+  <text x="1950" y="2880" font-family="'PP Neue Montreal', sans-serif" font-weight="500" font-size="26" fill="#8b88a5" text-anchor="end" opacity="1.0" letter-spacing="0">15</text>
+</svg>
+</svg>
