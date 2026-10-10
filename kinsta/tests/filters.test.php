@@ -154,8 +154,8 @@ check('splits respondents by role and whether Zenegy is in their setup', functio
     // An employee from before the question existed and one who doesn't know
     // are both unknown; neither is guessed into a column.
     return $aud === [
-        'company' => ['zenegy' => 1, 'other' => 1],
-        'bureau' => ['zenegy' => 1, 'other' => 1],
+        'company' => ['zenegy' => 1, 'other' => 1, 'unknown' => 0],
+        'bureau' => ['zenegy' => 1, 'other' => 1, 'unknown' => 0],
         'employee' => ['zenegy' => 1, 'other' => 1, 'unknown' => 2],
     ];
 });

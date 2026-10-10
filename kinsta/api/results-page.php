@@ -344,9 +344,11 @@ function survey_by_day(array $rows): array
  */
 function survey_audience(array $rows): array
 {
+    // Every role has an unknown cell so each row adds up to its total, though
+    // only employees can land in it.
     $cells = [
-        'company' => ['zenegy' => 0, 'other' => 0],
-        'bureau'  => ['zenegy' => 0, 'other' => 0],
+        'company' => ['zenegy' => 0, 'other' => 0, 'unknown' => 0],
+        'bureau'  => ['zenegy' => 0, 'other' => 0, 'unknown' => 0],
         'employee' => ['zenegy' => 0, 'other' => 0, 'unknown' => 0],
     ];
     foreach ($rows as $row) {
@@ -777,7 +779,7 @@ function survey_results_main(): never
   table.aud td { height:35px; padding:0; font-size:14px; border-top:none }
   table.aud tr.h td { height:22px; border-top:none; color:var(--ink-3); font-size:11.5px; text-align:right; vertical-align:top }
   table.aud td.r { color:var(--ink-2); text-align:left }
-  table.aud td.c, table.aud td.t { text-align:right; width:23% }
+  table.aud td.c, table.aud td.t { text-align:right; width:18% }
   table.aud td.t { color:var(--ink-3) }
   table.aud td.c a, table.aud td.c span { display:inline-block; min-width:40px; padding:2px 9px; border-radius:7px;
                                           text-align:center; font-weight:500; text-decoration:none }
@@ -1070,31 +1072,42 @@ function survey_results_main(): never
     <div class="panel">
       <h3>Hvem er de</h3>
       <table class="aud">
-        <tr class="h"><td></td><td>Bruger Zenegy</td><td>Bruger ikke Zenegy</td><td>I alt</td></tr>
+        <tr class="h"><td></td><td>Bruger Zenegy</td><td>Bruger ikke Zenegy</td><td>Ukendt</td><td>I alt</td></tr>
         <tr>
           <td class="r">Virksomheder</td>
           <?= $cell($aud['company']['zenegy'], ['track' => 'zenegy'], 'zenegy') ?>
           <?= $cell($aud['company']['other'], ['track' => 'non-zenegy'], 'non-zenegy') ?>
-          <td class="t"><?= $aud['company']['zenegy'] + $aud['company']['other'] ?></td>
+          <?= $cell($aud['company']['unknown'], null, 'zenegy') ?>
+          <td class="t"><?= array_sum($aud['company']) ?></td>
         </tr>
         <tr>
           <td class="r">Lønbureauer</td>
           <?= $cell($aud['bureau']['zenegy'], ['track' => 'bureau', 'c_payroll_systems' => 'zenegy'], 'bureau') ?>
           <?= $cell($aud['bureau']['other'], null, 'bureau') ?>
-          <td class="t"><?= $aud['bureau']['zenegy'] + $aud['bureau']['other'] ?></td>
+          <?= $cell($aud['bureau']['unknown'], null, 'bureau') ?>
+          <td class="t"><?= array_sum($aud['bureau']) ?></td>
         </tr>
         <tr>
           <td class="r">Lønmodtagere</td>
           <?= $cell($aud['employee']['zenegy'], ['track' => 'employee', 'e_payroll_system' => 'zenegy'], 'employee') ?>
           <?= $cell($aud['employee']['other'], null, 'employee') ?>
+          <?= $cell($aud['employee']['unknown'], null, 'employee') ?>
           <td class="t"><?= array_sum($aud['employee']) ?></td>
         </tr>
       </table>
+      <?php
+        // Unknown is two different things, so say how many of each.
+        $dontKnow = survey_count($rows, 'e_payroll_system')['ved-ikke'] ?? 0;
+        $notAsked = $aud['employee']['unknown'] - $dontKnow;
+        $unknownParts = array_filter([
+            $dontKnow > 0 ? $dontKnow . ' svarede "Ved ikke"' : '',
+            $notAsked > 0 ? $notAsked . ' svarede, før spørgsmålet kom med den 30/9' : '',
+        ]);
+      ?>
       <p class="panel-foot">
         <span>Bureauer tæller som Zenegy-brugere, når Zenegy er blandt deres systemer.
-        <?php if ($aud['employee']['unknown'] > 0) : ?>
-          <?= $aud['employee']['unknown'] ?> lønmodtagere står uden system: de ved det ikke,
-          eller de svarede, før spørgsmålet kom med den 30/9.
+        <?php if ($unknownParts !== []) : ?>
+          Ukendt er lønmodtagere, hvor vi ikke kender arbejdsgiverens system: <?= survey_e(implode(', og ', $unknownParts)) ?>.
         <?php endif; ?></span>
       </p>
     </div>
