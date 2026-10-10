@@ -751,12 +751,24 @@ function survey_results_main(): never
   .spark { flex:1; display:flex; gap:6px; min-height:96px }
   .spark span { flex:1 1 0; min-width:0; display:flex; flex-direction:column; align-items:center }
   .spark b { font-size:11.5px; font-weight:500; color:var(--ink-3); line-height:1.4 }
-  .spark u { flex:1; width:100%; display:flex; align-items:flex-end; text-decoration:none;
+  .spark u { position:relative; flex:1; width:100%; display:flex; align-items:flex-end; text-decoration:none;
              border-bottom:1px solid var(--line) }
-  .spark i { display:block; width:100%; background:#c9b6fe; border-radius:5px 5px 2px 2px; transition:background .12s }
+  .spark i { display:block; width:100%; height:var(--h); background:#c9b6fe; border-radius:5px 5px 2px 2px;
+             transition:background .12s }
   .spark span.peak i { background:var(--brand) }
-  .spark span:hover i { background:#8b5cfe }
-  .spark span:hover b { color:var(--ink) }
+  .spark span:hover i, .spark span.on i { background:#8b5cfe }
+  .spark span:hover b, .spark span.on b { color:var(--ink) }
+  /* A day's count, just above its bar. The first and last bars anchor it to
+     their outer edge so it never runs off the card. */
+  .spark small { position:absolute; z-index:2; bottom:calc(var(--h) + 6px); left:50%; transform:translateX(-50%);
+                 padding:5px 9px; border-radius:8px; background:var(--ink); color:rgba(255,255,255,.62);
+                 font-size:12px; line-height:1.35; white-space:nowrap; opacity:0; pointer-events:none;
+                 transition:opacity .1s }
+  .spark small strong { margin-left:4px; color:#fff; font-weight:500 }
+  .spark span:nth-child(-n+3) small { left:0; transform:none }
+  .spark span:nth-last-child(-n+3) small { left:auto; right:0; transform:none }
+  .spark span.on small { opacity:1 }
+  @media (hover:hover) { .spark span:hover small { opacity:1 } }
   .spark em { font-style:normal; font-size:11px; color:var(--ink-3); margin-top:5px; white-space:nowrap }
   .panel-foot { display:flex; justify-content:space-between; gap:10px; margin:8px 0 0; color:var(--ink-3); font-size:12px; line-height:1.5 }
   .panel-foot em { font-style:normal }
@@ -1012,14 +1024,20 @@ function survey_results_main(): never
         <h3>Svar per dag</h3>
         <?php
           // Label every bar while there's room; past two weeks, only the ends.
+          // Either way, pointing at a bar (or tapping it) names its day and count.
           $labelled = count($series) <= 14;
+          $weekdays = ['søn', 'man', 'tir', 'ons', 'tor', 'fre', 'lør'];
         ?>
         <div class="spark">
           <?php foreach ($series as $day => $n) : ?>
-            <span class="<?= $n === $peak ? 'peak' : '' ?>" title="<?= survey_e(date('j/n', strtotime($day))) ?>: <?= $n ?> svar">
+            <?php
+              $ts = strtotime($day);
+              $height = $n > 0 ? max(3, (int) round(($n / $peak) * 100)) : 0;
+            ?>
+            <span class="<?= $n === $peak ? 'peak' : '' ?>" style="--h:<?= $height ?>%">
               <?php if ($labelled) : ?><b><?= $n ?></b><?php endif; ?>
-              <u><?php if ($n > 0) : ?><i style="height:<?= max(3, (int) round(($n / $peak) * 100)) ?>%"></i><?php endif; ?></u>
-              <?php if ($labelled) : ?><em><?= survey_e(date('j/n', strtotime($day))) ?></em><?php endif; ?>
+              <u><?php if ($n > 0) : ?><i></i><?php endif; ?><small><?= $weekdays[(int) date('w', $ts)] ?> <?= survey_e(date('j/n', $ts)) ?> <strong><?= $n ?> svar</strong></small></u>
+              <?php if ($labelled) : ?><em><?= survey_e(date('j/n', $ts)) ?></em><?php endif; ?>
             </span>
           <?php endforeach; ?>
         </div>
@@ -1215,6 +1233,17 @@ function survey_results_main(): never
   </div><!--/live-->
 </div>
 <script>
+// A touch screen has no hover, so a tap on a day shows its count and the next
+// tap anywhere hides it. Bound to the document, so it outlives every swap.
+document.addEventListener('pointerdown', function (e) {
+  if (e.pointerType === 'mouse') return;
+  var day = e.target.closest('.spark > span');
+  document.querySelectorAll('.spark > span.on').forEach(function (s) {
+    if (s !== day) s.classList.remove('on');
+  });
+  if (day) day.classList.toggle('on');
+});
+
 (function () {
   var live = document.getElementById('live');
   if (!live || !window.fetch || !window.history.pushState) return;
