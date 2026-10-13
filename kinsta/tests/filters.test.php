@@ -127,7 +127,7 @@ check('groups completions by Danish calendar day, newest last', function () {
         ['created_at' => '2026-09-24 22:30:00'], // 00:30 on the 25th in Denmark
         ['created_at' => '2026-09-24 06:00:00'],
         ['created_at' => '2026-09-24 07:00:00'],
-    ]);
+    ], '2026-09-25');
     return $series === ['2026-09-24' => 2, '2026-09-25' => 1];
 });
 
@@ -135,10 +135,14 @@ check('fills days with no answers, so the chart keeps an even time axis', functi
     $series = survey_by_day([
         ['created_at' => '2026-09-21 09:00:00'],
         ['created_at' => '2026-09-24 09:00:00'],
-    ]);
+    ], '2026-09-24');
     return array_keys($series) === ['2026-09-21', '2026-09-22', '2026-09-23', '2026-09-24']
         && array_values($series) === [1, 0, 0, 1];
 });
+
+check('runs to today, so the quiet days since the last answer show as empty', fn () =>
+    survey_by_day([['created_at' => '2026-10-11 18:50:00']], '2026-10-13')
+        === ['2026-10-11' => 1, '2026-10-12' => 0, '2026-10-13' => 0]);
 
 check('splits respondents by role and whether Zenegy is in their setup', function () {
     $aud = survey_audience([

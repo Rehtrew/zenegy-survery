@@ -309,8 +309,18 @@ function survey_count(array $rows, string $column): array
     return $counts;
 }
 
-/** Completions per calendar day (Danish time), oldest first, gaps filled in. */
-function survey_by_day(array $rows): array
+/** Today's date in Denmark, which is what "a day" means everywhere on this page. */
+function survey_today(): string
+{
+    return (new DateTimeImmutable('now', new DateTimeZone('Europe/Copenhagen')))->format('Y-m-d');
+}
+
+/**
+ * Completions per calendar day (Danish time), oldest first, gaps filled in. The
+ * series runs to today rather than to the last answer: stopping early hid every
+ * quiet day since, and made a stalled survey look like it was still trickling in.
+ */
+function survey_by_day(array $rows, ?string $today = null): array
 {
     $byDay = [];
     foreach ($rows as $row) {
@@ -325,7 +335,7 @@ function survey_by_day(array $rows): array
     ksort($byDay);
     $days = array_keys($byDay);
     $cursor = new DateTimeImmutable((string) reset($days));
-    $last = new DateTimeImmutable((string) end($days));
+    $last = new DateTimeImmutable(max((string) end($days), $today ?? survey_today()));
     $series = [];
     while ($cursor <= $last) {
         $key = $cursor->format('Y-m-d');
@@ -1004,8 +1014,11 @@ function survey_results_main(): never
     $views = $funnel['totals']['view'] ?? 0;
     $starts = $funnel['totals']['start'] ?? 0;
     $showFunnel = $filters === [] && $views > 0;
-    $series = survey_by_day($rows);
+    $today = survey_today();
+    $series = survey_by_day($rows, $today);
     $peak = $series === [] ? 0 : max($series);
+    // The last bar is today, which isn't over yet, so it says so.
+    $dayLabel = static fn (string $day): string => $day === $today ? 'i dag' : date('j/n', strtotime($day));
   ?>
 
   <div class="tiles">
@@ -1038,16 +1051,16 @@ function survey_results_main(): never
             ?>
             <span class="<?= $n === $peak ? 'peak' : '' ?>" style="--h:<?= $height ?>%">
               <?php if ($labelled) : ?><b><?= $n ?></b><?php endif; ?>
-              <u><?php if ($n > 0) : ?><i></i><?php endif; ?><small><?= $weekdays[(int) date('w', $ts)] ?> <?= survey_e(date('j/n', $ts)) ?> <strong><?= $n ?> svar</strong></small></u>
-              <?php if ($labelled) : ?><em><?= survey_e(date('j/n', $ts)) ?></em><?php endif; ?>
+              <u><?php if ($n > 0) : ?><i></i><?php endif; ?><small><?= $day === $today ? 'i dag' : $weekdays[(int) date('w', $ts)] . ' ' . survey_e(date('j/n', $ts)) ?> <strong><?= $n ?> svar</strong></small></u>
+              <?php if ($labelled) : ?><em><?= survey_e($dayLabel($day)) ?></em><?php endif; ?>
             </span>
           <?php endforeach; ?>
         </div>
         <?php if (!$labelled) : ?>
           <p class="panel-foot">
-            <?= survey_e(date('j/n', strtotime((string) array_key_first($series)))) ?>
+            <?= survey_e($dayLabel((string) array_key_first($series))) ?>
             <em>højeste dag <?= $peak ?></em>
-            <?= survey_e(date('j/n', strtotime((string) array_key_last($series)))) ?>
+            <?= survey_e($dayLabel((string) array_key_last($series))) ?>
           </p>
         <?php endif; ?>
       </div>
